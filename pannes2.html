@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Types de pannes 2 — Cas pratiques par domaine</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #1a1d27;
+    --bg3: #22263a;
+    --border: #2e3350;
+    --text: #d4d8f0;
+    --text2: #8890b5;
+    --text3: #5a6080;
+    --accent: #4a7cff;
+    --accent2: #6c9fff;
+    --green: #3ecf8e;
+    --amber: #f5a623;
+    --red: #e05252;
+    --purple: #a87fff;
+    --cyan: #22d3ee;
+    --pink: #f472b6;
+    --sidebar: 270px;
+    --header: 52px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  /* ── HEADER ── */
+  .header {
+    height: var(--header); min-height: var(--header);
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px; padding: 0 16px; z-index: 100;
+  }
+  .burger { background: none; border: none; cursor: pointer; color: var(--text2); padding: 4px; display: flex; flex-direction: column; gap: 4px; }
+  .burger span { display: block; width: 18px; height: 2px; background: currentColor; border-radius: 1px; }
+  .header-title { font-size: 15px; font-weight: 600; color: var(--text); flex: 1; }
+  .header-badge { font-size: 11px; background: var(--red); color: #fff; padding: 2px 10px; border-radius: 20px; font-weight: 600; }
+
+  /* ── SEARCH ── */
+  .search-wrap { display: flex; align-items: center; gap: 8px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; height: 32px; min-width: 200px; }
+  .search-wrap svg { flex-shrink: 0; opacity: .5; }
+  .search-wrap input { background: none; border: none; outline: none; color: var(--text); font-size: 13px; width: 100%; }
+  .search-wrap input::placeholder { color: var(--text3); }
+  #searchCount { font-size: 11px; color: var(--text3); white-space: nowrap; }
+  .search-nav button { background: none; border: none; color: var(--text2); cursor: pointer; padding: 2px 5px; border-radius: 3px; font-size: 13px; }
+  .search-nav button:hover { background: var(--bg3); color: var(--text); }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; flex: 1; overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar { width: var(--sidebar); min-width: var(--sidebar); background: var(--bg2); border-right: 1px solid var(--border); overflow-y: auto; padding: 12px 0; transition: width .25s, min-width .25s; }
+  .sidebar.collapsed { width: 0; min-width: 0; overflow: hidden; }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .nav-section { padding: 8px 14px 4px; font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; }
+  .nav-link { display: flex; align-items: center; gap: 8px; padding: 7px 14px; color: var(--text2); text-decoration: none; border-left: 3px solid transparent; font-size: 13px; cursor: pointer; transition: .15s; }
+  .nav-link:hover { color: var(--text); background: var(--bg3); }
+  .nav-link.active { color: var(--accent2); border-left-color: var(--accent); background: rgba(74,124,255,.08); }
+  .nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-reseau  { background: var(--accent); }
+  .dot-sys     { background: var(--green); }
+  .dot-vlan    { background: var(--amber); }
+  .dot-print   { background: var(--pink); }
+  .dot-methode { background: var(--purple); }
+
+  /* ── MAIN ── */
+  .main { flex: 1; overflow-y: auto; padding: 28px 32px 60px; }
+  .main::-webkit-scrollbar { width: 6px; }
+  .main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 44px; scroll-margin-top: 20px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .section-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .icon-reseau  { background: rgba(74,124,255,.15); }
+  .icon-sys     { background: rgba(62,207,142,.15); }
+  .icon-vlan    { background: rgba(245,166,35,.15); }
+  .icon-print   { background: rgba(244,114,182,.15); }
+  .icon-methode { background: rgba(168,127,255,.15); }
+
+  .section-title { font-size: 18px; font-weight: 700; color: var(--text); }
+  .section-subtitle { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .layer-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-left: auto; }
+  .badge-reseau  { background: rgba(74,124,255,.2); color: var(--accent2); }
+  .badge-sys     { background: rgba(62,207,142,.2); color: var(--green); }
+  .badge-vlan    { background: rgba(245,166,35,.2); color: var(--amber); }
+  .badge-print   { background: rgba(244,114,182,.2); color: var(--pink); }
+  .badge-methode { background: rgba(168,127,255,.2); color: var(--purple); }
+
+  /* ── CAS GRID ── */
+  .cas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+
+  /* ── CAS CARD ── */
+  .cas-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; border-left: 3px solid var(--border);
+    transition: border-color .15s, background .15s;
+  }
+  .cas-card:hover { background: var(--bg3); }
+  .cas-card.c-reseau  { border-left-color: var(--accent); }
+  .cas-card.c-sys     { border-left-color: var(--green); }
+  .cas-card.c-vlan    { border-left-color: var(--amber); }
+  .cas-card.c-print   { border-left-color: var(--pink); }
+  .cas-card.c-methode { border-left-color: var(--purple); }
+
+  .cas-num { font-size: 10px; font-weight: 700; color: var(--text3); font-family: monospace; margin-bottom: 4px; }
+  .cas-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .cas-situation { font-size: 12px; color: var(--text2); margin-bottom: 10px; font-style: italic; }
+
+  .cas-body { display: flex; flex-direction: column; gap: 8px; }
+  .cas-row { display: flex; flex-direction: column; gap: 3px; }
+  .cas-label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; }
+  .cas-content { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .cas-content code {
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 11.5px; color: #7dd3fc;
+    background: rgba(0,0,0,.3); padding: 1px 5px; border-radius: 3px;
+  }
+  .cas-content strong { color: var(--text); }
+
+  /* ── CMD BLOCK ── */
+  .cmd-block {
+    background: rgba(0,0,0,.3); border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 12px; margin-top: 4px;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px; color: #7dd3fc; position: relative;
+  }
+  .cmd-block .copy-btn {
+    position: absolute; top: 6px; right: 8px;
+    background: none; border: 1px solid var(--border); color: var(--text3);
+    border-radius: 4px; padding: 1px 7px; font-size: 10px; cursor: pointer; transition: .15s;
+  }
+  .cmd-block .copy-btn:hover { color: var(--text); border-color: var(--text2); }
+  .cmd-block .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+  /* ── ANALYSE BOX ── */
+  .analyse-box { background: rgba(245,166,35,.07); border: 1px solid rgba(245,166,35,.2); border-radius: 6px; padding: 8px 12px; margin-top: 6px; font-size: 12px; color: var(--text2); }
+  .analyse-box strong { color: var(--amber); }
+
+  /* ── SOLUTION BOX ── */
+  .solution-box { background: rgba(62,207,142,.07); border: 1px solid rgba(62,207,142,.2); border-radius: 6px; padding: 8px 12px; margin-top: 4px; font-size: 12px; color: var(--text2); }
+  .solution-box strong { color: var(--green); }
+
+  /* ── METHODE STEPS ── */
+  .methode-steps { display: flex; flex-direction: column; gap: 10px; }
+  .step { display: flex; gap: 12px; align-items: flex-start; }
+  .step-num { width: 26px; height: 26px; border-radius: 50%; background: rgba(168,127,255,.2); border: 1px solid rgba(168,127,255,.4); color: var(--purple); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-content { flex: 1; }
+  .step-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .step-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .step-desc code { font-family: monospace; font-size: 11.5px; color: #7dd3fc; background: rgba(0,0,0,.3); padding: 1px 5px; border-radius: 3px; }
+
+  /* ── TOOLS GRID ── */
+  .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .tool-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+  .tool-title { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+  .tool-item { display: flex; gap: 8px; margin-bottom: 5px; align-items: flex-start; }
+  .tool-cmd { font-family: monospace; font-size: 12px; color: #7dd3fc; background: rgba(0,0,0,.25); padding: 1px 6px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; }
+  .tool-desc { font-size: 11.5px; color: var(--text2); }
+
+  /* ── OSI TABLE ── */
+  .osi-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+  .osi-table th { background: var(--bg3); color: var(--text3); font-weight: 600; padding: 8px 12px; text-align: left; border: 1px solid var(--border); font-size: 10px; text-transform: uppercase; letter-spacing: .05em; }
+  .osi-table td { padding: 8px 12px; border: 1px solid var(--border); color: var(--text2); }
+  .osi-table tr:hover td { background: var(--bg3); }
+  .osi-table td:first-child { font-weight: 600; color: var(--accent2); font-family: monospace; }
+
+  /* ── TRAP BOX ── */
+  .trap-box { background: rgba(224,82,82,.07); border: 1px solid rgba(224,82,82,.25); border-radius: 8px; padding: 14px 18px; margin-top: 20px; }
+  .trap-title { font-size: 11px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+  .trap-item { font-size: 12px; color: var(--text2); margin-bottom: 4px; padding-left: 12px; position: relative; }
+  .trap-item::before { content: '✗'; position: absolute; left: 0; color: var(--red); font-size: 11px; }
+
+  /* ── SCROLL BAR ── */
+  .scroll-bar { position: fixed; top: var(--header); left: 0; right: 0; height: 2px; background: var(--border); z-index: 200; }
+  .scroll-progress { height: 100%; background: var(--red); width: 0%; transition: width .1s; }
+
+  /* ── SEARCH HIGHLIGHT ── */
+  mark { background: rgba(255,220,0,.35); color: var(--text); border-radius: 2px; }
+  mark.current { background: rgba(255,160,0,.6); }
+
+  .sub-title { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; margin: 20px 0 10px; }
+</style>
+</head>
+<body>
+
+<div class="scroll-bar"><div class="scroll-progress" id="scrollProgress"></div></div>
+
+<!-- HEADER -->
+<div class="header">
+  <button class="burger" id="burgerBtn">
+    <span></span><span></span><span></span>
+  </button>
+  <span class="header-title">Types de pannes 2 — Cas pratiques par domaine</span>
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Rechercher un cas, une commande…" autocomplete="off">
+    <span id="searchCount"></span>
+    <div class="search-nav">
+      <button id="prevMatch">▲</button>
+      <button id="nextMatch">▼</button>
+    </div>
+  </div>
+  <span class="header-badge">TSSR 2026</span>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-section">Domaines</div>
+    <a class="nav-link active" onclick="goTo('methode')">
+      <span class="nav-dot dot-methode"></span>🔧 Méthodologie
+    </a>
+    <a class="nav-link" onclick="goTo('reseau')">
+      <span class="nav-dot dot-reseau"></span>🌐 Pannes réseau
+    </a>
+    <a class="nav-link" onclick="goTo('vlan')">
+      <span class="nav-dot dot-vlan"></span>🔀 VLAN & Routage
+    </a>
+    <a class="nav-link" onclick="goTo('sys')">
+      <span class="nav-dot dot-sys"></span>🖥️ Pannes système
+    </a>
+    <a class="nav-link" onclick="goTo('print')">
+      <span class="nav-dot dot-print"></span>🖨️ Impression
+    </a>
+    <div class="nav-section" style="margin-top:10px">Référence</div>
+    <a class="nav-link" onclick="goTo('outils')">
+      <span class="nav-dot dot-reseau"></span>📋 Outils de diagnostic
+    </a>
+    <a class="nav-link" onclick="goTo('erreurs')">
+      <span class="nav-dot dot-methode"></span>⚠️ Erreurs à éviter
+    </a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main" id="mainContent">
+
+    <!-- ══ MÉTHODOLOGIE ══ -->
+    <section class="section" id="methode">
+      <div class="section-header">
+        <div class="section-icon icon-methode">🔧</div>
+        <div>
+          <div class="section-title">Méthodologie de dépannage</div>
+          <div class="section-subtitle">7 étapes à suivre systématiquement pour tout incident</div>
+        </div>
+        <span class="layer-badge badge-methode">Méthode</span>
+      </div>
+
+      <div class="methode-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Identifier le problème</div>
+            <div class="step-desc">Qui est impacté ? (1 utilisateur ou tout le réseau) — Depuis quand ? — Quel symptôme précis ?<br><strong>Toujours reformuler le problème clairement avant d'agir.</strong></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Reproduire le problème</div>
+            <div class="step-desc">Essayer de voir l'erreur soi-même. Tester sur une autre machine pour isoler si c'est lié au poste ou à l'infrastructure.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Isoler la cause — Approche OSI</div>
+            <div class="step-desc">
+              <code>Physique</code> → câble branché ? — <code>Réseau</code> → IP correcte ? — <code>Transport</code> → ports ouverts ? — <code>Application</code> → service actif ?
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Tester des hypothèses</div>
+            <div class="step-desc">Utiliser les outils de diagnostic adaptés au domaine (réseau, système, DNS...). Une hypothèse à la fois.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <div class="step-title">Corriger le problème</div>
+            <div class="step-desc">Redémarrer un service — Corriger une config — Libérer des ressources — Remplacer un matériel.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-content">
+            <div class="step-title">Vérifier</div>
+            <div class="step-desc">Le problème est-il résolu ? Tests utilisateurs OK ? Ne pas fermer le ticket tant que la résolution n'est pas confirmée.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">7</div>
+          <div class="step-content">
+            <div class="step-title">Documenter</div>
+            <div class="step-desc">Cause — Solution — Temps de résolution. La documentation protège contre la récurrence et aide les collègues.</div>
+          </div>
+        </div>
+      </div>
+
+      <table class="osi-table" style="margin-top:20px">
+        <thead>
+          <tr><th>Couche OSI</th><th>Vérification typique</th><th>Commande / Action</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Physique</td><td>Câble branché, voyant allumé</td><td>Inspection visuelle, autre câble</td></tr>
+          <tr><td>Réseau</td><td>IP correcte, passerelle accessible</td><td><code>ipconfig</code> / <code>ping passerelle</code></td></tr>
+          <tr><td>Transport</td><td>Ports ouverts</td><td><code>netstat -tulnp</code> / <code>telnet IP port</code></td></tr>
+          <tr><td>Application</td><td>Service actif</td><td><code>systemctl status service</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ══ PANNES RÉSEAU ══ -->
+    <section class="section" id="reseau">
+      <div class="section-header">
+        <div class="section-icon icon-reseau">🌐</div>
+        <div>
+          <div class="section-title">Pannes réseau</div>
+          <div class="section-subtitle">Connectivité, IP, DNS, accès Internet et ressources internes</div>
+        </div>
+        <span class="layer-badge badge-reseau">Réseau</span>
+      </div>
+
+      <div class="cas-grid">
+
+        <!-- Cas 1 -->
+        <div class="cas-card c-reseau">
+          <div class="cas-num">CAS 01</div>
+          <div class="cas-title">Plus d'accès au réseau</div>
+          <div class="cas-situation">Un utilisateur ne peut accéder ni aux fichiers partagés ni à Internet.</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cmd-block">ipconfig<button class="copy-btn" onclick="copyCmd(this,'ipconfig')">Copier</button></div>
+              <div class="cmd-block">ping 192.168.1.1<button class="copy-btn" onclick="copyCmd(this,'ping 192.168.1.1')">Copier</button></div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Ping passerelle en échec → problème réseau local (switch, câble, VLAN).</div>
+            <div class="solution-box"><strong>Solution :</strong> Vérifier câble → tester autre port switch → vérifier configuration VLAN.</div>
+          </div>
+        </div>
+
+        <!-- Cas 2 -->
+        <div class="cas-card c-reseau">
+          <div class="cas-num">CAS 02</div>
+          <div class="cas-title">Pas d'accès Internet — IP APIPA</div>
+          <div class="cas-situation">Un utilisateur dit : "Je n'ai plus Internet sur mon poste."</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Symptôme clé</div>
+              <div class="cas-content">IP = <code>169.254.x.x</code> → adresse APIPA = pas de DHCP</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Le poste ne reçoit pas d'adresse IP du serveur DHCP.</div>
+            <div class="solution-box"><strong>Solution :</strong> Vérifier serveur DHCP, puis :<br>
+              <code>ipconfig /release</code> → <code>ipconfig /renew</code>
+            </div>
+            <div class="cas-row">
+              <div class="cas-label">Vérification</div>
+              <div class="cas-content">Nouvelle IP correcte (192.168.x.x) → <code>ping 8.8.8.8</code> OK → navigation OK</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cas 3 -->
+        <div class="cas-card c-reseau">
+          <div class="cas-num">CAS 03</div>
+          <div class="cas-title">Site web inaccessible — DNS KO</div>
+          <div class="cas-situation">"Je ne peux pas accéder à google.com"</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Tests</div>
+              <div class="cas-content"><code>ping google.com</code> → Échec<br><code>ping 8.8.8.8</code> → OK</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Réseau OK mais DNS KO. Le nom n'est pas résolu, l'IP est joignable.</div>
+            <div class="solution-box"><strong>Solution :</strong><br>
+              <code>nslookup google.com</code> → vérifier le DNS<br>
+              Configurer DNS : <code>8.8.8.8</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cas 4 -->
+        <div class="cas-card c-reseau">
+          <div class="cas-num">CAS 04</div>
+          <div class="cas-title">Partages réseau KO mais Internet OK</div>
+          <div class="cas-situation">L'utilisateur peut aller sur Internet mais pas accéder à un serveur interne.</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Tests</div>
+              <div class="cas-content"><code>ping serveur</code> → Échec<br><code>ping 8.8.8.8</code> → OK</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Problème réseau interne ou DNS interne défaillant.</div>
+            <div class="solution-box"><strong>Solution :</strong><br>
+              <code>nslookup serveur</code> → vérifier DNS interne<br>
+              Ajouter DNS entreprise → vérifier firewall
+            </div>
+          </div>
+        </div>
+
+        <!-- Cas 5 -->
+        <div class="cas-card c-reseau">
+          <div class="cas-num">CAS 05</div>
+          <div class="cas-title">Sites HTTPS inaccessibles</div>
+          <div class="cas-situation">Certains sites ne s'ouvrent pas (HTTPS uniquement).</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cas-content"><code>curl https://site.com</code> → Erreur certificat</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Problème de certificat ou date/heure système incorrecte.</div>
+            <div class="solution-box"><strong>Solution :</strong> Vérifier date/heure (<code>date</code>) → Synchroniser NTP → Vérifier certificats</div>
+          </div>
+        </div>
+
+        <!-- Cas 6 -->
+        <div class="cas-card c-reseau">
+          <div class="cas-num">CAS 06</div>
+          <div class="cas-title">Connexion très lente</div>
+          <div class="cas-situation">Tout fonctionne mais très lentement.</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cas-content"><code>ping serveur</code> → Latence élevée (ex : 300 ms)</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Congestion réseau ou matériel défectueux (câble, switch).</div>
+            <div class="solution-box"><strong>Solution :</strong> Vérifier switch → vérifier câble défectueux → vérifier utilisation réseau</div>
+          </div>
+        </div>
+
+        <!-- Cas 7 -->
+        <div class="cas-card c-reseau">
+          <div class="cas-num">CAS 07</div>
+          <div class="cas-title">SSH impossible — Port fermé</div>
+          <div class="cas-situation">"Je n'arrive pas à me connecter en SSH"</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Tests</div>
+              <div class="cas-content"><code>ping serveur</code> → OK<br><code>ssh user@serveur</code> → Échec<br><code>telnet serveur 22</code> → Échec</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Port 22 fermé ou service SSH arrêté.</div>
+            <div class="solution-box"><strong>Solution :</strong><br>
+              <code>systemctl status ssh</code><br>
+              <code>systemctl start ssh</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cas 8 -->
+        <div class="cas-card c-reseau">
+          <div class="cas-num">CAS 08</div>
+          <div class="cas-title">Mauvaise passerelle configurée</div>
+          <div class="cas-situation">L'utilisateur accède au réseau local mais pas à Internet.</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cas-content"><code>ipconfig</code> → Passerelle incorrecte</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Mauvaise configuration réseau (IP fixe mal saisie ou DHCP défaillant).</div>
+            <div class="solution-box"><strong>Solution :</strong> Corriger passerelle (ex : 192.168.1.1) → vérifier DHCP</div>
+          </div>
+        </div>
+
+        <!-- Cas 9 -->
+        <div class="cas-card c-reseau">
+          <div class="cas-num">CAS 09</div>
+          <div class="cas-title">DNS lent ou défaillant</div>
+          <div class="cas-situation">Les sites mettent du temps à charger.</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cas-content"><code>nslookup google.com</code> → Réponse très lente</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Serveur DNS surchargé ou hors service.</div>
+            <div class="solution-box"><strong>Solution :</strong> Changer DNS (ex : <code>8.8.8.8</code>) → vérifier DNS interne</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ VLAN & ROUTAGE ══ -->
+    <section class="section" id="vlan">
+      <div class="section-header">
+        <div class="section-icon icon-vlan">🔀</div>
+        <div>
+          <div class="section-title">VLAN & Routage</div>
+          <div class="section-subtitle">Isolation, trunk, inter-VLAN, NAT, DHCP relay</div>
+        </div>
+        <span class="layer-badge badge-vlan">VLAN / Routage</span>
+      </div>
+
+      <div class="cas-grid">
+
+        <div class="cas-card c-vlan">
+          <div class="cas-num">CAS 10</div>
+          <div class="cas-title">VLAN mal configuré — Machines isolées</div>
+          <div class="cas-situation">Un utilisateur ne voit pas certains équipements. Ping certains postes OK, d'autres KO.</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> Mauvais VLAN sur un port switch.</div>
+            <div class="solution-box"><strong>Solution :</strong><br>
+              <code>show vlan brief</code> → vérifier port<br>
+              <code>switchport access vlan 20</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-card c-vlan">
+          <div class="cas-num">CAS 11</div>
+          <div class="cas-title">VLAN non propagé sur trunk</div>
+          <div class="cas-situation">Un VLAN fonctionne sur un switch mais pas sur un autre.</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> VLAN non autorisé sur le trunk entre switches.</div>
+            <div class="solution-box"><strong>Solution :</strong><br>
+              <code>switchport mode trunk</code><br>
+              <code>switchport trunk allowed vlan 10,20</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-card c-vlan">
+          <div class="cas-num">CAS 12</div>
+          <div class="cas-title">Pas de communication inter-VLAN</div>
+          <div class="cas-situation">VLAN 10 et VLAN 20 ne communiquent pas.</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> Pas de routage inter-VLAN configuré.</div>
+            <div class="solution-box"><strong>Solution :</strong><br>
+              Configurer routage via routeur (router-on-a-stick)<br>
+              <strong>OU</strong> via switch L3 + <code>ip routing</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-card c-vlan">
+          <div class="cas-num">CAS 13</div>
+          <div class="cas-title">Boucle réseau (loop)</div>
+          <div class="cas-situation">Réseau très lent ou instable. Broadcast élevé, switch saturé.</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> Câble branché en double → boucle réseau.</div>
+            <div class="solution-box"><strong>Solution :</strong> Débrancher câble en trop → activer STP :<br>
+              <code>spanning-tree portfast</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-card c-vlan">
+          <div class="cas-num">CAS 14</div>
+          <div class="cas-title">DHCP ne fonctionne pas dans un VLAN</div>
+          <div class="cas-situation">Les postes d'un VLAN n'ont pas d'IP (169.254.x.x).</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> DHCP non relayé entre le VLAN et le serveur DHCP.</div>
+            <div class="solution-box"><strong>Solution :</strong> Configurer relais DHCP sur l'interface du routeur/switch L3 :<br>
+              <code>ip helper-address 192.168.1.10</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-card c-vlan">
+          <div class="cas-num">CAS 15</div>
+          <div class="cas-title">NAT mal configuré</div>
+          <div class="cas-situation">Les machines internes ne vont pas sur Internet.</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cas-content"><code>ping 8.8.8.8</code> → Échec depuis les postes internes</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> NAT absent ou incorrect sur le routeur.</div>
+            <div class="solution-box"><strong>Solution :</strong> Configurer NAT/PAT sur le routeur :<br>
+              <code>ip nat inside</code> (côté LAN)<br>
+              <code>ip nat outside</code> (côté WAN)
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-card c-vlan">
+          <div class="cas-num">CAS 16</div>
+          <div class="cas-title">Problème de routage — Route absente</div>
+          <div class="cas-situation">Impossible d'accéder à un autre réseau.</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cas-content"><code>tracert serveur</code> → Blocage sur un routeur</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Route absente ou incorrecte dans la table de routage.</div>
+            <div class="solution-box"><strong>Solution :</strong><br>
+              <code>show ip route</code> → vérifier<br>
+              Ajouter route statique manquante
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-card c-vlan">
+          <div class="cas-num">CAS 17</div>
+          <div class="cas-title">Routage asymétrique</div>
+          <div class="cas-situation">Ping fonctionne dans un sens mais pas dans l'autre.</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> PC → serveur OK, serveur → PC KO = route de retour absente.</div>
+            <div class="solution-box"><strong>Solution :</strong> Ajouter route retour → vérifier tables de routage des deux côtés</div>
+          </div>
+        </div>
+
+        <div class="cas-card c-vlan">
+          <div class="cas-num">CAS 18</div>
+          <div class="cas-title">VLAN natif mal configuré</div>
+          <div class="cas-situation">Problèmes aléatoires entre switches.</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> VLAN natif différent des deux côtés du trunk.</div>
+            <div class="solution-box"><strong>Solution :</strong> Uniformiser le VLAN natif sur tous les trunks :<br>
+              <code>switchport trunk native vlan 1</code>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ PANNES SYSTÈME ══ -->
+    <section class="section" id="sys">
+      <div class="section-header">
+        <div class="section-icon icon-sys">🖥️</div>
+        <div>
+          <div class="section-title">Pannes système & serveur</div>
+          <div class="section-subtitle">CPU, disque, services, comptes, ports</div>
+        </div>
+        <span class="layer-badge badge-sys">Système</span>
+      </div>
+
+      <div class="cas-grid">
+
+        <div class="cas-card c-sys">
+          <div class="cas-num">CAS 19</div>
+          <div class="cas-title">Serveur web inaccessible</div>
+          <div class="cas-situation">"Le site de l'entreprise ne répond plus"</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Tests</div>
+              <div class="cas-content"><code>ping serveur</code> → OK<br><code>curl http://serveur</code> → Échec</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Réseau OK → problème applicatif. Le service web est arrêté.</div>
+            <div class="solution-box"><strong>Solution :</strong><br>
+              <code>systemctl status apache2</code><br>
+              <code>systemctl start apache2</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-card c-sys">
+          <div class="cas-num">CAS 20</div>
+          <div class="cas-title">Poste très lent — CPU 100%</div>
+          <div class="cas-situation">"Mon ordinateur est super lent"</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cas-content"><code>top</code> → CPU à 100%, processus suspect</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Processus gourmand en ressources.</div>
+            <div class="solution-box"><strong>Solution :</strong> Identifier le processus → <code>kill -9 PID</code></div>
+          </div>
+        </div>
+
+        <div class="cas-card c-sys">
+          <div class="cas-num">CAS 21</div>
+          <div class="cas-title">Plus d'espace disque</div>
+          <div class="cas-situation">"Je ne peux plus enregistrer de fichiers"</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cas-content"><code>df -h</code> → Disque à 100%</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Saturation disque (logs, fichiers temporaires).</div>
+            <div class="solution-box"><strong>Solution :</strong><br>
+              Supprimer fichiers inutiles<br>
+              <code>rm -rf /var/log/*.log</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-card c-sys">
+          <div class="cas-num">CAS 22</div>
+          <div class="cas-title">Service ne démarre plus après reboot</div>
+          <div class="cas-situation">Après redémarrage, une application ne démarre plus automatiquement.</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cas-content"><code>systemctl status nom_du_service</code> → Failed</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Service non activé au démarrage ou erreur de configuration.</div>
+            <div class="solution-box"><strong>Solution :</strong><br>
+              <code>systemctl enable nom_du_service</code><br>
+              <code>systemctl start nom_du_service</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-card c-sys">
+          <div class="cas-num">CAS 23</div>
+          <div class="cas-title">Utilisateur ne peut plus se connecter</div>
+          <div class="cas-situation">Login refusé sur un poste ou serveur.</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> Mot de passe incorrect, compte verrouillé ou problème Active Directory.</div>
+            <div class="solution-box"><strong>Solution :</strong> Déverrouiller compte → réinitialiser mot de passe → vérifier droits AD</div>
+          </div>
+        </div>
+
+        <div class="cas-card c-sys">
+          <div class="cas-num">CAS 24</div>
+          <div class="cas-title">Erreur "port déjà utilisé"</div>
+          <div class="cas-situation">Un service ne démarre pas — conflit de port.</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cas-content"><code>netstat -tulnp</code> → Port déjà utilisé par un autre processus</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Deux services tentent d'utiliser le même port.</div>
+            <div class="solution-box"><strong>Solution :</strong> Identifier le processus conflictuel → l'arrêter ou changer le port</div>
+          </div>
+        </div>
+
+        <div class="cas-card c-sys">
+          <div class="cas-num">CAS 25</div>
+          <div class="cas-title">Sauvegarde échoue</div>
+          <div class="cas-situation">Backup automatique en erreur.</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> Disque plein / accès réseau perdu / droits insuffisants.</div>
+            <div class="solution-box"><strong>Solution :</strong> Vérifier logs → libérer espace → corriger permissions</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ IMPRESSION ══ -->
+    <section class="section" id="print">
+      <div class="section-header">
+        <div class="section-icon icon-print">🖨️</div>
+        <div>
+          <div class="section-title">Pannes d'impression</div>
+          <div class="section-subtitle">Spooler, file d'attente, réseau imprimante, droits</div>
+        </div>
+        <span class="layer-badge badge-print">Impression</span>
+      </div>
+
+      <div class="cas-grid">
+
+        <div class="cas-card c-print">
+          <div class="cas-num">CAS 26</div>
+          <div class="cas-title">Impossible d'imprimer — Spooler bloqué</div>
+          <div class="cas-situation">Un utilisateur envoie un document, rien ne sort. Document en "Erreur" dans la file.</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> Spooler bloqué ou file d'attente saturée.</div>
+            <div class="solution-box"><strong>Solution :</strong><br>
+              <code>net stop spooler</code><br>
+              <code>net start spooler</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-card c-print">
+          <div class="cas-num">CAS 27</div>
+          <div class="cas-title">Imprimante hors ligne</div>
+          <div class="cas-situation">L'imprimante apparaît "hors ligne" sur le PC.</div>
+          <div class="cas-body">
+            <div class="cas-row">
+              <div class="cas-label">Test</div>
+              <div class="cas-content"><code>ping IP_imprimante</code> → Échec</div>
+            </div>
+            <div class="analyse-box"><strong>Analyse :</strong> Problème réseau ou imprimante éteinte. IP souvent changée si DHCP.</div>
+            <div class="solution-box"><strong>Solution :</strong> Vérifier alimentation → câble réseau/Wi-Fi → vérifier IP (souvent change avec DHCP → préférer IP fixe)</div>
+          </div>
+        </div>
+
+        <div class="cas-card c-print">
+          <div class="cas-num">CAS 28</div>
+          <div class="cas-title">Documents bloqués en file</div>
+          <div class="cas-situation">Les documents s'accumulent mais ne sortent pas.</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> Service spooler ou driver défectueux.</div>
+            <div class="solution-box"><strong>Solution :</strong> Vider la file → redémarrer spooler → réinstaller pilote si besoin</div>
+          </div>
+        </div>
+
+        <div class="cas-card c-print">
+          <div class="cas-num">CAS 29</div>
+          <div class="cas-title">Seuls certains utilisateurs ne peuvent pas imprimer</div>
+          <div class="cas-situation">Un groupe d'utilisateurs est bloqué, d'autres impriment normalement.</div>
+          <div class="cas-body">
+            <div class="analyse-box"><strong>Analyse :</strong> Problème de droits sur le serveur d'impression.</div>
+            <div class="solution-box"><strong>Solution :</strong> Vérifier permissions sur serveur d'impression → ajouter utilisateurs au bon groupe</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ OUTILS ══ -->
+    <section class="section" id="outils">
+      <div class="section-header">
+        <div class="section-icon icon-reseau">📋</div>
+        <div>
+          <div class="section-title">Outils de diagnostic</div>
+          <div class="section-subtitle">Référence rapide des commandes par domaine</div>
+        </div>
+        <span class="layer-badge badge-reseau">Référence</span>
+      </div>
+
+      <div class="tools-grid">
+        <div class="tool-card">
+          <div class="tool-title">🌐 Réseau</div>
+          <div class="tool-item"><span class="tool-cmd">ping</span><span class="tool-desc">Tester la connectivité IP</span></div>
+          <div class="tool-item"><span class="tool-cmd">tracert</span><span class="tool-desc">Chemin réseau saut par saut</span></div>
+          <div class="tool-item"><span class="tool-cmd">ipconfig</span><span class="tool-desc">Configuration IP (Windows)</span></div>
+          <div class="tool-item"><span class="tool-cmd">ifconfig</span><span class="tool-desc">Configuration IP (Linux)</span></div>
+          <div class="tool-item"><span class="tool-cmd">nslookup</span><span class="tool-desc">Résolution DNS</span></div>
+          <div class="tool-item"><span class="tool-cmd">netstat -tulnp</span><span class="tool-desc">Ports ouverts et services</span></div>
+          <div class="tool-item"><span class="tool-cmd">telnet IP port</span><span class="tool-desc">Tester l'accès à un port</span></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-title">🖥️ Système</div>
+          <div class="tool-item"><span class="tool-cmd">top / htop</span><span class="tool-desc">Ressources CPU/RAM en temps réel</span></div>
+          <div class="tool-item"><span class="tool-cmd">df -h</span><span class="tool-desc">Espace disque disponible</span></div>
+          <div class="tool-item"><span class="tool-cmd">systemctl status</span><span class="tool-desc">État d'un service</span></div>
+          <div class="tool-item"><span class="tool-cmd">systemctl start/enable</span><span class="tool-desc">Démarrer / activer au boot</span></div>
+          <div class="tool-item"><span class="tool-cmd">kill -9 PID</span><span class="tool-desc">Forcer l'arrêt d'un processus</span></div>
+          <div class="tool-item"><span class="tool-cmd">/var/log/</span><span class="tool-desc">Logs système Linux</span></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-title">🔀 Cisco / Switch</div>
+          <div class="tool-item"><span class="tool-cmd">show vlan brief</span><span class="tool-desc">VLANs et ports assignés</span></div>
+          <div class="tool-item"><span class="tool-cmd">show interfaces trunk</span><span class="tool-desc">Trunks et VLANs autorisés</span></div>
+          <div class="tool-item"><span class="tool-cmd">show ip route</span><span class="tool-desc">Table de routage</span></div>
+          <div class="tool-item"><span class="tool-cmd">show ip interface brief</span><span class="tool-desc">État des interfaces</span></div>
+          <div class="tool-item"><span class="tool-cmd">show spanning-tree</span><span class="tool-desc">État STP par VLAN</span></div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-title">🖨️ Impression (Windows)</div>
+          <div class="tool-item"><span class="tool-cmd">net stop spooler</span><span class="tool-desc">Arrêter le spooler</span></div>
+          <div class="tool-item"><span class="tool-cmd">net start spooler</span><span class="tool-desc">Redémarrer le spooler</span></div>
+          <div class="tool-item"><span class="tool-cmd">ping IP_imprimante</span><span class="tool-desc">Vérifier accessibilité réseau</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ ERREURS À ÉVITER ══ -->
+    <section class="section" id="erreurs">
+      <div class="section-header">
+        <div class="section-icon icon-methode">⚠️</div>
+        <div>
+          <div class="section-title">Erreurs fréquentes à éviter</div>
+          <div class="section-subtitle">Les pièges classiques du dépannage</div>
+        </div>
+        <span class="layer-badge badge-methode">Attention</span>
+      </div>
+
+      <div class="trap-box">
+        <div class="trap-title">⚠️ Ne jamais faire</div>
+        <div class="trap-item">Aller trop vite — changer quelque chose sans comprendre le problème</div>
+        <div class="trap-item">Ne pas tester après chaque modification</div>
+        <div class="trap-item">Ignorer les logs — ils contiennent souvent la réponse directe</div>
+        <div class="trap-item">Multiplier les changements en même temps — impossible d'identifier la cause</div>
+        <div class="trap-item">Ne pas communiquer avec l'utilisateur pendant l'intervention</div>
+        <div class="trap-item">Fermer un ticket sans vérification de la résolution côté utilisateur</div>
+        <div class="trap-item">Oublier de documenter — la même panne reviendra sans trace de la solution</div>
+      </div>
+
+      <div style="margin-top:16px; background:rgba(62,207,142,.07); border:1px solid rgba(62,207,142,.2); border-radius:8px; padding:14px 18px;">
+        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">✅ Toujours</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.8;">
+          🔍 <strong style="color:var(--text)">Observer</strong> avant d'agir &nbsp;→&nbsp;
+          🧪 <strong style="color:var(--text)">Tester</strong> méthodiquement &nbsp;→&nbsp;
+          🧠 <strong style="color:var(--text)">Comprendre</strong> la cause &nbsp;→&nbsp;
+          🔧 <strong style="color:var(--text)">Corriger</strong> &nbsp;→&nbsp;
+          ✔️ <strong style="color:var(--text)">Vérifier</strong><br><br>
+          Et surtout : <strong style="color:var(--green)">Ne pas paniquer. Raisonner avec le modèle OSI. Lire les messages d'erreur.</strong>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ── BURGER ──
+document.getElementById('burgerBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+});
+
+// ── GO TO SECTION ──
+function goTo(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const mainEl = document.getElementById('mainContent');
+  mainEl.scrollTo({ top: el.offsetTop - 20, behavior: 'smooth' });
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const clicked = document.querySelector('.nav-link[onclick="goTo(\'' + id + '\')"]');
+  if (clicked) clicked.classList.add('active');
+}
+
+// ── ACTIVE NAV ON SCROLL ──
+const sections = ['methode','reseau','vlan','sys','print','outils','erreurs'];
+const mainEl = document.getElementById('mainContent');
+mainEl.addEventListener('scroll', () => {
+  const scrollTop = mainEl.scrollTop;
+  const pct = (scrollTop / (mainEl.scrollHeight - mainEl.clientHeight)) * 100;
+  document.getElementById('scrollProgress').style.width = pct + '%';
+  let current = 'methode';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop - 80 <= scrollTop) current = id;
+  });
+  document.querySelectorAll('.nav-link').forEach(l => {
+    const attr = l.getAttribute('onclick') || '';
+    l.classList.toggle('active', attr.includes("'" + current + "'"));
+  });
+});
+
+// ── COPY ──
+function copyCmd(btn, cmd) {
+  navigator.clipboard.writeText(cmd).then(() => {
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+// ── SEARCH ──
+let matches = [], matchIdx = 0;
+const searchInput = document.getElementById('searchInput');
+const searchCount = document.getElementById('searchCount');
+
+function clearHighlights() {
+  document.querySelectorAll('mark').forEach(m => {
+    const p = m.parentNode;
+    p.replaceChild(document.createTextNode(m.textContent), m);
+    p.normalize();
+  });
+  matches = []; matchIdx = 0; searchCount.textContent = '';
+}
+
+function doSearch(q) {
+  clearHighlights();
+  if (!q || q.length < 2) return;
+  const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
+  const walker = document.createTreeWalker(document.getElementById('mainContent'), NodeFilter.SHOW_TEXT, {
+    acceptNode: n => n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    if (!node.nodeValue.match(regex)) return;
+    const span = document.createElement('span');
+    span.innerHTML = node.nodeValue.replace(regex, m => `<mark>${m}</mark>`);
+    node.parentNode.replaceChild(span, node);
+  });
+  matches = Array.from(document.querySelectorAll('mark'));
+  if (matches.length > 0) { searchCount.textContent = `1 / ${matches.length}`; jumpTo(0); }
+  else searchCount.textContent = 'Aucun résultat';
+}
+
+function jumpTo(idx) {
+  matches.forEach(m => m.classList.remove('current'));
+  if (!matches[idx]) return;
+  matchIdx = idx;
+  matches[idx].classList.add('current');
+  matches[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  searchCount.textContent = `${idx+1} / ${matches.length}`;
+}
+
+searchInput.addEventListener('input', e => doSearch(e.target.value.trim()));
+document.getElementById('nextMatch').addEventListener('click', () => { if (matches.length) jumpTo((matchIdx+1) % matches.length); });
+document.getElementById('prevMatch').addEventListener('click', () => { if (matches.length) jumpTo((matchIdx-1+matches.length) % matches.length); });
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey||e.metaKey) && e.key==='k') { e.preventDefault(); searchInput.focus(); }
+});
+</script>
+</body>
+</html>
