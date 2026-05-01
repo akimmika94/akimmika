@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft Windows Server – Révisions TSSR</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222638;
+    --border: #2e3348;
+    --accent: #3b82f6;
+    --accent2: #60a5fa;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --n1: #22c55e;
+    --n2: #3b82f6;
+    --n3: #f59e0b;
+    --n4: #ef4444;
+    --n5: #a855f7;
+    --toc-width: 260px;
+    --header-h: 56px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: var(--header-h);
+    background: #12151f;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 16px;
+  }
+  .page-header h1 {
+    font-size: 15px; font-weight: 700;
+    color: var(--accent2);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .page-header h1 span { color: var(--text-muted); font-weight: 400; }
+
+  /* Search bar */
+  .search-wrap {
+    display: flex; align-items: center; gap: 6px;
+    flex: 1; max-width: 420px; margin-left: auto;
+  }
+  .search-wrap input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 5px 10px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-nav {
+    display: flex; gap: 2px;
+  }
+  .search-nav button, .btn-clear {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 7px;
+    font-size: 12px;
+    transition: background 0.15s;
+  }
+  .search-nav button:hover, .btn-clear:hover { background: var(--border); color: var(--text); }
+  .search-count {
+    font-size: 11px; color: var(--text-dim);
+    min-width: 40px; text-align: center;
+  }
+
+  /* Burger */
+  .btn-burger {
+    width: 34px; height: 34px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .btn-burger:hover { background: rgba(255,255,255,0.1); }
+  .btn-burger svg { width: 16px; height: 16px; stroke: var(--text-muted); }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: flex;
+    margin-top: var(--header-h);
+    min-height: calc(100vh - var(--header-h));
+  }
+
+  /* ── TOC ── */
+  .toc {
+    width: var(--toc-width);
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: sticky; top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+    overflow-y: auto;
+    transition: width 0.22s ease, opacity 0.22s ease;
+  }
+  .toc.collapsed { width: 0; opacity: 0; pointer-events: none; overflow: hidden; }
+  .toc::-webkit-scrollbar { width: 4px; }
+  .toc::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .toc-section { padding: 12px 0 4px; }
+  .toc-section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-dim);
+    padding: 0 16px 6px;
+  }
+  .toc a {
+    display: block;
+    padding: 5px 16px 5px 20px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 12.5px;
+    border-left: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .toc a:hover { color: var(--text); background: var(--surface2); }
+  .toc a.active { color: var(--accent2); border-left-color: var(--accent); background: rgba(59,130,246,0.08); }
+
+  /* ── MAIN ── */
+  main {
+    flex: 1;
+    padding: 32px 40px;
+    max-width: 880px;
+  }
+
+  /* ── LEVEL BADGE ── */
+  .level-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .lvl-1 { background: rgba(34,197,94,0.12); color: var(--n1); border: 1px solid rgba(34,197,94,0.25); }
+  .lvl-2 { background: rgba(59,130,246,0.12); color: var(--n2); border: 1px solid rgba(59,130,246,0.25); }
+  .lvl-3 { background: rgba(245,158,11,0.12); color: var(--n3); border: 1px solid rgba(245,158,11,0.25); }
+  .lvl-4 { background: rgba(239,68,68,0.12); color: var(--n4); border: 1px solid rgba(239,68,68,0.25); }
+  .lvl-5 { background: rgba(168,85,247,0.12); color: var(--n5); border: 1px solid rgba(168,85,247,0.25); }
+
+  /* ── SECTION ── */
+  section { margin-bottom: 48px; }
+  section h2 {
+    font-size: 18px; font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-subtitle {
+    font-size: 12px; color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  /* ── SUBSECTION ── */
+  .subsection { margin: 20px 0; }
+  .subsection h3 {
+    font-size: 14px; font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .subsection h3::before {
+    content: '';
+    display: inline-block; width: 3px; height: 14px;
+    background: var(--accent); border-radius: 2px; flex-shrink: 0;
+  }
+
+  /* ── CMD BLOCK ── */
+  .cmd-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 8px 0;
+    overflow: hidden;
+  }
+  .cmd-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 12px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .cmd-label {
+    font-size: 11px; font-weight: 600;
+    color: var(--text-muted);
+    font-family: 'Consolas', monospace;
+  }
+  .cmd-copy {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 10px; padding: 2px 7px;
+    transition: all 0.15s;
+  }
+  .cmd-copy:hover { border-color: var(--accent); color: var(--accent2); }
+  .cmd-copy.copied { border-color: var(--n1); color: var(--n1); }
+  .cmd-code {
+    padding: 10px 14px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12.5px;
+    color: #a5f3fc;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .cmd-desc {
+    padding: 6px 14px 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .info-box.warn { border-left-color: var(--n3); }
+  .info-box.danger { border-left-color: var(--n4); }
+  .info-box.success { border-left-color: var(--n1); }
+  .info-box strong { color: var(--text); }
+
+  /* ── STEP LIST ── */
+  .steps {
+    list-style: none;
+    margin: 10px 0;
+  }
+  .steps li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px; color: var(--text);
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-num {
+    min-width: 22px; height: 22px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ── TABLE ── */
+  .tbl-wrap { overflow-x: auto; margin: 12px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tr:hover td { background: var(--surface2); }
+  code {
+    font-family: 'Consolas', monospace;
+    background: var(--surface2);
+    padding: 1px 5px; border-radius: 3px;
+    font-size: 11.5px; color: #a5f3fc;
+  }
+
+  /* ── SEARCH HIGHLIGHT ── */
+  .search-highlight {
+    background: #fbbf24; color: #000;
+    border-radius: 2px; padding: 0 1px;
+  }
+  .search-highlight.current { background: #f97316; color: white; }
+
+  /* ── PROGRESS BAR ── */
+  .level-progress {
+    display: flex; gap: 6px;
+    margin-bottom: 32px; margin-top: 4px;
+  }
+  .prog-seg {
+    height: 4px; flex: 1; border-radius: 2px;
+    background: var(--border);
+  }
+  .prog-seg.done { background: currentColor; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <button class="btn-burger" id="burgerBtn" title="Afficher/masquer le sommaire">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+  <h1>Microsoft <span>/ Windows Server</span></h1>
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="🔍 Rechercher…" autocomplete="off">
+    <div class="search-nav">
+      <button id="prevBtn" title="Précédent (Shift+Entrée)">▲</button>
+      <button id="nextBtn" title="Suivant (Entrée)">▼</button>
+    </div>
+    <span class="search-count" id="searchCount"></span>
+    <button class="btn-clear" id="clearBtn" title="Effacer">✕</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- TOC -->
+  <nav class="toc" id="toc">
+    <div class="toc-section">
+      <div class="toc-section-title">🟢 Niveau 1 — Bases AD</div>
+      <a href="#creation-ad">Création de l'AD</a>
+      <a href="#nat">Routage NAT</a>
+      <a href="#dhcp">Réservation DHCP</a>
+    </div>
+    <div class="toc-section">
+      <div class="toc-section-title">🔵 Niveau 2 — Services réseau</div>
+      <a href="#dns">DNS — Zone & Hôtes</a>
+      <a href="#dns-secondaire">DNS Secondaire</a>
+      <a href="#profils">Profils itinérants</a>
+      <a href="#ftp">Serveur FTP (IIS)</a>
+    </div>
+    <div class="toc-section">
+      <div class="toc-section-title">🟡 Niveau 3 — AGDLP</div>
+      <a href="#agdlp-concept">Concept AGDLP</a>
+      <a href="#agdlp-partage">Partage & Droits</a>
+      <a href="#agdlp-script">Script agdlp.bat</a>
+      <a href="#mappage">Mappage lecteurs réseau</a>
+    </div>
+    <div class="toc-section">
+      <div class="toc-section-title">🔴 Niveau 4 — FSMO</div>
+      <a href="#fsmo-roles">Les 5 rôles FSMO</a>
+      <a href="#fsmo-transfer">Transfert de rôle</a>
+      <a href="#fsmo-seize">Seizing (machine HS)</a>
+    </div>
+    <div class="toc-section">
+      <div class="toc-section-title">📋 Références</div>
+      <a href="#ref-commandes">Commandes clés</a>
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <main id="mainContent">
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- NIVEAU 1 -->
+    <!-- ══════════════════════════════════════ -->
+    <div class="level-badge lvl-1">🟢 Niveau 1 — Fondamentaux Windows Server</div>
+    <div class="level-progress">
+      <div class="prog-seg done" style="color:var(--n1)"></div>
+      <div class="prog-seg" style="color:var(--n2)"></div>
+      <div class="prog-seg" style="color:var(--n3)"></div>
+      <div class="prog-seg" style="color:var(--n4)"></div>
+    </div>
+
+    <!-- CRÉATION AD -->
+    <section id="creation-ad">
+      <h2>Création de l'Active Directory (AD DS)</h2>
+      <div class="section-subtitle">Promotion d'un serveur en contrôleur de domaine</div>
+
+      <div class="subsection">
+        <h3>1. Installation du rôle AD DS</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Gestionnaire de serveur → <strong>Gérer</strong> → <strong>Ajouter des rôles et fonctionnalités</strong></li>
+          <li><span class="step-num">2</span>Cliquer Suivant jusqu'à « Rôles de serveur »</li>
+          <li><span class="step-num">3</span>Cocher <strong>Services AD DS</strong> → valider l'ajout de fonctionnalité</li>
+          <li><span class="step-num">4</span>Cliquer Suivant plusieurs fois → <strong>Installer</strong> → Fermer</li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>2. Promotion en contrôleur de domaine</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Cliquer sur le <strong>triangle jaune</strong> (notification) dans le gestionnaire de serveur</li>
+          <li><span class="step-num">2</span>Cliquer sur <strong>« Promouvoir ce serveur en contrôleur de domaine »</strong></li>
+          <li><span class="step-num">3</span>Sélectionner <strong>« Ajouter une nouvelle forêt »</strong></li>
+          <li><span class="step-num">4</span>Nom de domaine racine : <code>tssr.local</code></li>
+          <li><span class="step-num">5</span>Attendre quelques secondes (chargement), puis saisir le mot de passe DSRM : <code>Reponse2025</code> (deux fois)</li>
+          <li><span class="step-num">6</span>Cliquer Suivant plusieurs fois — le nom NetBIOS (<code>TSSR</code>) apparaît automatiquement</li>
+          <li><span class="step-num">7</span>Vérification de la configuration → <strong>Installer</strong></li>
+          <li><span class="step-num">8</span>Cliquer sur <strong>Fermer</strong> → le serveur redémarre automatiquement</li>
+        </ol>
+        <div class="info-box warn">⚠️ Le serveur va redémarrer à l'issue de la promotion. C'est normal.</div>
+      </div>
+    </section>
+
+    <!-- NAT -->
+    <section id="nat">
+      <h2>Routage NAT</h2>
+      <div class="section-subtitle">Activer le NAT via le rôle Accès à distance</div>
+
+      <div class="subsection">
+        <h3>1. Installation du rôle</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Gestionnaire de serveur → <strong>Gérer</strong> → <strong>Ajouter des rôles</strong></li>
+          <li><span class="step-num">2</span>Cliquer Suivant jusqu'à la sélection des rôles</li>
+          <li><span class="step-num">3</span>Cocher <strong>Accès à distance</strong></li>
+          <li><span class="step-num">4</span>Dans « Services de rôle », cocher <strong>Routage</strong> (DirectAccess et VPN se cochent automatiquement)</li>
+          <li><span class="step-num">5</span>Suivant → Suivant → <strong>Installer</strong></li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>2. Configuration du NAT</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Gestionnaire de serveur → <strong>Outils</strong> → <strong>Routage et accès distant</strong></li>
+          <li><span class="step-num">2</span>Clic droit sur le serveur → <strong>Configurer et activer le routage</strong></li>
+          <li><span class="step-num">3</span>Cliquer Suivant jusqu'à la fenêtre de configuration</li>
+          <li><span class="step-num">4</span>Sélectionner <strong>NAT (Network address translation)</strong></li>
+          <li><span class="step-num">5</span>Sélectionner la <strong>carte WAN</strong> → Suivant → <strong>Terminer</strong></li>
+        </ol>
+        <div class="info-box">💡 Si une boîte d'erreur apparaît, choisir « Continuer l'exécution et ignorer les erreurs » et cliquer OK. Retourner ensuite dans Routage et accès distant pour vérifier les propriétés du WAN.</div>
+        <div class="info-box warn">⚠️ Vérifier que l'antivirus est désactivé (serveur et client) et que le proxy est désactivé (serveur et client).</div>
+      </div>
+    </section>
+
+    <!-- DHCP -->
+    <section id="dhcp">
+      <h2>Réservation DHCP</h2>
+      <div class="section-subtitle">Installation et configuration d'une étendue avec réservation d'adresse IP</div>
+
+      <div class="subsection">
+        <h3>1. Installation du rôle DHCP</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Gestionnaire de serveur → Gérer → Ajouter des rôles</li>
+          <li><span class="step-num">2</span>Cocher <strong>Serveur DHCP</strong> → Suivant → <strong>Installer</strong></li>
+          <li><span class="step-num">3</span>Cliquer sur le triangle jaune → <strong>Terminer la configuration DHCP</strong></li>
+          <li><span class="step-num">4</span>Suivant → ne pas changer l'autorisation (laisser le compte Admin courant) → <strong>Valider</strong> → Fermer</li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>2. Création d'une étendue</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Outils → Gestionnaire DHCP → clic droit sur <strong>IPv4</strong> → <strong>Nouvelle étendue</strong></li>
+          <li><span class="step-num">2</span>Nommer l'étendue (ex : <code>LAN-TP</code>) et décrire</li>
+          <li><span class="step-num">3</span>Plage IP de début à fin (ex : <code>192.168.102.100</code> à <code>192.168.102.199</code>)</li>
+          <li><span class="step-num">4</span>Ajouter les exclusions (ex : <code>192.168.102.100</code> pour le serveur fixe)</li>
+          <li><span class="step-num">5</span>Durée du bail : généralement <strong>8 heures</strong> (4 jours pour fixes)</li>
+          <li><span class="step-num">6</span>Configurer maintenant les options : passerelle, DNS, domaine</li>
+          <li><span class="step-num">7</span>WINS → Suivant sans rien renseigner</li>
+          <li><span class="step-num">8</span>Activer l'étendue maintenant → <strong>Terminer</strong></li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>3. Réservation d'adresse IP (par adresse MAC)</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Sur le client, récupérer l'adresse MAC avec :</li>
+        </ol>
+        <div class="cmd-block">
+          <div class="cmd-header">
+            <span class="cmd-label">cmd — client</span>
+            <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+          </div>
+          <div class="cmd-code">ipconfig /all</div>
+          <div class="cmd-desc">Relever l'adresse physique (ex : 08-00-27-56-FA-E2)</div>
+        </div>
+        <ol class="steps" style="margin-top:8px">
+          <li><span class="step-num">2</span>DHCP → IPv4 → clic droit <strong>Réservation</strong> → <strong>Nouvelle réservation</strong></li>
+          <li><span class="step-num">3</span>Nom, adresse IP souhaitée, adresse MAC (sans tirets), description → <strong>Ajouter</strong></li>
+        </ol>
+        <div class="info-box success">✅ Le client obtiendra toujours la même IP à chaque connexion.</div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- NIVEAU 2 -->
+    <!-- ══════════════════════════════════════ -->
+    <div class="level-badge lvl-2" style="margin-top:16px">🔵 Niveau 2 — Services réseau</div>
+    <div class="level-progress">
+      <div class="prog-seg done" style="color:var(--n1)"></div>
+      <div class="prog-seg done" style="color:var(--n2)"></div>
+      <div class="prog-seg" style="color:var(--n3)"></div>
+      <div class="prog-seg" style="color:var(--n4)"></div>
+    </div>
+
+    <!-- DNS -->
+    <section id="dns">
+      <h2>DNS — Création d'une zone et ajout d'hôtes</h2>
+      <div class="section-subtitle">Configuration du serveur DNS principal sur Windows Server</div>
+
+      <div class="subsection">
+        <h3>1. Propriétés du serveur DNS</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Gestionnaire de serveur → clic droit sur <strong>DNS</strong> → <strong>Gestionnaire DNS</strong></li>
+          <li><span class="step-num">2</span>Clic droit sur le serveur DNS (ex : DNS1) → <strong>Propriétés</strong></li>
+          <li><span class="step-num">3</span>Onglet <strong>Interfaces</strong> : décocher IPv6, cocher « Uniquement les adresses IP suivantes » (conserver l'IP statique du serveur)</li>
+          <li><span class="step-num">4</span>Onglet <strong>Redirecteurs</strong> → Modifier → ajouter <code>8.8.8.8</code> → OK</li>
+          <li><span class="step-num">5</span>Onglet Avancé → rien à changer → OK</li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>2. Création d'une zone de recherche directe</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Zone de recherche directe → clic droit → <strong>Nouvelle zone</strong> → Suivant</li>
+          <li><span class="step-num">2</span>Type : <strong>Zone principale</strong> → Suivant</li>
+          <li><span class="step-num">3</span>Nom de la zone : <code>labo.tssr</code> → Suivant</li>
+          <li><span class="step-num">4</span>Créer un nouveau fichier de zone → Suivant</li>
+          <li><span class="step-num">5</span>Mises à jour dynamiques : <strong>Ne pas autoriser</strong> → Suivant → <strong>Terminer</strong></li>
+        </ol>
+        <div class="info-box">📌 La zone créée contient automatiquement deux enregistrements : <strong>SOA</strong> (Start of Authority) et <strong>NS</strong> (Name Server).</div>
+      </div>
+
+      <div class="subsection">
+        <h3>3. Zone de recherche inversée</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Zone de recherche inversée → clic droit → <strong>Nouvelle zone</strong></li>
+          <li><span class="step-num">2</span>Zone principale → <strong>Zone de recherche inversée IPv4</strong></li>
+          <li><span class="step-num">3</span>ID réseau : saisir les 3 premiers octets (ex : <code>192.168.240</code>)</li>
+          <li><span class="step-num">4</span>Suivant → Suivant → <strong>Terminer</strong></li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>4. Ajout d'hôtes (enregistrements A)</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Clic droit dans la zone <code>labo.tssr</code> → <strong>Nouvel hôte (A ou AAAA)…</strong></li>
+          <li><span class="step-num">2</span>Nom : ex <code>Routeur</code>, Adresse IP : <code>192.168.240.254</code></li>
+          <li><span class="step-num">3</span>Cocher <strong>Créer un pointeur PTR</strong> (visible dans zone inversée)</li>
+          <li><span class="step-num">4</span>Cliquer <strong>Ajouter un hôte</strong> → OK</li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>5. Alias CNAME (raccourci de nom)</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Clic droit → <strong>Nouvel alias (CNAME)…</strong></li>
+          <li><span class="step-num">2</span>Nom de l'alias : ex <code>rt</code></li>
+          <li><span class="step-num">3</span>Parcourir jusqu'à l'hôte cible (ex : Routeur.labo.tssr) → OK</li>
+        </ol>
+        <div class="cmd-block">
+          <div class="cmd-header">
+            <span class="cmd-label">cmd — test ping DNS</span>
+            <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+          </div>
+          <div class="cmd-code">ping routeur.labo.tssr</div>
+          <div class="cmd-desc">Vérifie la résolution de nom DNS vers l'adresse IP</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DNS SECONDAIRE -->
+    <section id="dns-secondaire">
+      <h2>DNS Secondaire (zone secondaire)</h2>
+      <div class="section-subtitle">Partage de la zone DNS entre deux serveurs pour la redondance</div>
+
+      <div class="subsection">
+        <h3>Sur le serveur secondaire (DNS2)</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Installer le rôle DNS (idem que le principal)</li>
+          <li><span class="step-num">2</span>Gestionnaire DNS → Zone de recherche directe → <strong>Nouvelle zone</strong></li>
+          <li><span class="step-num">3</span>Type : <strong>Zone secondaire</strong></li>
+          <li><span class="step-num">4</span>Nom de zone : <code>labo.tssr</code> → Suivant</li>
+          <li><span class="step-num">5</span>Serveurs maître : saisir l'IP du DNS1 (ex : <code>192.168.240.211</code>) → Suivant → Terminer</li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>Sur le serveur principal (DNS1)</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Ajouter un nouvel hôte A pour DNS2 (ex : <code>192.168.240.212</code>)</li>
+          <li><span class="step-num">2</span>Sur DNS2 → clic droit sur la zone → <strong>Charger à nouveau</strong> (ou rafraîchir)</li>
+        </ol>
+        <div class="info-box success">✅ Sur DNS2, la zone est en lecture seule (zone secondaire). Seul DNS1 peut créer/modifier des enregistrements.</div>
+      </div>
+    </section>
+
+    <!-- PROFILS ITINÉRANTS -->
+    <section id="profils">
+      <h2>Profils itinérants</h2>
+      <div class="section-subtitle">Stocker les profils utilisateurs sur le serveur (accessible de n'importe quel poste)</div>
+
+      <div class="subsection">
+        <h3>1. Partage du dossier Profil</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Créer un dossier sur le serveur (ex : <code>D:\Profil</code>)</li>
+          <li><span class="step-num">2</span>Clic droit → Propriétés → onglet <strong>Partage</strong> → <strong>Partage avancé</strong></li>
+          <li><span class="step-num">3</span>Cocher « Partager ce dossier », nom du partage : <code>Profil</code></li>
+          <li><span class="step-num">4</span>Autorisations → cocher <strong>Contrôle total</strong> pour « Tout le monde » → Appliquer → OK → Fermer</li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>2. Configurer le profil dans l'AD</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Utilisateurs et ordinateurs AD → double-cliquer sur l'utilisateur</li>
+          <li><span class="step-num">2</span>Onglet <strong>Profil</strong> → Chemin du profil :</li>
+        </ol>
+        <div class="cmd-block">
+          <div class="cmd-header">
+            <span class="cmd-label">Chemin du profil utilisateur</span>
+            <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+          </div>
+          <div class="cmd-code">\\AD01\profil\p.sorin</div>
+          <div class="cmd-desc">Remplacer p.sorin par le login de l'utilisateur</div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>3. Lecteur réseau (optionnel)</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Poste de travail → Ordinateur → <strong>Connecter un lecteur réseau</strong></li>
+          <li><span class="step-num">2</span>Lettre : <code>S:</code>, Dossier : <code>\\srv00\profil</code></li>
+          <li><span class="step-num">3</span>Cocher « Se reconnecter lors de la connexion » → <strong>Terminer</strong></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- FTP -->
+    <section id="ftp">
+      <h2>Serveur FTP (IIS)</h2>
+      <div class="section-subtitle">Créer un serveur FTP avec accès isolé par utilisateur AD</div>
+
+      <div class="subsection">
+        <h3>1. Prérequis — Créer les utilisateurs dans l'AD</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Dans l'AD, créer une OU (ex : <code>@greta</code>)</li>
+          <li><span class="step-num">2</span>Créer 2 utilisateurs de test (ex : <code>Alex Terrieur</code> et <code>Samantha LOT</code>)</li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>2. Installation du rôle IIS + FTP</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Gestionnaire de serveur → Gérer → Ajouter des rôles</li>
+          <li><span class="step-num">2</span>Sélectionner <strong>Serveur Web (IIS)</strong></li>
+          <li><span class="step-num">3</span>Dans les services de rôle, cocher <strong>Serveur FTP</strong> et <strong>Extensibilité FTP</strong></li>
+          <li><span class="step-num">4</span>Suivant → <strong>Installer</strong></li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>3. Arborescence des dossiers</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Aller dans <code>C:\inetpub\ftproot</code></li>
+          <li><span class="step-num">2</span>Créer un dossier <code>TSSR</code></li>
+          <li><span class="step-num">3</span>Dans <code>TSSR</code>, créer un sous-dossier par utilisateur (ex : <code>aterrieur</code>, <code>slot</code>)</li>
+          <li><span class="step-num">4</span>Créer un fichier test dans chaque dossier</li>
+          <li><span class="step-num">5</span>Propriétés de chaque dossier → onglet <strong>Sécurité</strong> → Modifier → Ajouter l'utilisateur correspondant</li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>4. Configuration IIS (site FTP)</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Gestionnaire IIS → Sites → clic droit → <strong>Ajouter un site FTP</strong></li>
+          <li><span class="step-num">2</span>Nom : <code>FTP AD</code>, Chemin : <code>C:\inetpub\ftproot</code></li>
+          <li><span class="step-num">3</span>Liaison : port <code>21</code>, <strong>Pas de SSL</strong></li>
+          <li><span class="step-num">4</span>Authentification : cocher <strong>De base</strong></li>
+          <li><span class="step-num">5</span>Autorisation : <strong>Tous les utilisateurs</strong>, Autorisations : <strong>Lecture</strong> et <strong>Écriture</strong></li>
+          <li><span class="step-num">6</span>Cliquer <strong>Terminer</strong></li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>5. Test avec WinSCP</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Lancer <strong>WinSCP</strong>, protocole : <strong>FTP</strong></li>
+          <li><span class="step-num">2</span>Hôte : IP du serveur (ex : <code>192.168.240.201</code>), port <code>21</code></li>
+          <li><span class="step-num">3</span>Nom d'utilisateur : login AD (ex : <code>slot</code>), Mot de passe : celui de l'AD</li>
+          <li><span class="step-num">4</span>Se connecter → on arrive dans le dossier de l'utilisateur et on voit son fichier</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- NIVEAU 3 — AGDLP -->
+    <!-- ══════════════════════════════════════ -->
+    <div class="level-badge lvl-3" style="margin-top:16px">🟡 Niveau 3 — AGDLP</div>
+    <div class="level-progress">
+      <div class="prog-seg done" style="color:var(--n1)"></div>
+      <div class="prog-seg done" style="color:var(--n2)"></div>
+      <div class="prog-seg done" style="color:var(--n3)"></div>
+      <div class="prog-seg" style="color:var(--n4)"></div>
+    </div>
+
+    <!-- AGDLP CONCEPT -->
+    <section id="agdlp-concept">
+      <h2>Concept AGDLP</h2>
+      <div class="section-subtitle">Méthode d'organisation des droits d'accès dans Active Directory</div>
+
+      <div class="info-box">
+        <strong>AGDLP = Account → Global → Domain Local → Permission</strong><br>
+        Principe : on n'affecte jamais un utilisateur directement à un dossier. On passe par des groupes.
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <tr>
+            <th>Sigle</th><th>Signification</th><th>Rôle</th>
+          </tr>
+          <tr>
+            <td><strong>A</strong></td>
+            <td>Account (Compte utilisateur)</td>
+            <td>L'utilisateur AD</td>
+          </tr>
+          <tr>
+            <td><strong>G</strong></td>
+            <td>Global group</td>
+            <td>Groupe global par département/métier (ex : <code>g_rh</code>, <code>g_informatique</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>DL</strong></td>
+            <td>Domain Local group</td>
+            <td>Groupe local portant les droits sur une ressource (ex : <code>dl_dossier_RH_C</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>P</strong></td>
+            <td>Permission</td>
+            <td>F=Full, C=Change (Modifier), R=Read (Lecture)</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="info-box">
+        <strong>Règle AGDLP :</strong> A → G → DL → P<br>
+        Un utilisateur est mis dans un G, le G est mis dans un DL, le DL reçoit les droits sur le dossier.
+      </div>
+
+      <div class="subsection">
+        <h3>Portée des groupes</h3>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Type</th><th>Visibilité</th></tr>
+            <tr><td><strong>Domaine local (DL)</strong></td><td>Visible uniquement dans le domaine où il a été créé</td></tr>
+            <tr><td><strong>Global (G)</strong></td><td>Visible par tous les domaines (parent et enfant)</td></tr>
+            <tr><td><strong>Universelle</strong></td><td>Visible sur tous les domaines de toute la forêt</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGDLP PARTAGE -->
+    <section id="agdlp-partage">
+      <h2>Partage & Droits AGDLP — Étape par étape</h2>
+      <div class="section-subtitle">Procédure complète de mise en place AGDLP sur un dossier partagé</div>
+
+      <div class="subsection">
+        <h3>1. Partage du dossier parent</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Clic droit sur le dossier de partage → Propriétés → onglet <strong>Partage</strong></li>
+          <li><span class="step-num">2</span>Partage avancé → cocher « Partager ce dossier »</li>
+          <li><span class="step-num">3</span>Autorisations → <strong>Tout le monde : Contrôle total</strong> → Appliquer → OK → Fermer</li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>2. Création des sous-dossiers et des groupes DL</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Créer les sous-dossiers dans le dossier partagé (ex : <code>RH</code>, <code>Support</code>)</li>
+          <li><span class="step-num">2</span>Dans l'AD, dans l'OU Groupe, créer 3 groupes DL par dossier :</li>
+        </ol>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Nom du groupe</th><th>Type</th><th>Portée</th><th>Permission</th></tr>
+            <tr><td><code>dl_dossier_RH_F</code></td><td>Sécurité</td><td>Domaine local</td><td>Full (Contrôle total)</td></tr>
+            <tr><td><code>dl_dossier_RH_C</code></td><td>Sécurité</td><td>Domaine local</td><td>Change (Modification)</td></tr>
+            <tr><td><code>dl_dossier_RH_R</code></td><td>Sécurité</td><td>Domaine local</td><td>Read (Lecture)</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>3. Désactivation de l'héritage sur les sous-dossiers</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Clic droit sur <code>RH</code> → Propriétés → onglet <strong>Sécurité</strong> → <strong>Avancé</strong></li>
+          <li><span class="step-num">2</span>Cliquer <strong>Désactiver l'héritage</strong> → <strong>Convertir les autorisations héritées en autorisations explicites</strong></li>
+          <li><span class="step-num">3</span>OK → retour Sécurité → <strong>Modifier</strong></li>
+          <li><span class="step-num">4</span>Supprimer le groupe <strong>Utilisateurs</strong></li>
+          <li><span class="step-num">5</span>Ajouter les 3 groupes DL du dossier RH (taper <code>dl</code> → Vérifier les noms → sélectionner les 3)</li>
+          <li><span class="step-num">6</span>Attribuer les droits manuellement : F → Contrôle total / C → Modifier / R → Lecture+Exécution</li>
+          <li><span class="step-num">7</span>Appliquer → OK</li>
+        </ol>
+        <div class="info-box">🔁 Répéter l'opération pour chaque sous-dossier (Support, Compta, etc.)</div>
+      </div>
+
+      <div class="subsection">
+        <h3>4. Association des groupes G aux groupes DL</h3>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:10px">Exemple de demande :</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Groupe G (métier)</th><th>Groupe DL (ressource)</th><th>Résultat</th></tr>
+            <tr><td><code>g_rh</code></td><td><code>dl_dossier_RH_C</code></td><td>Le service RH peut modifier le dossier RH</td></tr>
+            <tr><td><code>g_direction</code></td><td><code>dl_dossier_RH_R</code></td><td>La direction peut lire le dossier RH</td></tr>
+            <tr><td><code>g_support</code></td><td><code>dl_dossier_Support_C</code></td><td>Le support peut modifier le dossier Support</td></tr>
+          </table>
+        </div>
+        <ol class="steps" style="margin-top:10px">
+          <li><span class="step-num">1</span>Double-cliquer sur <code>dl_dossier_RH_C</code> → onglet <strong>Membres</strong> → Ajouter</li>
+          <li><span class="step-num">2</span>Taper <code>g_rh</code> → Vérifier les noms → OK</li>
+          <li><span class="step-num">3</span>Répéter pour chaque association DL ↔ G</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- AGDLP SCRIPT -->
+    <section id="agdlp-script">
+      <h2>Script agdlp.bat</h2>
+      <div class="section-subtitle">Automatisation de la création de dossier + groupes DL + droits NTFS</div>
+
+      <div class="cmd-block">
+        <div class="cmd-header">
+          <span class="cmd-label">script_agdlp.bat</span>
+          <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+        </div>
+        <div class="cmd-code">@echo off
+set domaine=labo
+set extension=tssr
+
+REM ETAPE01 - Demander le nom du dossier
+set /p dossier=Veuillez saisir le nom du dossier :
+mkdir e:\partage\%dossier%
+
+REM ETAPE02 - Créer les 3 groupes DL (F/C/R)
+dsadd group cn=dl_Dossier_%dossier%_F,ou=groupe,ou=@%domaine%,dc=%domaine%,dc=%extension% -scope l
+dsadd group cn=dl_Dossier_%dossier%_C,ou=groupe,ou=@%domaine%,dc=%domaine%,dc=%extension% -scope l
+dsadd group cn=dl_Dossier_%dossier%_R,ou=groupe,ou=@%domaine%,dc=%domaine%,dc=%extension% -scope l
+
+REM ETAPE03 - Désactiver l'héritage
+icacls e:\partage\%dossier% /inheritance:d
+
+REM ETAPE04 - Supprimer le groupe Utilisateurs
+icacls e:\partage\%dossier% /remove:g "Utilisateurs"
+
+REM ETAPE05 - Ajouter les 3 groupes DL avec leurs droits
+icacls e:\partage\%dossier% /grant dl_Dossier_%dossier%_F:(OI)(CI)(F)
+icacls e:\partage\%dossier% /grant dl_Dossier_%dossier%_C:(OI)(CI)(M)
+icacls e:\partage\%dossier% /grant dl_Dossier_%dossier%_R:(OI)(CI)(RX)
+
+pause</div>
+        <div class="cmd-desc">Lancer ce script autant de fois qu'il y a de dossiers à créer. Adapter le chemin e:\partage selon votre configuration.</div>
+      </div>
+
+      <div class="info-box warn">⚠️ Adapter les variables <code>domaine</code> et <code>extension</code> à votre domaine AD (ex : <code>tssr</code> / <code>local</code>).</div>
+    </section>
+
+    <!-- MAPPAGE -->
+    <section id="mappage">
+      <h2>Mappage de lecteurs réseau</h2>
+      <div class="section-subtitle">3 méthodes pour connecter un dossier partagé comme lecteur réseau</div>
+
+      <div class="subsection">
+        <h3>Méthode 1 — Navigation directe</h3>
+        <div class="cmd-block">
+          <div class="cmd-header">
+            <span class="cmd-label">Barre d'adresse de l'Explorateur</span>
+            <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+          </div>
+          <div class="cmd-code">\\AD01\partage</div>
+          <div class="cmd-desc">Affiche tous les sous-dossiers partagés. L'utilisateur ne voit que ceux auxquels il a accès.</div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Méthode 2 — Lecteur réseau via l'interface</h3>
+        <ol class="steps">
+          <li><span class="step-num">1</span>Poste de travail → Ordinateur → <strong>Connecter un lecteur réseau</strong></li>
+          <li><span class="step-num">2</span>Lettre : <code>P:</code>, Dossier : <code>\\AD01\partage\Production</code></li>
+          <li><span class="step-num">3</span>Cocher « Se reconnecter lors de la connexion » → <strong>Terminer</strong></li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>Méthode 3 — Script .bat (mappage automatique)</h3>
+        <div class="cmd-block">
+          <div class="cmd-header">
+            <span class="cmd-label">mappage.bat</span>
+            <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+          </div>
+          <div class="cmd-code">@echo off
+net use p: \\ad01\partage\production
+net use t: \\ad01\partage\commun
+net use z: \\ad01\partage\direction</div>
+          <div class="cmd-desc">Crée 3 lecteurs réseau simultanément. Idéal pour automatiser via GPO (script d'ouverture de session).</div>
+        </div>
+        <div class="info-box success">✅ Pour automatiser pour tous les utilisateurs d'un groupe → utiliser les <strong>GPO</strong> (Préférences utilisateur → Mappages de lecteurs).</div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- NIVEAU 4 — FSMO -->
+    <!-- ══════════════════════════════════════ -->
+    <div class="level-badge lvl-4" style="margin-top:16px">🔴 Niveau 4 — Rôles FSMO</div>
+    <div class="level-progress">
+      <div class="prog-seg done" style="color:var(--n1)"></div>
+      <div class="prog-seg done" style="color:var(--n2)"></div>
+      <div class="prog-seg done" style="color:var(--n3)"></div>
+      <div class="prog-seg done" style="color:var(--n4)"></div>
+    </div>
+
+    <!-- FSMO ROLES -->
+    <section id="fsmo-roles">
+      <h2>Les 5 rôles FSMO</h2>
+      <div class="section-subtitle">Flexible Single Master Operations — rôles uniques dans la forêt/domaine AD</div>
+
+      <div class="info-box">
+        <strong>Pourquoi les FSMO ?</strong> Active Directory est multi-maître (tous les DC peuvent écrire), mais certaines opérations doivent être gérées par un seul DC pour éviter les conflits. Ces 5 rôles garantissent cohérence et unicité.
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <tr>
+            <th>Rôle</th><th>Portée</th><th>Rôle principal</th><th>Importance</th>
+          </tr>
+          <tr>
+            <td><strong>Contrôleur de schéma</strong><br><small>(Schema Master)</small></td>
+            <td>Forêt</td>
+            <td>Gère la structure de la base AD (types d'objets, attributs). Nécessaire pour modifier le schéma (ex : installer Exchange).</td>
+            <td>Très forte</td>
+          </tr>
+          <tr>
+            <td><strong>Maître des noms de domaine</strong><br><small>(Domain Naming Master)</small></td>
+            <td>Forêt</td>
+            <td>Autorise ou refuse l'ajout/suppression de domaines dans la forêt.</td>
+            <td>Élevée (rare)</td>
+          </tr>
+          <tr>
+            <td><strong>Émulateur PDC</strong><br><small>(PDC Emulator)</small></td>
+            <td>Domaine</td>
+            <td>Horloge officielle du domaine, gère les mots de passe récents, édite les GPO, compatibilité NT4.</td>
+            <td>Très forte ★</td>
+          </tr>
+          <tr>
+            <td><strong>Maître RID</strong><br><small>(RID Master)</small></td>
+            <td>Domaine</td>
+            <td>Distribue des blocs de RID aux DC pour créer des SID uniques pour chaque nouvel objet AD.</td>
+            <td>Élevée</td>
+          </tr>
+          <tr>
+            <td><strong>Maître d'infrastructure</strong><br><small>(Infrastructure Master)</small></td>
+            <td>Domaine</td>
+            <td>Met à jour les références inter-domaines (objets d'un autre domaine). Quasi inutile dans un domaine unique.</td>
+            <td>Variable</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <h3>Vérifier les rôles FSMO</h3>
+        <div class="cmd-block">
+          <div class="cmd-header">
+            <span class="cmd-label">cmd — sur n'importe quel DC</span>
+            <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+          </div>
+          <div class="cmd-code">netdom query fsmo</div>
+          <div class="cmd-desc">Affiche les 5 rôles FSMO et le DC qui les détient actuellement</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FSMO TRANSFER -->
+    <section id="fsmo-transfer">
+      <h2>Transfert de rôle FSMO (Transfer)</h2>
+      <div class="section-subtitle">Déplacer un rôle d'un DC vers un autre — les deux DC sont opérationnels</div>
+
+      <div class="info-box">
+        <strong>Transfer</strong> = les deux serveurs sont en ligne. On déplace proprement le rôle.<br>
+        Exemple : transférer le rôle RID Master de AD01 vers AD02.
+      </div>
+
+      <div class="subsection">
+        <h3>Procédure de transfert avec ntdsutil</h3>
+        <div class="cmd-block">
+          <div class="cmd-header">
+            <span class="cmd-label">cmd — sur AD02 (serveur cible)</span>
+            <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+          </div>
+          <div class="cmd-code">ntdsutil
+roles
+connections
+connect to server ad02
+quit
+transfer RID master</div>
+          <div class="cmd-desc">1. Lancer ntdsutil → 2. Entrer en mode "roles" → 3. Se connecter au serveur cible → 4. Quitter connections → 5. Transférer le rôle</div>
+        </div>
+
+        <ol class="steps" style="margin-top:12px">
+          <li><span class="step-num">1</span>Lancer <code>ntdsutil</code> en ligne de commande</li>
+          <li><span class="step-num">2</span>Taper <code>roles</code> → on entre en mode <strong>fsmo maintenance</strong></li>
+          <li><span class="step-num">3</span>Taper <code>connections</code> → on entre en mode <strong>server connections</strong></li>
+          <li><span class="step-num">4</span>Taper <code>connect to server ad02</code> → connexion établie</li>
+          <li><span class="step-num">5</span>Taper <code>quit</code> → retour en mode fsmo maintenance</li>
+          <li><span class="step-num">6</span>Taper <code>transfer RID master</code> → boîte de dialogue de confirmation → cliquer <strong>Oui</strong></li>
+          <li><span class="step-num">7</span>Taper <code>quit</code> puis <code>quit</code> pour sortir complètement</li>
+          <li><span class="step-num">8</span>Vérifier : <code>netdom query fsmo</code></li>
+        </ol>
+
+        <div class="tbl-wrap" style="margin-top:16px">
+          <table>
+            <tr><th>Commande ntdsutil</th><th>Action</th></tr>
+            <tr><td><code>transfer schema master</code></td><td>Transfert du rôle Contrôleur de schéma</td></tr>
+            <tr><td><code>transfer naming master</code></td><td>Transfert du rôle Maître des noms de domaine</td></tr>
+            <tr><td><code>transfer PDC</code></td><td>Transfert du rôle Émulateur PDC</td></tr>
+            <tr><td><code>transfer RID master</code></td><td>Transfert du rôle Maître RID</td></tr>
+            <tr><td><code>transfer infrastructure master</code></td><td>Transfert du rôle Maître d'infrastructure</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- FSMO SEIZE -->
+    <section id="fsmo-seize">
+      <h2>Seizing (récupération d'urgence)</h2>
+      <div class="section-subtitle">Récupérer un rôle FSMO quand le DC qui le détient est hors service</div>
+
+      <div class="info-box danger">
+        🚨 <strong>Seize</strong> = le DC maître est éteint ou en panne. On <em>force</em> la prise du rôle sur un autre DC. À n'utiliser qu'en dernier recours — le DC d'origine NE DOIT JAMAIS être remis en ligne par la suite.
+      </div>
+
+      <div class="subsection">
+        <h3>Procédure de seizing avec ntdsutil</h3>
+        <div class="cmd-block">
+          <div class="cmd-header">
+            <span class="cmd-label">cmd — sur AD01 (DC de récupération)</span>
+            <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+          </div>
+          <div class="cmd-code">ntdsutil
+roles
+connections
+connect to server ad01
+quit
+seize RID master</div>
+          <div class="cmd-desc">On se connecte sur son propre serveur (celui qui récupère le rôle), puis on force la saisie.</div>
+        </div>
+
+        <ol class="steps" style="margin-top:12px">
+          <li><span class="step-num">1</span>Lancer <code>ntdsutil</code> sur le DC de récupération (AD01)</li>
+          <li><span class="step-num">2</span>Taper <code>roles</code> → mode fsmo maintenance</li>
+          <li><span class="step-num">3</span>Taper <code>connections</code> → <code>connect to server ad01</code> → <code>quit</code></li>
+          <li><span class="step-num">4</span>Taper <code>seize RID master</code> → boîte de confirmation → <strong>Oui</strong></li>
+          <li><span class="step-num">5</span>Message d'erreur LDAP attendu (le DC d'origine est HS) → le seizing continue quand même</li>
+          <li><span class="step-num">6</span>Taper <code>quit</code> puis <code>quit</code></li>
+          <li><span class="step-num">7</span>Vérifier : <code>netdom query fsmo</code> → le rôle RID est sur AD01</li>
+        </ol>
+
+        <div class="tbl-wrap" style="margin-top:16px">
+          <table>
+            <tr><th>Commande</th><th>Rôle récupéré</th></tr>
+            <tr><td><code>seize schema master</code></td><td>Contrôleur de schéma</td></tr>
+            <tr><td><code>seize naming master</code></td><td>Maître des noms de domaine</td></tr>
+            <tr><td><code>seize PDC</code></td><td>Émulateur PDC</td></tr>
+            <tr><td><code>seize RID master</code></td><td>Maître RID</td></tr>
+            <tr><td><code>seize infrastructure master</code></td><td>Maître d'infrastructure</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- RÉFÉRENCES -->
+    <!-- ══════════════════════════════════════ -->
+    <section id="ref-commandes">
+      <h2>📋 Référence — Commandes clés Windows Server</h2>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th>Commande</th><th>Usage</th></tr>
+          <tr><td><code>netdom query fsmo</code></td><td>Afficher les 5 rôles FSMO et leurs DC</td></tr>
+          <tr><td><code>ipconfig /all</code></td><td>Voir IP, masque, passerelle, DNS, adresse MAC</td></tr>
+          <tr><td><code>ipconfig /release</code></td><td>Libérer le bail DHCP</td></tr>
+          <tr><td><code>ipconfig /renew</code></td><td>Renouveler le bail DHCP</td></tr>
+          <tr><td><code>ipconfig /flushdns</code></td><td>Vider le cache DNS local</td></tr>
+          <tr><td><code>nslookup nom.domaine</code></td><td>Résoudre un nom DNS</td></tr>
+          <tr><td><code>ping nom.domaine</code></td><td>Tester la résolution DNS et la connectivité</td></tr>
+          <tr><td><code>ntdsutil</code></td><td>Outil de gestion AD (FSMO, BDD, maintenance)</td></tr>
+          <tr><td><code>gpupdate /force</code></td><td>Forcer l'application des GPO sur le client</td></tr>
+          <tr><td><code>gpresult /r</code></td><td>Afficher les GPO appliquées sur la machine/utilisateur</td></tr>
+          <tr><td><code>net use p: \\serveur\partage</code></td><td>Connecter un lecteur réseau</td></tr>
+          <tr><td><code>net use p: /delete</code></td><td>Déconnecter le lecteur réseau P:</td></tr>
+          <tr><td><code>icacls dossier /inheritance:d</code></td><td>Désactiver l'héritage NTFS sur un dossier</td></tr>
+          <tr><td><code>icacls dossier /remove:g "Utilisateurs"</code></td><td>Supprimer le groupe Utilisateurs des droits NTFS</td></tr>
+          <tr><td><code>dsadd group cn=nom,ou=...,dc=... -scope l</code></td><td>Créer un groupe de domaine local via CMD</td></tr>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ── BURGER ──
+const burgerBtn = document.getElementById('burgerBtn');
+const toc = document.getElementById('toc');
+burgerBtn.addEventListener('click', () => toc.classList.toggle('collapsed'));
+
+// ── TOC ACTIVE ON SCROLL ──
+const sections = document.querySelectorAll('section[id]');
+const tocLinks = document.querySelectorAll('.toc a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocLinks.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// ── COPY CODE ──
+function copyCode(btn) {
+  const code = btn.closest('.cmd-block').querySelector('.cmd-code').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '✓ Copié';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── SEARCH ──
+const searchInput = document.getElementById('searchInput');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const clearBtn = document.getElementById('clearBtn');
+const searchCount = document.getElementById('searchCount');
+const mainContent = document.getElementById('mainContent');
+
+let highlights = [];
+let currentIdx = -1;
+let originalHTML = mainContent.innerHTML;
+
+function escapeReg(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function clearHighlights() {
+  mainContent.innerHTML = originalHTML;
+  highlights = [];
+  currentIdx = -1;
+  searchCount.textContent = '';
+}
+
+function doSearch(term) {
+  mainContent.innerHTML = originalHTML;
+  if (!term) { searchCount.textContent = ''; highlights = []; currentIdx = -1; return; }
+
+  const reg = new RegExp(`(${escapeReg(term)})`, 'gi');
+  function walkNode(node) {
+    if (node.nodeType === 3) {
+      const text = node.textContent;
+      if (reg.test(text)) {
+        const span = document.createElement('span');
+        span.innerHTML = text.replace(reg, '<mark class="search-highlight">$1</mark>');
+        node.parentNode.replaceChild(span, node);
+      }
+    } else if (node.nodeType === 1 && !['SCRIPT','STYLE','BUTTON'].includes(node.tagName)) {
+      [...node.childNodes].forEach(walkNode);
+    }
+  }
+  walkNode(mainContent);
+
+  highlights = Array.from(mainContent.querySelectorAll('.search-highlight'));
+  currentIdx = highlights.length > 0 ? 0 : -1;
+  updateCount();
+  scrollToCurrent();
+}
+
+function updateCount() {
+  if (highlights.length === 0) {
+    searchCount.textContent = '0';
+    return;
+  }
+  searchCount.textContent = `${currentIdx + 1}/${highlights.length}`;
+  highlights.forEach((h, i) => h.classList.toggle('current', i === currentIdx));
+}
+
+function scrollToCurrent() {
+  if (currentIdx >= 0 && highlights[currentIdx]) {
+    highlights[currentIdx].scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+}
+
+searchInput.addEventListener('input', () => {
+  originalHTML = mainContent.innerHTML.replace(/<mark[^>]*>(.*?)<\/mark>/gi, '$1');
+  // Re-capture clean HTML each time before search
+  const tmp = document.createElement('div');
+  tmp.innerHTML = originalHTML;
+  // Strip existing marks
+  tmp.querySelectorAll('mark').forEach(m => {
+    m.replaceWith(document.createTextNode(m.textContent));
+  });
+  originalHTML = tmp.innerHTML;
+  doSearch(searchInput.value.trim());
+});
+
+nextBtn.addEventListener('click', () => {
+  if (!highlights.length) return;
+  currentIdx = (currentIdx + 1) % highlights.length;
+  updateCount(); scrollToCurrent();
+});
+prevBtn.addEventListener('click', () => {
+  if (!highlights.length) return;
+  currentIdx = (currentIdx - 1 + highlights.length) % highlights.length;
+  updateCount(); scrollToCurrent();
+});
+clearBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  clearHighlights();
+  originalHTML = mainContent.innerHTML;
+});
+
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && highlights.length) {
+    if (e.shiftKey) {
+      currentIdx = (currentIdx - 1 + highlights.length) % highlights.length;
+    } else {
+      currentIdx = (currentIdx + 1) % highlights.length;
+    }
+    updateCount(); scrollToCurrent();
+  }
+  if (e.key === 'Escape') { clearBtn.click(); }
+});
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+    e.preventDefault(); searchInput.focus();
+  }
+});
+
+// Init
+originalHTML = mainContent.innerHTML;
+</script>
+</body>
+</html>

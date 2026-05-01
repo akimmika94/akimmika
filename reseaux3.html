@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Réseaux 3 — Commandes Cisco par équipement</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #1a1d27;
+    --bg3: #22263a;
+    --border: #2e3350;
+    --text: #d4d8f0;
+    --text2: #8890b5;
+    --text3: #5a6080;
+    --accent: #4a7cff;
+    --accent2: #6c9fff;
+    --green: #3ecf8e;
+    --amber: #f5a623;
+    --red: #e05252;
+    --purple: #a87fff;
+    --sidebar: 270px;
+    --header: 52px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  /* ── HEADER ── */
+  .header {
+    height: var(--header); min-height: var(--header);
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px; padding: 0 16px;
+    z-index: 100;
+  }
+  .burger { background: none; border: none; cursor: pointer; color: var(--text2); padding: 4px; display: flex; flex-direction: column; gap: 4px; }
+  .burger span { display: block; width: 18px; height: 2px; background: currentColor; border-radius: 1px; transition: .2s; }
+  .header-title { font-size: 15px; font-weight: 600; color: var(--text); flex: 1; }
+  .header-badge { font-size: 11px; background: var(--accent); color: #fff; padding: 2px 10px; border-radius: 20px; font-weight: 600; }
+
+  /* ── SEARCH BAR ── */
+  .search-wrap { display: flex; align-items: center; gap: 8px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; height: 32px; min-width: 200px; }
+  .search-wrap svg { flex-shrink: 0; opacity: .5; }
+  .search-wrap input { background: none; border: none; outline: none; color: var(--text); font-size: 13px; width: 100%; }
+  .search-wrap input::placeholder { color: var(--text3); }
+  #searchCount { font-size: 11px; color: var(--text3); white-space: nowrap; }
+  .search-nav { display: flex; gap: 2px; }
+  .search-nav button { background: none; border: none; color: var(--text2); cursor: pointer; padding: 2px 5px; border-radius: 3px; font-size: 13px; }
+  .search-nav button:hover { background: var(--bg3); color: var(--text); }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; flex: 1; overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar); min-width: var(--sidebar);
+    background: var(--bg2); border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 12px 0;
+    transition: width .25s, min-width .25s;
+  }
+  .sidebar.collapsed { width: 0; min-width: 0; overflow: hidden; }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .nav-section { padding: 8px 14px 4px; font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; }
+  .nav-link {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 14px; color: var(--text2); text-decoration: none;
+    border-left: 3px solid transparent; font-size: 13px;
+    cursor: pointer; transition: .15s;
+  }
+  .nav-link:hover { color: var(--text); background: var(--bg3); }
+  .nav-link.active { color: var(--accent2); border-left-color: var(--accent); background: rgba(74,124,255,.08); }
+  .nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-pc     { background: #4a7cff; }
+  .dot-sw2    { background: #3ecf8e; }
+  .dot-sw3    { background: #f5a623; }
+  .dot-rt     { background: #e05252; }
+  .dot-piege  { background: #a87fff; }
+
+  /* ── MAIN CONTENT ── */
+  .main { flex: 1; overflow-y: auto; padding: 28px 32px 60px; }
+  .main::-webkit-scrollbar { width: 6px; }
+  .main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── SECTIONS ── */
+  .section { margin-bottom: 40px; scroll-margin-top: 20px; }
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .icon-pc   { background: rgba(74,124,255,.15); }
+  .icon-sw2  { background: rgba(62,207,142,.15); }
+  .icon-sw3  { background: rgba(245,166,35,.15); }
+  .icon-rt   { background: rgba(224,82,82,.15); }
+  .icon-piege { background: rgba(168,127,255,.15); }
+
+  .section-title { font-size: 18px; font-weight: 700; color: var(--text); }
+  .section-subtitle { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .layer-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-left: auto;
+  }
+  .badge-pc   { background: rgba(74,124,255,.2); color: var(--accent2); }
+  .badge-sw2  { background: rgba(62,207,142,.2); color: var(--green); }
+  .badge-sw3  { background: rgba(245,166,35,.2); color: var(--amber); }
+  .badge-rt   { background: rgba(224,82,82,.2);  color: var(--red); }
+  .badge-piege { background: rgba(168,127,255,.2); color: var(--purple); }
+
+  /* ── INTRO BOX ── */
+  .intro-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; font-size: 13px; color: var(--text2); line-height: 1.7; }
+  .intro-box strong { color: var(--text); }
+
+  /* ── CMD CARDS ── */
+  .cmd-grid { display: flex; flex-direction: column; gap: 8px; }
+  .cmd-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 16px; position: relative;
+    border-left: 3px solid var(--border);
+    transition: border-color .15s, background .15s;
+  }
+  .cmd-card:hover { background: var(--bg3); }
+  .cmd-card.color-pc   { border-left-color: var(--accent); }
+  .cmd-card.color-sw2  { border-left-color: var(--green); }
+  .cmd-card.color-sw3  { border-left-color: var(--amber); }
+  .cmd-card.color-rt   { border-left-color: var(--red); }
+  .cmd-card.color-piege { border-left-color: var(--purple); }
+  .cmd-card.highlight  { background: rgba(255,220,0,.06); border-color: #f5d000; }
+
+  .cmd-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+  .cmd-code { font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 13px; color: #7dd3fc; background: rgba(0,0,0,.3); padding: 3px 8px; border-radius: 4px; flex: 1; word-break: break-all; }
+  .copy-btn {
+    background: none; border: 1px solid var(--border); color: var(--text3);
+    border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer;
+    flex-shrink: 0; transition: .15s;
+  }
+  .copy-btn:hover { background: var(--bg3); color: var(--text); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); }
+  .cmd-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .cmd-desc strong { color: var(--text); }
+  .cmd-desc code { font-family: monospace; font-size: 12px; color: #7dd3fc; background: rgba(0,0,0,.25); padding: 1px 5px; border-radius: 3px; }
+
+  /* ── ALERTE PIÈGE ── */
+  .trap-box {
+    background: rgba(168,127,255,.08); border: 1px solid rgba(168,127,255,.3);
+    border-radius: 8px; padding: 14px 18px; margin-top: 20px;
+  }
+  .trap-box .trap-title { font-size: 12px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+  .trap-box p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+  .trap-box strong { color: var(--text); }
+
+  /* ── TABLEAU COMPARATIF ── */
+  .compare-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .compare-table th { background: var(--bg3); color: var(--text2); font-weight: 600; padding: 10px 14px; text-align: left; border: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+  .compare-table td { padding: 10px 14px; border: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+  .compare-table tr:hover td { background: var(--bg3); }
+  .td-oui  { color: var(--green); font-weight: 600; }
+  .td-non  { color: var(--red); }
+  .td-eq   { font-family: monospace; font-size: 12px; color: var(--text); }
+  .td-new  { color: var(--amber); font-weight: 600; }
+
+  /* ── NOTE BOX ── */
+  .note-box { background: rgba(74,124,255,.08); border: 1px solid rgba(74,124,255,.3); border-radius: 8px; padding: 14px 18px; margin: 16px 0; }
+  .note-box p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+  .note-box strong { color: var(--accent2); }
+
+  /* ── SUB-SECTION ── */
+  .sub-title { font-size: 12px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; margin: 20px 0 10px; }
+
+  /* ── SEARCH HIGHLIGHT ── */
+  mark { background: rgba(255,220,0,.35); color: var(--text); border-radius: 2px; }
+  mark.current { background: rgba(255,160,0,.6); }
+
+  /* ── SCROLL PROGRESS ── */
+  .scroll-bar { position: fixed; top: var(--header); left: 0; right: 0; height: 2px; background: var(--border); z-index: 200; }
+  .scroll-progress { height: 100%; background: var(--accent); width: 0%; transition: width .1s; }
+</style>
+</head>
+<body>
+
+<div class="scroll-bar"><div class="scroll-progress" id="scrollProgress"></div></div>
+
+<!-- HEADER -->
+<div class="header">
+  <button class="burger" id="burgerBtn" title="Masquer le menu">
+    <span></span><span></span><span></span>
+  </button>
+  <span class="header-title">Réseaux 3 — Commandes Cisco par équipement</span>
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Rechercher une commande…" autocomplete="off">
+    <span id="searchCount"></span>
+    <div class="search-nav">
+      <button id="prevMatch" title="Précédent">▲</button>
+      <button id="nextMatch" title="Suivant">▼</button>
+    </div>
+  </div>
+  <span class="header-badge">TSSR 2026</span>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-section">Équipements</div>
+    <a class="nav-link active" onclick="goTo('pc')">
+      <span class="nav-dot dot-pc"></span>💻 PC / Hôte
+    </a>
+    <a class="nav-link" onclick="goTo('sw2')">
+      <span class="nav-dot dot-sw2"></span>🔀 Switch Niveau 2
+    </a>
+    <a class="nav-link" onclick="goTo('sw3')">
+      <span class="nav-dot dot-sw3"></span>🔀 Switch Niveau 3
+    </a>
+    <a class="nav-link" onclick="goTo('rt')">
+      <span class="nav-dot dot-rt"></span>📡 Routeur
+    </a>
+
+    <div class="nav-section" style="margin-top:12px">Points critiques</div>
+    <a class="nav-link" onclick="goTo('iprouting')">
+      <span class="nav-dot dot-sw3"></span>ip routing — Switch L3
+    </a>
+    <a class="nav-link" onclick="goTo('noshutdown')">
+      <span class="nav-dot dot-rt"></span>no shutdown — détail
+    </a>
+    <a class="nav-link" onclick="goTo('pieges')">
+      <span class="nav-dot dot-piege"></span>⚠️ Pièges d'examen
+    </a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main" id="mainContent">
+
+    <!-- ══════════════════ PC ══════════════════ -->
+    <section class="section" id="pc">
+      <div class="section-header">
+        <div class="section-icon icon-pc">💻</div>
+        <div>
+          <div class="section-title">PC / Hôte</div>
+          <div class="section-subtitle">Couche utilisateur — Configuration OS</div>
+        </div>
+        <span class="layer-badge badge-pc">Couche utilisateur</span>
+      </div>
+
+      <div class="intro-box">
+        Le PC n'utilise <strong>pas le CLI Cisco</strong>. La configuration réseau se fait via le système d'exploitation (Windows). C'est la base de tout scénario : sans configuration IP correcte sur le poste, rien ne fonctionnera en amont.
+      </div>
+
+      <div class="sub-title">Configuration IP (Windows)</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-pc">
+          <div class="cmd-top">
+            <span class="cmd-code">ipconfig /all</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ipconfig /all')">Copier</button>
+          </div>
+          <div class="cmd-desc">Affiche toute la configuration IP : adresse, masque, passerelle, serveur DNS, DHCP activé ou non, adresse MAC. <strong>Premier réflexe de diagnostic.</strong></div>
+        </div>
+        <div class="cmd-card color-pc">
+          <div class="cmd-top">
+            <span class="cmd-code">ipconfig /release</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ipconfig /release')">Copier</button>
+          </div>
+          <div class="cmd-desc">Libère le bail DHCP actuel. L'interface perd son IP. À utiliser avant <code>/renew</code> pour forcer un renouvellement.</div>
+        </div>
+        <div class="cmd-card color-pc">
+          <div class="cmd-top">
+            <span class="cmd-code">ipconfig /renew</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ipconfig /renew')">Copier</button>
+          </div>
+          <div class="cmd-desc">Demande un nouveau bail DHCP. Utile après une modification du serveur DHCP ou pour diagnostiquer une attribution d'IP défaillante.</div>
+        </div>
+        <div class="cmd-card color-pc">
+          <div class="cmd-top">
+            <span class="cmd-code">netsh interface ip set address "Ethernet" static 192.168.1.10 255.255.255.0 192.168.1.254</span>
+            <button class="copy-btn" onclick="copyCmd(this,'netsh interface ip set address')">Copier</button>
+          </div>
+          <div class="cmd-desc">Configure une IP fixe en ligne de commande. Équivalent à remplir la case "Utiliser l'adresse IP suivante" dans les propriétés de la carte réseau.</div>
+        </div>
+        <div class="cmd-card color-pc">
+          <div class="cmd-top">
+            <span class="cmd-code">netsh interface ip set dns "Ethernet" static 192.168.1.1</span>
+            <button class="copy-btn" onclick="copyCmd(this,'netsh interface ip set dns')">Copier</button>
+          </div>
+          <div class="cmd-desc">Configure un serveur DNS fixe. <strong>Sans DNS correct, la résolution de noms échoue</strong> même si le réseau IP fonctionne parfaitement.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">Tests de connectivité</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-pc">
+          <div class="cmd-top">
+            <span class="cmd-code">ping &lt;IP_passerelle&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ping &lt;IP_passerelle&gt;')">Copier</button>
+          </div>
+          <div class="cmd-desc">Teste l'accessibilité de la passerelle par défaut. <strong>C'est le premier test à faire.</strong> Si la passerelle ne répond pas, inutile de chercher plus loin : le problème est local (câblage, VLAN, IP mal configurée).</div>
+        </div>
+        <div class="cmd-card color-pc">
+          <div class="cmd-top">
+            <span class="cmd-code">ping &lt;IP_distante&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ping &lt;IP_distante&gt;')">Copier</button>
+          </div>
+          <div class="cmd-desc">Teste la connectivité vers un hôte distant. Si la passerelle répond mais pas la cible, le problème est au niveau du routage ou d'un firewall intermédiaire.</div>
+        </div>
+        <div class="cmd-card color-pc">
+          <div class="cmd-top">
+            <span class="cmd-code">tracert &lt;IP&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'tracert &lt;IP&gt;')">Copier</button>
+          </div>
+          <div class="cmd-desc">Trace le chemin paquet par paquet, saut par saut. Identifie précisément à quel routeur ou équipement la communication échoue.</div>
+        </div>
+        <div class="cmd-card color-pc">
+          <div class="cmd-top">
+            <span class="cmd-code">nslookup &lt;nom_domaine&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'nslookup &lt;nom_domaine&gt;')">Copier</button>
+          </div>
+          <div class="cmd-desc">Vérifie la résolution DNS. Permet de savoir si le problème est IP (réseau) ou DNS (résolution de nom). Indispensable pour différencier les deux.</div>
+        </div>
+        <div class="cmd-card color-pc">
+          <div class="cmd-top">
+            <span class="cmd-code">arp -a</span>
+            <button class="copy-btn" onclick="copyCmd(this,'arp -a')">Copier</button>
+          </div>
+          <div class="cmd-desc">Affiche le cache ARP local : correspondances IP ↔ MAC. Utile pour vérifier qu'un voisin est bien connu en couche 2, ou détecter un conflit d'adresses.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ SWITCH L2 ══════════════════ -->
+    <section class="section" id="sw2">
+      <div class="section-header">
+        <div class="section-icon icon-sw2">🔀</div>
+        <div>
+          <div class="section-title">Switch Niveau 2</div>
+          <div class="section-subtitle">Couche 2 — Commutation MAC, VLANs</div>
+        </div>
+        <span class="layer-badge badge-sw2">Couche 2</span>
+      </div>
+
+      <div class="intro-box">
+        Le switch L2 opère <strong>uniquement en couche 2</strong> (adresses MAC). Il segmente le trafic par VLAN mais <strong>ne route pas</strong> entre eux. Deux machines sur des VLANs différents ne peuvent pas communiquer sans passer par un équipement de couche 3 (routeur ou switch L3). On entre ici dans le <strong>CLI Cisco</strong>.
+      </div>
+
+      <div class="sub-title">Accès et configuration de base</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">enable</span>
+            <button class="copy-btn" onclick="copyCmd(this,'enable')">Copier</button>
+          </div>
+          <div class="cmd-desc">Passe en mode privilégié (prompt <code>Switch#</code>). Obligatoire avant toute commande de vérification ou de configuration.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">configure terminal</span>
+            <button class="copy-btn" onclick="copyCmd(this,'configure terminal')">Copier</button>
+          </div>
+          <div class="cmd-desc">Passe en mode configuration globale (prompt <code>Switch(config)#</code>). Toutes les commandes de paramétrage s'effectuent dans ce mode.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">hostname SW-NOM</span>
+            <button class="copy-btn" onclick="copyCmd(this,'hostname SW-NOM')">Copier</button>
+          </div>
+          <div class="cmd-desc">Renomme l'équipement. Le nom apparaît dans le prompt CLI et dans les logs réseau. Indispensable sur un réseau multi-switches pour identifier rapidement qui on configure.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">enable secret &lt;mot_de_passe&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'enable secret')">Copier</button>
+          </div>
+          <div class="cmd-desc">Définit le mot de passe d'accès au mode privilégié, <strong>chiffré MD5</strong>. Toujours préférer <code>enable secret</code> à <code>enable password</code> qui stocke le mot de passe en clair.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">Gestion des VLANs</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">vlan &lt;id&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'vlan &lt;id&gt;')">Copier</button>
+          </div>
+          <div class="cmd-desc">Crée un VLAN et entre dans sa configuration. Un VLAN doit être créé sur <strong>chaque switch</strong> du domaine pour pouvoir y transiter, même sur les trunks.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">name &lt;nom_vlan&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'name &lt;nom_vlan&gt;')">Copier</button>
+          </div>
+          <div class="cmd-desc">Donne un nom lisible au VLAN. Facilite l'identification dans <code>show vlan brief</code> et dans la documentation.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">interface fa0/X</span>
+            <button class="copy-btn" onclick="copyCmd(this,'interface fa0/X')">Copier</button>
+          </div>
+          <div class="cmd-desc">Sélectionne un port spécifique pour le configurer. Peut aussi s'utiliser avec <code>interface range fa0/1-12</code> pour sélectionner plusieurs ports en une seule commande.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">switchport mode access</span>
+            <button class="copy-btn" onclick="copyCmd(this,'switchport mode access')">Copier</button>
+          </div>
+          <div class="cmd-desc">Configure le port en mode access : il n'appartient qu'à <strong>un seul VLAN</strong> et les trames ne sont pas taguées. C'est le mode pour les ports connectés aux postes clients, imprimantes, etc.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">switchport access vlan &lt;id&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'switchport access vlan')">Copier</button>
+          </div>
+          <div class="cmd-desc">Attribue le port à un VLAN spécifique. Les trames reçues sur ce port seront associées à ce VLAN dans la table CAM du switch.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">switchport mode trunk</span>
+            <button class="copy-btn" onclick="copyCmd(this,'switchport mode trunk')">Copier</button>
+          </div>
+          <div class="cmd-desc">Configure le port en mode trunk : il transporte <strong>plusieurs VLANs simultanément</strong> avec des trames taguées (802.1Q). Utilisé sur les liens inter-switches et vers les routeurs/switches L3.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">switchport trunk allowed vlan &lt;liste&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'switchport trunk allowed vlan')">Copier</button>
+          </div>
+          <div class="cmd-desc">Restreint les VLANs autorisés sur un trunk (ex: <code>1,101,102,103</code> ou <code>all</code>). Bonne pratique : n'autoriser que les VLANs nécessaires pour limiter les broadcast inutiles.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">show vlan brief</span>
+            <button class="copy-btn" onclick="copyCmd(this,'show vlan brief')">Copier</button>
+          </div>
+          <div class="cmd-desc">Affiche la liste des VLANs et les ports assignés à chacun. <strong>Commande de vérification indispensable</strong> après la configuration des VLANs.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">show interfaces trunk</span>
+            <button class="copy-btn" onclick="copyCmd(this,'show interfaces trunk')">Copier</button>
+          </div>
+          <div class="cmd-desc">Liste les ports en mode trunk et les VLANs autorisés/actifs sur chacun. Permet de vérifier que les bons VLANs transitent bien sur chaque lien.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">Interface de gestion (VLAN de management)</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">interface vlan &lt;id&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'interface vlan')">Copier</button>
+          </div>
+          <div class="cmd-desc">Crée l'interface virtuelle de gestion du switch (SVI — Switched Virtual Interface). C'est <strong>la seule IP que possède un switch L2</strong> : elle sert uniquement à l'administration (SSH, Telnet, ping de test).</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">ip address &lt;IP&gt; &lt;masque&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip address &lt;IP&gt; &lt;masque&gt;')">Copier</button>
+          </div>
+          <div class="cmd-desc">Attribue une adresse IP à l'interface de gestion. Cette IP doit être dans le même réseau que la passerelle de management.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">no shutdown</span>
+            <button class="copy-btn" onclick="copyCmd(this,'no shutdown')">Copier</button>
+          </div>
+          <div class="cmd-desc">Active l'interface VLAN de gestion. Sur un switch L2, les <strong>ports physiques sont up par défaut</strong>, mais les <strong>interfaces VLAN (SVI) sont down par défaut</strong> — le <code>no shutdown</code> est donc nécessaire sur les SVIs.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">ip default-gateway &lt;IP_routeur&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip default-gateway')">Copier</button>
+          </div>
+          <div class="cmd-desc">Définit la passerelle par défaut du switch <strong>lui-même</strong> (pour que ses paquets de management puissent franchir un routeur). Ne concerne que le trafic généré par le switch, pas le trafic des hôtes.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">Spanning Tree & vérification</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">spanning-tree portfast</span>
+            <button class="copy-btn" onclick="copyCmd(this,'spanning-tree portfast')">Copier</button>
+          </div>
+          <div class="cmd-desc">Active PortFast sur un port access : le port passe immédiatement en état Forwarding, sans attendre les 30 secondes STP. <strong>Uniquement sur les ports vers des postes clients</strong>, jamais vers un autre switch (risque de boucle).</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">show spanning-tree vlan &lt;id&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'show spanning-tree vlan')">Copier</button>
+          </div>
+          <div class="cmd-desc">Affiche l'état STP par VLAN : quel switch est le Root Bridge, et l'état de chaque port (FWD = Forwarding, BLK = Blocking, LIS = Listening, LRN = Learning).</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">show mac address-table</span>
+            <button class="copy-btn" onclick="copyCmd(this,'show mac address-table')">Copier</button>
+          </div>
+          <div class="cmd-desc">Affiche la table CAM : correspondances MAC ↔ port ↔ VLAN. Utile pour tracer physiquement où est connecté un équipement spécifique dans le réseau.</div>
+        </div>
+        <div class="cmd-card color-sw2">
+          <div class="cmd-top">
+            <span class="cmd-code">show ip interface brief</span>
+            <button class="copy-btn" onclick="copyCmd(this,'show ip interface brief')">Copier</button>
+          </div>
+          <div class="cmd-desc">Affiche un résumé de toutes les interfaces avec leur IP et leur état (up/down). Permet de vérifier rapidement que l'interface de gestion est bien active.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ SWITCH L3 ══════════════════ -->
+    <section class="section" id="sw3">
+      <div class="section-header">
+        <div class="section-icon icon-sw3">🔀</div>
+        <div>
+          <div class="section-title">Switch Niveau 3</div>
+          <div class="section-subtitle">Couches 2 + 3 — Commutation + Routage inter-VLAN</div>
+        </div>
+        <span class="layer-badge badge-sw3">Couches 2 + 3</span>
+      </div>
+
+      <div class="intro-box">
+        Le switch L3 réalise <strong>tout ce que fait un switch L2</strong>, plus la capacité de <strong>router entre les VLANs</strong> grâce aux SVIs et à la commande <code>ip routing</code>. Il peut remplacer un routeur pour tout le trafic interne. Seules les commandes supplémentaires sont listées ici.
+      </div>
+
+      <div class="sub-title">Routage inter-VLAN via SVIs</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-sw3 highlight" id="iprouting">
+          <div class="cmd-top">
+            <span class="cmd-code">ip routing</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip routing')">Copier</button>
+          </div>
+          <div class="cmd-desc">
+            <strong>Active le moteur de routage IP sur le switch L3.</strong> C'est LE point critique qui différencie un switch L2 d'un switch L3 en fonctionnement.<br><br>
+            Sans cette commande, même avec des SVIs configurées et des IPs attribuées, <strong>aucun routage inter-VLAN ne se fera</strong> : les VLANs restent isolés comme sur un switch L2.<br><br>
+            ⚠️ Cette commande est <strong>exclusivement utile sur un switch L3</strong>. Sur un routeur, le routage IP est natif et toujours actif — <code>ip routing</code> n'a pas de raison d'y figurer.
+          </div>
+        </div>
+        <div class="cmd-card color-sw3">
+          <div class="cmd-top">
+            <span class="cmd-code">interface vlan &lt;id&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'interface vlan')">Copier</button>
+          </div>
+          <div class="cmd-desc">Crée une SVI (Switched Virtual Interface) pour un VLAN. Sur un switch L3, cette interface a un double rôle : <strong>passerelle par défaut</strong> de toutes les machines du VLAN, ET <strong>interface de routage</strong> entre VLANs.</div>
+        </div>
+        <div class="cmd-card color-sw3">
+          <div class="cmd-top">
+            <span class="cmd-code">ip address &lt;IP&gt; &lt;masque&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip address')">Copier</button>
+          </div>
+          <div class="cmd-desc">Attribue l'IP à la SVI. Cette adresse sera configurée comme <strong>passerelle par défaut</strong> sur tous les postes du VLAN correspondant. Exemple : <code>ip address 192.168.10.254 255.255.255.0</code> pour le VLAN 10.</div>
+        </div>
+        <div class="cmd-card color-sw3 highlight" id="noshutdown">
+          <div class="cmd-top">
+            <span class="cmd-code">no shutdown</span>
+            <button class="copy-btn" onclick="copyCmd(this,'no shutdown')">Copier</button>
+          </div>
+          <div class="cmd-desc">
+            <strong>Active la SVI.</strong> Les interfaces VLAN (SVIs) sont <strong>shutdown par défaut</strong> sur un switch L3 — même si l'IP est configurée, la SVI reste inactive jusqu'au <code>no shutdown</code>.<br><br>
+            C'est un piège fréquent d'examen : on a fait <code>ip routing</code>, on a configuré l'IP de la SVI, mais on a oublié <code>no shutdown</code>. Résultat : le routage inter-VLAN ne fonctionne pas et <code>show ip interface brief</code> montre la SVI en <strong>down/down</strong>.
+          </div>
+        </div>
+        <div class="cmd-card color-sw3">
+          <div class="cmd-top">
+            <span class="cmd-code">switchport trunk encapsulation dot1q</span>
+            <button class="copy-btn" onclick="copyCmd(this,'switchport trunk encapsulation dot1q')">Copier</button>
+          </div>
+          <div class="cmd-desc">Définit le protocole d'encapsulation 802.1Q pour les trames taguées. <strong>Obligatoire sur les switches L3 Cisco</strong> avant de configurer un port en mode trunk. Sur les switches L2, 802.1Q est implicite et cette commande n'existe pas.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">Lien routed vers le routeur (port L3)</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-sw3">
+          <div class="cmd-top">
+            <span class="cmd-code">no switchport</span>
+            <button class="copy-btn" onclick="copyCmd(this,'no switchport')">Copier</button>
+          </div>
+          <div class="cmd-desc">Transforme un port physique en <strong>port routed (couche 3)</strong>. Le port sort du domaine de commutation et devient une interface IP standard. Utilisé pour créer le lien point-à-point /30 vers le routeur.</div>
+        </div>
+        <div class="cmd-card color-sw3">
+          <div class="cmd-top">
+            <span class="cmd-code">ip route 0.0.0.0 0.0.0.0 &lt;IP_routeur&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip route 0.0.0.0 0.0.0.0')">Copier</button>
+          </div>
+          <div class="cmd-desc">Route par défaut : tout trafic sans route explicite est envoyé vers le routeur (qui assure la sortie vers Internet). <strong>N'a de sens qu'après <code>ip routing</code></strong> — sans routage activé, cette commande ne peut pas être utilisée par le switch.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">Vérification</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-sw3">
+          <div class="cmd-top">
+            <span class="cmd-code">show ip route</span>
+            <button class="copy-btn" onclick="copyCmd(this,'show ip route')">Copier</button>
+          </div>
+          <div class="cmd-desc">Affiche la table de routage du switch L3. Codes : <code>C</code> = connecté directement, <code>S</code> = statique, <code>S*</code> = route par défaut candidate. Si cette commande n'affiche rien d'utile, vérifier que <code>ip routing</code> est bien activé.</div>
+        </div>
+        <div class="cmd-card color-sw3">
+          <div class="cmd-top">
+            <span class="cmd-code">show ip interface brief</span>
+            <button class="copy-btn" onclick="copyCmd(this,'show ip interface brief')">Copier</button>
+          </div>
+          <div class="cmd-desc">Résumé de toutes les interfaces (SVIs + ports routed) avec leur IP et état. La colonne d'état affiche <strong>up/up</strong> (fonctionnel), <strong>down/down</strong> (inactif, vérifier <code>no shutdown</code>) ou <strong>up/down</strong> (problème de protocole).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ ROUTEUR ══════════════════ -->
+    <section class="section" id="rt">
+      <div class="section-header">
+        <div class="section-icon icon-rt">📡</div>
+        <div>
+          <div class="section-title">Routeur</div>
+          <div class="section-subtitle">Couche 3 — Interconnexion, NAT, DHCP, ACL</div>
+        </div>
+        <span class="layer-badge badge-rt">Couche 3</span>
+      </div>
+
+      <div class="intro-box">
+        Le routeur gère la <strong>sortie vers l'extérieur</strong> (Internet, WAN), le NAT, le DHCP serveur, et le filtrage ACL. Il peut aussi assurer le routage inter-VLAN via des sous-interfaces (router-on-a-stick) quand il n'y a pas de switch L3. <strong>Attention : toutes ses interfaces physiques sont shutdown par défaut.</strong>
+      </div>
+
+      <div class="sub-title">Interfaces physiques</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">interface fa0/0</span>
+            <button class="copy-btn" onclick="copyCmd(this,'interface fa0/0')">Copier</button>
+          </div>
+          <div class="cmd-desc">Sélectionne l'interface physique FastEthernet. Sur un routeur, les interfaces sont nommées différemment selon le modèle : <code>fa0/0</code>, <code>gi0/0</code>, <code>se0/0/0</code> (Serial).</div>
+        </div>
+        <div class="cmd-card color-rt highlight">
+          <div class="cmd-top">
+            <span class="cmd-code">no shutdown</span>
+            <button class="copy-btn" onclick="copyCmd(this,'no shutdown')">Copier</button>
+          </div>
+          <div class="cmd-desc">
+            <strong>Indispensable sur toutes les interfaces physiques d'un routeur.</strong> Contrairement aux switches où les ports sont up par défaut, les interfaces d'un routeur sont <strong>administrativement down par défaut</strong>.<br><br>
+            Même parfaitement configurée (IP, masque, encapsulation), une interface routeur ne fonctionnera pas sans <code>no shutdown</code>. C'est le premier réflexe à avoir lors du diagnostic d'un routeur qui ne répond pas.
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-title">Router-on-a-stick (sans switch L3)</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">interface fa0/0.&lt;id_vlan&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'interface fa0/0.&lt;id_vlan&gt;')">Copier</button>
+          </div>
+          <div class="cmd-desc">Crée une sous-interface pour le router-on-a-stick. La convention est d'utiliser le numéro du VLAN comme numéro de sous-interface (ex: <code>fa0/0.101</code> pour le VLAN 101).</div>
+        </div>
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">encapsulation dot1Q &lt;id_vlan&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'encapsulation dot1Q')">Copier</button>
+          </div>
+          <div class="cmd-desc">Associe la sous-interface au VLAN correspondant via l'encapsulation 802.1Q. Le routeur peut ainsi distinguer les trames de chaque VLAN arrivant sur le trunk.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">Routage statique</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">ip route &lt;réseau&gt; &lt;masque&gt; &lt;next-hop&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip route')">Copier</button>
+          </div>
+          <div class="cmd-desc">Route statique : "pour atteindre ce réseau, envoie les paquets vers cette IP". Dans un scénario avec switch L3, le routeur a besoin d'une route vers les réseaux internes (VLANs) via l'IP du switch L3.</div>
+        </div>
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">ip route 0.0.0.0 0.0.0.0 &lt;IP_FAI&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip route 0.0.0.0 0.0.0.0')">Copier</button>
+          </div>
+          <div class="cmd-desc">Route par défaut vers Internet : tout trafic sans route explicite part vers le FAI. Correspond au <code>S*</code> dans la table de routage.</div>
+        </div>
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">show ip route</span>
+            <button class="copy-btn" onclick="copyCmd(this,'show ip route')">Copier</button>
+          </div>
+          <div class="cmd-desc">Affiche la table de routage. Codes : <code>C</code> = connecté, <code>S</code> = statique, <code>R</code> = RIP, <code>O</code> = OSPF, <code>S*</code> = route par défaut. <strong>La commande de vérification de référence.</strong></div>
+        </div>
+      </div>
+
+      <div class="sub-title">NAT / PAT (accès Internet)</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">ip nat inside</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip nat inside')">Copier</button>
+          </div>
+          <div class="cmd-desc">Marque l'interface comme côté réseau privé (LAN). À appliquer sur l'interface connectée au réseau interne. Obligatoire avant toute règle NAT.</div>
+        </div>
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">ip nat outside</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip nat outside')">Copier</button>
+          </div>
+          <div class="cmd-desc">Marque l'interface comme côté Internet. À appliquer sur l'interface connectée au FAI. Le routeur appliquera la traduction entre ces deux zones.</div>
+        </div>
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">ip nat inside source list &lt;ACL&gt; interface &lt;IF&gt; overload</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip nat inside source list')">Copier</button>
+          </div>
+          <div class="cmd-desc">Active le PAT (NAT avec surcharge) : toutes les IPs privées sortent avec l'IP publique de l'interface, différenciées par les ports. C'est le fonctionnement classique de toute box Internet.</div>
+        </div>
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">show ip nat translations</span>
+            <button class="copy-btn" onclick="copyCmd(this,'show ip nat translations')">Copier</button>
+          </div>
+          <div class="cmd-desc">Affiche les entrées NAT actives : quelle IP:port interne correspond à quelle IP:port externe. Indispensable pour diagnostiquer les problèmes de NAT.</div>
+        </div>
+      </div>
+
+      <div class="sub-title">DHCP serveur</div>
+      <div class="cmd-grid">
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">ip dhcp excluded-address &lt;début&gt; &lt;fin&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip dhcp excluded-address')">Copier</button>
+          </div>
+          <div class="cmd-desc">Exclut une plage d'IPs de la distribution DHCP. <strong>À configurer avant la création du pool</strong> pour réserver les IPs fixes des équipements réseau (passerelle, serveurs, imprimantes...).</div>
+        </div>
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">ip dhcp pool &lt;nom&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip dhcp pool')">Copier</button>
+          </div>
+          <div class="cmd-desc">Crée un pool DHCP nommé. Suivi des commandes <code>network</code>, <code>default-router</code>, <code>dns-server</code> et éventuellement <code>lease</code> pour la durée du bail.</div>
+        </div>
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">network &lt;réseau&gt; &lt;masque&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'network')">Copier</button>
+          </div>
+          <div class="cmd-desc">Définit la plage d'adresses à distribuer. Le routeur distribuera toutes les IPs de ce réseau sauf les exclues et lui-même.</div>
+        </div>
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">default-router &lt;IP_passerelle&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'default-router')">Copier</button>
+          </div>
+          <div class="cmd-desc">Indique aux clients la passerelle par défaut à utiliser. Généralement l'IP de la SVI du switch L3 ou de l'interface du routeur côté LAN.</div>
+        </div>
+        <div class="cmd-card color-rt">
+          <div class="cmd-top">
+            <span class="cmd-code">ip helper-address &lt;IP_serveur_DHCP&gt;</span>
+            <button class="copy-btn" onclick="copyCmd(this,'ip helper-address')">Copier</button>
+          </div>
+          <div class="cmd-desc">Sur une interface, redirige les broadcasts DHCP vers un serveur DHCP centralisé. Permet à un seul serveur DHCP de servir plusieurs VLANs à travers le routeur (relay DHCP).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════ TABLEAU RÉCAPITULATIF ══════════════════ -->
+    <section class="section" id="pieges">
+      <div class="section-header">
+        <div class="section-icon icon-piege">⚠️</div>
+        <div>
+          <div class="section-title">Tableau récapitulatif & pièges d'examen</div>
+          <div class="section-subtitle">no shutdown et ip routing — où, quand et pourquoi</div>
+        </div>
+        <span class="layer-badge badge-piege">Points critiques</span>
+      </div>
+
+      <div class="sub-title">État par défaut des interfaces selon l'équipement</div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Interface</th>
+            <th>Équipement</th>
+            <th>État par défaut</th>
+            <th>no shutdown nécessaire ?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-eq">Port physique (fa0/X)</td>
+            <td>Switch L2 / L3</td>
+            <td class="td-oui">Up (actif)</td>
+            <td class="td-non">Non</td>
+          </tr>
+          <tr>
+            <td class="td-eq">interface vlan X (SVI)</td>
+            <td>Switch L2 (gestion)</td>
+            <td class="td-non">Down (inactif)</td>
+            <td class="td-oui">Oui, toujours</td>
+          </tr>
+          <tr>
+            <td class="td-eq">interface vlan X (SVI)</td>
+            <td>Switch L3 (routage)</td>
+            <td class="td-non">Down (inactif)</td>
+            <td class="td-oui">Oui, toujours</td>
+          </tr>
+          <tr>
+            <td class="td-eq">Port physique (fa0/X, gi0/X)</td>
+            <td>Routeur</td>
+            <td class="td-non">Shutdown (admin down)</td>
+            <td class="td-oui">Oui, toujours</td>
+          </tr>
+          <tr>
+            <td class="td-eq">Sous-interface (fa0/0.X)</td>
+            <td>Routeur</td>
+            <td class="td-non">Hérite du port physique</td>
+            <td class="td-oui">Oui (activer le port parent)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="sub-title" style="margin-top:24px">Portée de ip routing selon l'équipement</div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Équipement</th>
+            <th>ip routing nécessaire ?</th>
+            <th>Comportement sans</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>PC / Hôte</td>
+            <td class="td-non">Non (hors Cisco CLI)</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Switch L2</td>
+            <td class="td-non">Non</td>
+            <td>Ne route pas, c'est normal</td>
+          </tr>
+          <tr>
+            <td>Switch L3</td>
+            <td class="td-oui">Oui, obligatoire</td>
+            <td>VLANs isolés même avec des SVIs configurées</td>
+          </tr>
+          <tr>
+            <td>Routeur</td>
+            <td class="td-non">Non (natif)</td>
+            <td>Routage actif par défaut, commande inutile</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note-box" style="margin-top:20px">
+        <p><strong>Mémo rapide pour l'examen :</strong><br>
+        <strong>ip routing</strong> → uniquement sur switch L3, c'est l'interrupteur qui active le routage.<br>
+        <strong>no shutdown sur SVIs</strong> → toujours, que ce soit sur switch L2 (gestion) ou L3 (routage).<br>
+        <strong>no shutdown sur ports physiques</strong> → uniquement sur le routeur (les switches mettent leurs ports up tout seuls).
+        </p>
+      </div>
+
+      <div class="trap-box">
+        <div class="trap-title">⚠️ Scénario piège classique d'examen</div>
+        <p>
+          Un switch L3 est configuré : les VLANs existent, les SVIs ont leurs IPs, <code>ip routing</code> est activé. Pourtant les hôtes de VLANs différents ne se pingent pas.<br><br>
+          <strong>Cause probable :</strong> oubli du <code>no shutdown</code> sur les SVIs. Vérification : <code>show ip interface brief</code> → les SVIs apparaissent en <strong>down/down</strong>.<br><br>
+          <strong>Deuxième cause fréquente :</strong> sur un routeur, l'interface physique est bien configurée mais pas de <code>no shutdown</code> → elle reste en <strong>administratively down</strong>. La sous-interface router-on-a-stick ne peut jamais fonctionner si son interface parente est down.
+        </p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ── BURGER ──
+const burger = document.getElementById('burgerBtn');
+const sidebar = document.getElementById('sidebar');
+burger.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+
+// ── GO TO SECTION ──
+function goTo(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const mainEl = document.getElementById('mainContent');
+  mainEl.scrollTo({ top: el.offsetTop - 20, behavior: 'smooth' });
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const clicked = document.querySelector('.nav-link[onclick="goTo(\'' + id + '\')"]');
+  if (clicked) clicked.classList.add('active');
+}
+
+// ── ACTIVE NAV ON SCROLL ──
+const sections = ['pc','sw2','sw3','rt','iprouting','noshutdown','pieges'];
+const main = document.getElementById('mainContent');
+main.addEventListener('scroll', () => {
+  const scrollTop = main.scrollTop;
+  const scrollPct = (scrollTop / (main.scrollHeight - main.clientHeight)) * 100;
+  document.getElementById('scrollProgress').style.width = scrollPct + '%';
+  let current = 'pc';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop - 80 <= scrollTop) current = id;
+  });
+  document.querySelectorAll('.nav-link').forEach(l => {
+    const attr = l.getAttribute('onclick') || '';
+    l.classList.toggle('active', attr.includes("'" + current + "'"));
+  });
+});
+
+// ── COPY ──
+function copyCmd(btn, cmd) {
+  navigator.clipboard.writeText(cmd).then(() => {
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+// ── SEARCH ──
+let matches = [], matchIdx = 0;
+const searchInput = document.getElementById('searchInput');
+const searchCount = document.getElementById('searchCount');
+
+function clearHighlights() {
+  document.querySelectorAll('mark').forEach(m => {
+    const parent = m.parentNode;
+    parent.replaceChild(document.createTextNode(m.textContent), m);
+    parent.normalize();
+  });
+  matches = []; matchIdx = 0;
+  searchCount.textContent = '';
+}
+
+function doSearch(q) {
+  clearHighlights();
+  if (!q || q.length < 2) return;
+  const walker = document.createTreeWalker(
+    document.getElementById('mainContent'),
+    NodeFilter.SHOW_TEXT,
+    { acceptNode: n => n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT }
+  );
+  const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    if (!node.nodeValue.match(regex)) return;
+    const span = document.createElement('span');
+    span.innerHTML = node.nodeValue.replace(regex, m => `<mark>${m}</mark>`);
+    node.parentNode.replaceChild(span, node);
+  });
+  matches = Array.from(document.querySelectorAll('mark'));
+  if (matches.length > 0) {
+    searchCount.textContent = `1 / ${matches.length}`;
+    jumpTo(0);
+  } else {
+    searchCount.textContent = 'Aucun résultat';
+  }
+}
+
+function jumpTo(idx) {
+  matches.forEach(m => m.classList.remove('current'));
+  if (!matches[idx]) return;
+  matchIdx = idx;
+  matches[idx].classList.add('current');
+  matches[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  searchCount.textContent = `${idx+1} / ${matches.length}`;
+}
+
+searchInput.addEventListener('input', e => doSearch(e.target.value.trim()));
+document.getElementById('nextMatch').addEventListener('click', () => {
+  if (matches.length) jumpTo((matchIdx + 1) % matches.length);
+});
+document.getElementById('prevMatch').addEventListener('click', () => {
+  if (matches.length) jumpTo((matchIdx - 1 + matches.length) % matches.length);
+});
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); searchInput.focus(); }
+});
+</script>
+</body>
+</html>

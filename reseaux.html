@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Réseaux Cisco — Référence de commandes</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F8F9FA;
+  --surface: #FFFFFF;
+  --text: #1A1A2E;
+  --text-light: #4B5563;
+  --text-muted: #9CA3AF;
+  --blue: #2563EB;
+  --blue-light: #EFF6FF;
+  --blue-mid: #BFDBFE;
+  --border: #E5E7EB;
+  --code-bg: #1E2433;
+  --code-text: #E2E8F0;
+  --code-comment: #64748B;
+  --code-cmd: #93C5FD;
+  --green: #059669;
+  --green-light: #ECFDF5;
+  --orange: #D97706;
+  --orange-light: #FFFBEB;
+  --red: #DC2626;
+  --red-light: #FEF2F2;
+  --purple: #7C3AED;
+  --purple-light: #F5F3FF;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.page-header {
+  background: var(--text);
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 3px solid var(--blue);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.page-header h1 {
+  font-size: 16px; font-weight: 600; color: white;
+  letter-spacing: 0.02em;
+}
+
+.page-header p {
+  font-size: 11px; color: rgba(255,255,255,0.45);
+  font-family: 'IBM Plex Mono', monospace;
+  margin-top: 2px;
+}
+
+.header-badge {
+  margin-left: auto;
+  background: var(--blue);
+  color: white;
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+/* ── TOC SIDEBAR ── */
+.layout {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.toc {
+  width: 260px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 79px;
+  height: calc(100vh - 79px);
+  overflow-y: auto;
+  padding: 24px 0;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.toc-title {
+  font-size: 10px; font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 20px 12px;
+}
+
+.toc a {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 20px;
+  font-size: 12px; color: var(--text-light);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  line-height: 1.4;
+}
+
+.toc a:hover, .toc a.active {
+  color: var(--blue);
+  background: var(--blue-light);
+  border-left-color: var(--blue);
+}
+
+.toc-level {
+  font-size: 10px; font-family: 'IBM Plex Mono', monospace;
+  padding: 2px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.toc-level.lv1 { background: var(--green-light); color: var(--green); }
+.toc-level.lv2 { background: var(--orange-light); color: var(--orange); }
+.toc-level.lv3 { background: var(--red-light); color: var(--red); }
+.toc-level.lv4 { background: var(--purple-light); color: var(--purple); }
+.toc-level.lv5 { background: var(--blue-light); color: var(--blue); }
+
+/* ── CONTENT ── */
+.content {
+  flex: 1;
+  padding: 40px 48px;
+  max-width: 900px;
+}
+
+/* ── SECTION ── */
+.section {
+  margin-bottom: 56px;
+}
+
+.section-header {
+  display: flex; align-items: flex-start; gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border);
+}
+
+.level-indicator {
+  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.level-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.level-dot.lv2 { background: var(--orange); }
+.level-dot.lv3 { background: var(--red); }
+.level-dot.lv4 { background: var(--purple); }
+.level-dot.lv5 { background: var(--blue); }
+
+.level-line {
+  width: 2px; height: 24px;
+  background: var(--border);
+}
+
+.section-meta { flex: 1; }
+
+.section-tag {
+  font-size: 10px; font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.tag-lv1 { background: var(--green-light); color: var(--green); }
+.tag-lv2 { background: var(--orange-light); color: var(--orange); }
+.tag-lv3 { background: var(--red-light); color: var(--red); }
+.tag-lv4 { background: var(--purple-light); color: var(--purple); }
+.tag-lv5 { background: var(--blue-light); color: var(--blue); }
+
+.section-title {
+  font-size: 20px; font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.section-context {
+  background: var(--blue-light);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 6px 6px 0;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.7;
+}
+
+.section-context strong { color: var(--text); }
+
+/* ── COMMAND BLOCK ── */
+.cmd-block {
+  background: var(--code-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.cmd-block-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.cmd-block-title {
+  font-size: 11px; font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+.cmd-block-desc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.cmd-copy {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.5);
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 10px;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  transition: all 0.15s;
+}
+
+.cmd-copy:hover { background: rgba(255,255,255,0.15); color: white; }
+.cmd-copy.copied { color: #4ade80; border-color: #4ade80; }
+
+.cmd-code {
+  padding: 16px 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: var(--code-text);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.cmd-code .comment { color: var(--code-comment); font-style: italic; }
+.cmd-code .cmd { color: var(--code-cmd); }
+.cmd-code .value { color: #86efac; }
+.cmd-code .interface { color: #fbbf24; }
+.cmd-code .ip { color: #f9a8d4; }
+
+/* ── EXPLANATION ── */
+.explanation {
+  margin-bottom: 24px;
+}
+
+.exp-item {
+  display: flex; gap: 12px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  align-items: flex-start;
+}
+
+.exp-cmd {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  color: var(--blue);
+  background: var(--blue-light);
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.exp-text {
+  font-size: 12.5px;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+.exp-text strong { color: var(--text); }
+
+/* ── TABLE ── */
+.ref-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  font-size: 12.5px;
+}
+
+.ref-table th {
+  background: var(--text);
+  color: white;
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ref-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-light);
+  vertical-align: top;
+}
+
+.ref-table tr:hover td { background: var(--blue-light); }
+
+.ref-table td:first-child {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--blue);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── INFO BOX ── */
+.info-box {
+  display: flex; gap: 12px;
+  padding: 14px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.info-box.warning {
+  background: var(--orange-light);
+  border: 1px solid #FDE68A;
+  color: #92400E;
+}
+
+.info-box.tip {
+  background: var(--green-light);
+  border: 1px solid #A7F3D0;
+  color: #065F46;
+}
+
+.info-box.note {
+  background: var(--blue-light);
+  border: 1px solid var(--blue-mid);
+  color: #1E40AF;
+}
+
+.info-box-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── DIVIDER ── */
+.progress-bar {
+  display: flex; align-items: center; gap: 12px;
+  margin: 40px 0 32px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.progress-steps {
+  display: flex; gap: 4px; flex: 1;
+}
+
+.progress-step {
+  flex: 1; height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+.progress-step.done { background: var(--green); }
+.progress-step.current { background: var(--blue); }
+.progress-step.next { background: var(--orange); }
+
+.progress-label {
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+/* ── SEARCH BAR ── */
+.header-search-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  padding: 0 14px;
+  height: 36px;
+  flex: 1; max-width: 420px;
+  transition: all 0.2s;
+}
+.header-search-wrap:focus-within {
+  background: rgba(255,255,255,0.14);
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+}
+.header-search-wrap svg { width: 14px; height: 14px; flex-shrink: 0; }
+.header-search-wrap input {
+  background: none; border: none; outline: none;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px; color: white; width: 100%;
+}
+.header-search-wrap input::placeholder { color: rgba(255,255,255,0.35); }
+#searchCount {
+  font-size: 11px; font-family: 'IBM Plex Mono', monospace;
+  color: rgba(255,255,255,0.4); white-space: nowrap;
+}
+#searchCount.found { color: #4ade80; }
+#searchCount.empty { color: #f87171; }
+
+.search-nav-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.6);
+  border-radius: 4px;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: all 0.15s;
+  font-size: 12px;
+}
+.search-nav-btn:hover { background: rgba(255,255,255,0.18); color: white; }
+.search-nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+.search-highlight {
+  background: rgba(253,224,71,0.5);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.search-highlight.current {
+  background: #F97316;
+  color: white;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* ── BURGER BUTTON ── */
+.btn-burger {
+  width: 34px; height: 34px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.btn-burger:hover { background: rgba(255,255,255,0.15); }
+.btn-burger svg { width: 16px; height: 16px; stroke: white; }
+
+.toc.collapsed {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.toc { transition: width 0.22s ease, opacity 0.22s ease; }
+
+/* Bouton fermer dans le sommaire */
+.btn-toc-close {
+  background: rgba(37,99,235,0.1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  width: 22px; height: 22px;
+  font-size: 11px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.btn-toc-close:hover { background: var(--blue-light); color: var(--blue); }
+
+/* Bouton flottant pour réouvrir */
+.btn-toc-open {
+  position: fixed;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  width: 22px; height: 48px;
+  background: white;
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+  display: none;
+  align-items: center; justify-content: center;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: all 0.15s;
+}
+.btn-toc-open:hover { background: var(--blue-light); color: var(--blue); }
+.btn-toc-open.show { display: flex; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <button class="btn-burger" id="burgerBtn" title="Afficher/masquer le sommaire">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>
+    </svg>
+  </button>
+  <div>
+    <h1>Réseaux Cisco — Référence de commandes</h1>
+    <p>Montée en compétence progressive · Switch → Routeur → Sécurité → Protocoles avancés</p>
+  </div>
+  <div class="header-search-wrap">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/></svg>
+    <input type="text" id="pageSearch" placeholder="Rechercher une commande, un protocole…" autocomplete="off">
+    <span id="searchCount"></span>
+  </div>
+  <button class="search-nav-btn" id="btnPrev" title="Résultat précédent" disabled>▲</button>
+  <button class="search-nav-btn" id="btnNext" title="Résultat suivant" disabled>▼</button>
+  <span class="header-badge">TSSR 2025/2026</span>
+</div>
+
+<div class="layout">
+
+<!-- Bouton flottant pour réouvrir le sommaire -->
+<button class="btn-toc-open" id="tocOpenBtn" title="Ouvrir le sommaire">›</button>
+
+<!-- TOC -->
+<nav class="toc" id="tocNav">
+  <div class="toc-title" style="display:flex;align-items:center;justify-content:space-between;padding-right:12px;">
+    Sommaire
+    <button class="btn-toc-close" id="burgerBtn" title="Fermer le sommaire">✕</button>
+  </div>
+  <a href="#s1"><span class="toc-level lv1">N1</span>Accès & nommage</a>
+  <a href="#s2"><span class="toc-level lv1">N1</span>VLANs sur un switch</a>
+  <a href="#s3"><span class="toc-level lv1">N1</span>Interfaces Access & Trunk</a>
+  <a href="#s4"><span class="toc-level lv2">N2</span>VTP — Synchronisation VLANs</a>
+  <a href="#s5"><span class="toc-level lv2">N2</span>Accès distant sécurisé</a>
+  <a href="#s6"><span class="toc-level lv2">N2</span>Routage inter-VLAN (L3)</a>
+  <a href="#s7"><span class="toc-level lv2">N2</span>Routage inter-VLAN (Routeur)</a>
+  <a href="#s8"><span class="toc-level lv2">N2</span>Gateway sur switch L2</a>
+  <a href="#s9"><span class="toc-level lv2">N2</span>Réinitialiser un switch</a>
+  <a href="#s10"><span class="toc-level lv3">N3</span>Routage statique</a>
+  <a href="#s11"><span class="toc-level lv3">N3</span>Routage RIP v2</a>
+  <a href="#s12"><span class="toc-level lv3">N3</span>Routage EIGRP</a>
+  <a href="#s13"><span class="toc-level lv3">N3</span>Config interfaces série</a>
+  <a href="#s14"><span class="toc-level lv3">N3</span>NAT — Déclaration inside/outside</a>
+  <a href="#s15"><span class="toc-level lv3">N3</span>NAT Statique</a>
+  <a href="#s16"><span class="toc-level lv3">N3</span>NAT Dynamique</a>
+  <a href="#s17"><span class="toc-level lv3">N3</span>PAT / Surcharge NAT</a>
+  <a href="#s18"><span class="toc-level lv3">N3</span>Redirection de port</a>
+  <a href="#s19"><span class="toc-level lv4">N4</span>ACL Standard</a>
+  <a href="#s20"><span class="toc-level lv4">N4</span>ACL Étendue</a>
+  <a href="#s21"><span class="toc-level lv4">N4</span>DHCP sur routeur</a>
+  <a href="#s22"><span class="toc-level lv4">N4</span>DHCP relay (ip helper)</a>
+  <a href="#s23"><span class="toc-level lv4">N4</span>VLAN Voix + Téléphonie</a>
+  <a href="#s24"><span class="toc-level lv5">N5</span>IPv6 — Bases & notation</a>
+  <a href="#s25"><span class="toc-level lv5">N5</span>Routage statique IPv6</a>
+  <a href="#s26"><span class="toc-level lv5">N5</span>HSRP — Redondance routeur</a>
+  <a href="#s27"><span class="toc-level lv5">N5</span>VRRP & GLBP</a>
+  <a href="#s28"><span class="toc-level lv5">N5</span>Ports TCP/UDP — Référence</a>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- NIVEAU 1 -->
+<div class="progress-bar">
+  <span class="progress-label">NIVEAU 1</span>
+  <div class="progress-steps">
+    <div class="progress-step current"></div>
+    <div class="progress-step next"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+  </div>
+  <span class="progress-label">Switch de base</span>
+</div>
+
+<!-- S1 -->
+<section class="section" id="s1">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv1">Niveau 1 · Premier contact</span>
+      <h2 class="section-title">Accès à l'équipement & nommage</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Tu viens de brancher ton câble console sur un switch Cisco. Par défaut, tu arrives en mode utilisateur limité. La première chose à faire est de passer en mode privilégié, puis en mode configuration pour pouvoir modifier l'équipement. <strong>Ces deux commandes sont le point de départ de toute configuration Cisco.</strong>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">accès-et-nommage.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Switch / Routeur</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Passe du mode utilisateur au mode privilégié</span>
+<span class="cmd">enable</span>
+
+<span class="comment">!! Entre dans le mode configuration globale</span>
+<span class="cmd">configure terminal</span>             <span class="comment">!! ou "conf t" en abrégé</span>
+
+<span class="comment">!! Donne un nom à l'équipement</span>
+<span class="cmd">hostname</span> <span class="value">SW01</span>                   <span class="comment">!! Remplace SW01 par ton nom souhaité</span>
+
+<span class="comment">!! Désactive la résolution DNS (évite les délais inutiles)</span>
+<span class="cmd">no ip domain-lookup</span></div>
+  </div>
+
+  <div class="explanation">
+    <div class="exp-item"><span class="exp-cmd">enable</span><div class="exp-text"><strong>Mode privilégié</strong> — Donne accès aux commandes de diagnostic et de configuration. Le prompt passe de <code>&gt;</code> à <code>#</code>.</div></div>
+    <div class="exp-item"><span class="exp-cmd">conf t</span><div class="exp-text"><strong>Mode configuration globale</strong> — Permet de modifier la configuration. Le prompt devient <code>(config)#</code>.</div></div>
+    <div class="exp-item"><span class="exp-cmd">hostname SW01</span><div class="exp-text">Nomme l'équipement. Apparaît dans le prompt et dans les logs réseau. Convention : SW pour switch, R pour routeur + numéro.</div></div>
+    <div class="exp-item"><span class="exp-cmd">no ip domain-lookup</span><div class="exp-text">Empêche le switch de chercher un serveur DNS à chaque faute de frappe. Sans cette commande, une typo provoque 30 secondes d'attente.</div></div>
+  </div>
+</section>
+
+<!-- S2 -->
+<section class="section" id="s2">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv1">Niveau 1 · Segmentation réseau</span>
+      <h2 class="section-title">Création de VLANs</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Un VLAN (Virtual LAN) permet de <strong>segmenter logiquement un switch</strong> en plusieurs réseaux isolés, sans câblage supplémentaire. Exemple : VLAN 101 pour les postes clients, VLAN 102 pour les serveurs, VLAN 99 pour la gestion. Les machines de VLANs différents ne communiquent pas sans un routeur ou switch de niveau 3.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">creation-vlans.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Switch</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Création du VLAN 101 et attribution d'un nom</span>
+<span class="cmd">vlan</span> <span class="value">101</span>
+<span class="cmd">name</span> <span class="value">CLIENT</span>
+
+<span class="comment">!! On peut enchaîner plusieurs VLANs</span>
+<span class="cmd">vlan</span> <span class="value">102</span>
+<span class="cmd">name</span> <span class="value">SERVEUR</span>
+
+<span class="cmd">vlan</span> <span class="value">103</span>
+<span class="cmd">name</span> <span class="value">INVITE</span>
+
+<span class="cmd">vlan</span> <span class="value">99</span>
+<span class="cmd">name</span> <span class="value">GESTION</span>
+
+<span class="comment">!! Revenir au mode configuration globale</span>
+<span class="cmd">exit</span></div>
+  </div>
+
+  <div class="explanation">
+    <div class="exp-item"><span class="exp-cmd">vlan 101</span><div class="exp-text">Crée le VLAN numéro 101. Le numéro identifie le VLAN sur tout le réseau. <strong>Plage standard : 1–1005. Plage étendue : 1006–4094.</strong></div></div>
+    <div class="exp-item"><span class="exp-cmd">name CLIENT</span><div class="exp-text">Donne un nom lisible au VLAN. Facilite la gestion. Le nom n'a aucun impact technique.</div></div>
+    <div class="exp-item"><span class="exp-cmd">exit</span><div class="exp-text">Remonte d'un niveau dans la hiérarchie de configuration. Ici, quitte le mode VLAN pour revenir en configuration globale.</div></div>
+  </div>
+</section>
+
+<!-- S3 -->
+<section class="section" id="s3">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv1">Niveau 1 · Affectation des ports</span>
+      <h2 class="section-title">Interfaces Access et Trunk</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Deux types de ports sur un switch : <strong>Access</strong> (port branché à un PC ou serveur, appartient à un seul VLAN) et <strong>Trunk</strong> (port entre deux switches ou vers un routeur, transporte <em>tous</em> les VLANs simultanément avec le tag 802.1Q).
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">ports-access.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Affecter des ports à un VLAN</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Sélectionner une plage d'interfaces (fa0/1 à fa0/15)</span>
+<span class="cmd">interface range</span> <span class="interface">fa0/1 - 15</span>
+<span class="cmd">switchport mode access</span>          <span class="comment">!! Mode access = 1 seul VLAN</span>
+<span class="cmd">switchport access vlan</span> <span class="value">101</span>      <span class="comment">!! Affecte au VLAN 101</span>
+
+<span class="comment">!! Autre plage pour un autre VLAN</span>
+<span class="cmd">interface range</span> <span class="interface">fa0/16 - 20</span>
+<span class="cmd">switchport mode access</span>
+<span class="cmd">switchport access vlan</span> <span class="value">102</span></div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">ports-trunk.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Trunk entre switches</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Ports reliant ce switch au switch cœur (ou au routeur)</span>
+<span class="cmd">interface range</span> <span class="interface">fa0/21 - 24</span>
+<span class="cmd">switchport mode trunk</span>            <span class="comment">!! Mode trunk = tous les VLANs passent</span>
+<span class="cmd">switchport trunk allowed vlan all</span> <span class="comment">!! Autorise tous les VLANs</span>
+
+<span class="comment">!! Sur switch Catalyst 3560 (niveau 3), encapsulation obligatoire avant trunk</span>
+<span class="cmd">switchport trunk encapsulation dot1q</span>
+<span class="cmd">switchport mode trunk</span>
+<span class="cmd">switchport trunk allowed vlan all</span></div>
+  </div>
+
+  <div class="explanation">
+    <div class="exp-item"><span class="exp-cmd">interface range fa0/1 - 15</span><div class="exp-text">Sélectionne plusieurs ports en une seule commande. Évite de répéter les mêmes commandes port par port.</div></div>
+    <div class="exp-item"><span class="exp-cmd">switchport mode access</span><div class="exp-text">Fixe le port en mode access. Le port n'appartient qu'à un seul VLAN. À utiliser sur les ports connectés aux équipements terminaux (PC, imprimante, serveur).</div></div>
+    <div class="exp-item"><span class="exp-cmd">switchport mode trunk</span><div class="exp-text">Active le trunk. Le port transporte plusieurs VLANs en ajoutant un tag 802.1Q à chaque trame. À utiliser entre switches ou vers un routeur.</div></div>
+    <div class="exp-item"><span class="exp-cmd">encapsulation dot1q</span><div class="exp-text">Uniquement sur switch L3 (3560, 3750). Choisit le protocole d'encapsulation 802.1Q pour le trunk. Obligatoire sur ces modèles avant <code>switchport mode trunk</code>.</div></div>
+  </div>
+</section>
+
+<!-- NIVEAU 2 -->
+<div class="progress-bar">
+  <span class="progress-label">NIVEAU 2</span>
+  <div class="progress-steps">
+    <div class="progress-step done"></div>
+    <div class="progress-step current"></div>
+    <div class="progress-step next"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+  </div>
+  <span class="progress-label">Gestion avancée des switches</span>
+</div>
+
+<!-- S4 -->
+<section class="section" id="s4">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv2"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv2">Niveau 2 · Synchronisation</span>
+      <h2 class="section-title">VTP — Propagation automatique des VLANs</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    VTP (VLAN Trunking Protocol) permet de <strong>centraliser la gestion des VLANs</strong> sur un seul switch "serveur" qui propage automatiquement les VLANs vers tous les switches "clients". Prérequis absolu : les liaisons entre switches doivent être en trunk.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">vtp-server.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Switch cœur — serveur VTP</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="cmd">vtp mode server</span>             <span class="comment">!! Ce switch distribue les VLANs</span>
+<span class="cmd">vtp domain</span> <span class="value">tssr</span>             <span class="comment">!! Nom du domaine VTP (identique sur tous)</span>
+<span class="cmd">vtp password</span> <span class="value">cisco</span>          <span class="comment">!! Mot de passe VTP (identique sur tous)</span>
+
+<span class="comment">!! Ensuite créer les VLANs ici — ils seront propagés automatiquement</span>
+<span class="cmd">vlan</span> <span class="value">100</span>
+<span class="cmd">name</span> <span class="value">WIFI</span>
+<span class="cmd">vlan</span> <span class="value">101</span>
+<span class="cmd">name</span> <span class="value">SERVEUR</span></div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">vtp-client.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Switches secondaires — clients VTP</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="cmd">vtp mode client</span>             <span class="comment">!! Reçoit les VLANs, ne peut pas en créer</span>
+<span class="cmd">vtp domain</span> <span class="value">tssr</span>             <span class="comment">!! Doit être identique au serveur</span>
+<span class="cmd">vtp password</span> <span class="value">cisco</span>          <span class="comment">!! Doit être identique au serveur</span></div>
+  </div>
+
+  <div class="info-box warning">
+    <span class="info-box-icon">⚠️</span>
+    <div>En mode client VTP, il est <strong>impossible de créer des VLANs localement</strong>. Tous les VLANs doivent être créés sur le serveur VTP. Le domaine et le mot de passe doivent être strictement identiques sur tous les switches.</div>
+  </div>
+</section>
+
+<!-- S5 -->
+<section class="section" id="s5">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv2"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv2">Niveau 2 · Sécurité d'accès</span>
+      <h2 class="section-title">Accès distant sécurisé (Telnet/SSH)</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Pour administrer un switch <strong>à distance via le réseau</strong> (sans câble console), il faut configurer les lignes VTY et définir un mot de passe. Cette configuration s'applique à tous les switches du réseau.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">acces-distant.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">À appliquer sur tous les switches</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Définir un mot de passe pour le mode privilégié (enable)</span>
+<span class="cmd">enable secret</span> <span class="value">cisco</span>
+
+<span class="comment">!! Configurer les 16 lignes VTY (accès Telnet/SSH simultanés)</span>
+<span class="cmd">line vty</span> <span class="value">0 15</span>
+<span class="cmd">password</span> <span class="value">distance</span>           <span class="comment">!! Mot de passe de connexion</span>
+<span class="cmd">login</span>                        <span class="comment">!! Active la demande du mot de passe</span></div>
+  </div>
+
+  <div class="explanation">
+    <div class="exp-item"><span class="exp-cmd">enable secret cisco</span><div class="exp-text">Définit le mot de passe pour entrer en mode privilégié (<code>#</code>). <strong>Secret</strong> = stocké chiffré dans la config (préférable à <code>enable password</code> qui est en clair).</div></div>
+    <div class="exp-item"><span class="exp-cmd">line vty 0 15</span><div class="exp-text">Sélectionne les 16 lignes virtuelles (0 à 15). Chaque ligne = une session Telnet/SSH simultanée possible.</div></div>
+    <div class="exp-item"><span class="exp-cmd">login</span><div class="exp-text">Oblige la saisie du mot de passe lors de la connexion. Sans cette commande, le mot de passe défini est ignoré.</div></div>
+  </div>
+</section>
+
+<!-- S6 -->
+<section class="section" id="s6">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv2"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv2">Niveau 2 · Routage inter-VLAN</span>
+      <h2 class="section-title">Routage inter-VLAN sur switch L3 (3560)</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Un switch de niveau 3 (Cisco 3560, 3750) peut faire du routage sans routeur externe. On crée des <strong>interfaces VLAN virtuelles</strong> qui servent de passerelle pour chaque VLAN, puis on active le routage IP. C'est la solution la plus performante en entreprise.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">intervlan-l3.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Switch Catalyst 3560 — switch cœur</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! 1. Créer les VLANs</span>
+<span class="cmd">vlan</span> <span class="value">101</span>
+<span class="cmd">name</span> <span class="value">CLIENT</span>
+<span class="cmd">vlan</span> <span class="value">102</span>
+<span class="cmd">name</span> <span class="value">SERVEUR</span>
+<span class="cmd">vlan</span> <span class="value">99</span>
+<span class="cmd">name</span> <span class="value">GESTION</span>
+<span class="cmd">exit</span>
+
+<span class="comment">!! 2. Passer les ports uplink en trunk (dot1q obligatoire sur 3560)</span>
+<span class="cmd">interface range</span> <span class="interface">fa0/1-20</span>
+<span class="cmd">switchport trunk encapsulation dot1q</span>
+<span class="cmd">switchport mode trunk</span>
+<span class="cmd">switchport trunk allowed vlan all</span>
+<span class="cmd">exit</span>
+
+<span class="comment">!! 3. Créer les interfaces VLAN (passerelles)</span>
+<span class="cmd">interface vlan</span> <span class="value">101</span>
+<span class="cmd">ip address</span> <span class="ip">192.168.101.254 255.255.255.0</span>   <span class="comment">!! GW du VLAN 101</span>
+
+<span class="cmd">interface vlan</span> <span class="value">102</span>
+<span class="cmd">ip address</span> <span class="ip">192.168.102.254 255.255.255.0</span>
+
+<span class="cmd">interface vlan</span> <span class="value">99</span>
+<span class="cmd">ip address</span> <span class="ip">192.168.99.254 255.255.255.0</span>
+<span class="cmd">exit</span>
+
+<span class="comment">!! 4. Activer le routage IP inter-VLAN</span>
+<span class="cmd">ip routing</span>                    <span class="comment">!! INDISPENSABLE — sans ça les VLANs restent isolés</span></div>
+  </div>
+
+  <div class="explanation">
+    <div class="exp-item"><span class="exp-cmd">interface vlan 101</span><div class="exp-text">Crée une interface logique (SVI) pour le VLAN 101. L'adresse IP assignée sera la <strong>passerelle par défaut</strong> de tous les équipements du VLAN 101.</div></div>
+    <div class="exp-item"><span class="exp-cmd">ip routing</span><div class="exp-text"><strong>Active le routage inter-VLAN.</strong> Sans cette commande, le switch connaît les VLANs mais ne route pas les paquets entre eux. C'est la commande clé du switch L3.</div></div>
+  </div>
+</section>
+
+<!-- S7 -->
+<section class="section" id="s7">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv2"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv2">Niveau 2 · Alternative avec routeur</span>
+      <h2 class="section-title">Routage inter-VLAN via routeur (Router-on-a-Stick)</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Quand on n'a pas de switch L3, on relie un routeur à un port trunk du switch, et on crée une <strong>sous-interface par VLAN</strong> sur le routeur. Chaque sous-interface reçoit une IP de passerelle. Le câble physique est unique mais transporte tous les VLANs (d'où le nom "router-on-a-stick").
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">router-on-stick.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Routeur 1841 — 1 sous-interface par VLAN</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! 1. Allumer l'interface physique (sans adresse IP)</span>
+<span class="cmd">interface</span> <span class="interface">fa0/0</span>
+<span class="cmd">no shutdown</span>
+
+<span class="comment">!! 2. Créer une sous-interface par VLAN</span>
+<span class="comment">!! Format : fa0/0.NUMERO_VLAN</span>
+<span class="cmd">interface</span> <span class="interface">fa0/0.99</span>
+<span class="cmd">encapsulation dot1q</span> <span class="value">99</span>          <span class="comment">!! Associe la sous-interface au VLAN 99</span>
+<span class="cmd">ip address</span> <span class="ip">192.168.99.254 255.255.255.0</span>
+
+<span class="cmd">interface</span> <span class="interface">fa0/0.101</span>
+<span class="cmd">encapsulation dot1q</span> <span class="value">101</span>
+<span class="cmd">ip address</span> <span class="ip">192.168.101.254 255.255.255.0</span>
+
+<span class="cmd">interface</span> <span class="interface">fa0/0.102</span>
+<span class="cmd">encapsulation dot1q</span> <span class="value">102</span>
+<span class="cmd">ip address</span> <span class="ip">192.168.102.254 255.255.255.0</span></div>
+  </div>
+
+  <div class="explanation">
+    <div class="exp-item"><span class="exp-cmd">interface fa0/0.101</span><div class="exp-text">Crée une sous-interface logique sur fa0/0. La convention est d'utiliser le numéro de VLAN comme suffixe. Le routeur peut en gérer des dizaines sur une seule interface physique.</div></div>
+    <div class="exp-item"><span class="exp-cmd">encapsulation dot1q 101</span><div class="exp-text">Indique au routeur que cette sous-interface doit traiter les trames taguées VLAN 101. <strong>Le numéro doit correspondre au VLAN déclaré sur le switch.</strong></div></div>
+  </div>
+</section>
+
+<!-- S8 -->
+<section class="section" id="s8">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv2"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv2">Niveau 2 · Gestion réseau</span>
+      <h2 class="section-title">Adresse IP de gestion & Gateway sur switch L2</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Un switch de niveau 2 n'a pas d'interface IP par VLAN par défaut. Pour l'administrer à distance (Telnet/SSH), on lui donne une IP sur l'<strong>interface VLAN de gestion</strong> (souvent VLAN 99). Comme il ne route pas, il a besoin d'une passerelle par défaut pour répondre aux requêtes venant d'autres VLANs.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">gestion-switch-l2.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Switch 2960 — IP de gestion</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Donner une IP au switch sur le VLAN de gestion</span>
+<span class="cmd">interface vlan</span> <span class="value">99</span>
+<span class="cmd">ip address</span> <span class="ip">192.168.99.253 255.255.255.0</span>
+<span class="cmd">exit</span>
+
+<span class="comment">!! Ajouter la passerelle par défaut (adresse IP du switch L3 sur ce VLAN)</span>
+<span class="cmd">ip default-gateway</span> <span class="ip">192.168.99.254</span></div>
+  </div>
+
+  <div class="info-box tip">
+    <span class="info-box-icon">💡</span>
+    <div>Chaque switch L2 doit avoir une IP différente sur le VLAN de gestion. Par convention, le switch cœur prend .254, le switch gauche .253, le switch droit .252, etc.</div>
+  </div>
+</section>
+
+<!-- S9 -->
+<section class="section" id="s9">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv2"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv2">Niveau 2 · Maintenance</span>
+      <h2 class="section-title">Réinitialisation complète d'un switch Cisco</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Quand on veut repartir de zéro sur un switch (ou avant de le reconfigurer), il faut supprimer la configuration de démarrage ET la base de données VLANs, qui est stockée séparément dans flash.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">reset-switch.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Mode privilégié (#)</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! 1. Supprimer la configuration de démarrage</span>
+<span class="cmd">write erase</span>
+
+<span class="comment">!! 2. Supprimer la base de données VLANs (stockée séparément)</span>
+<span class="cmd">delete flash:vlan.dat</span>
+
+<span class="comment">!! 3. Redémarrer le switch</span>
+<span class="cmd">reload</span></div>
+  </div>
+
+  <div class="info-box warning">
+    <span class="info-box-icon">⚠️</span>
+    <div>Si on oublie <code>delete flash:vlan.dat</code>, les VLANs persistent au redémarrage même si la config est effacée. Ces deux commandes sont indissociables pour une réinitialisation complète.</div>
+  </div>
+</section>
+
+<!-- NIVEAU 3 -->
+<div class="progress-bar">
+  <span class="progress-label">NIVEAU 3</span>
+  <div class="progress-steps">
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step current"></div>
+    <div class="progress-step next"></div>
+    <div class="progress-step"></div>
+  </div>
+  <span class="progress-label">Routage & NAT</span>
+</div>
+
+<!-- S10 -->
+<section class="section" id="s10">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv3"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv3">Niveau 3 · Routage</span>
+      <h2 class="section-title">Routage statique</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Le routage statique consiste à <strong>indiquer manuellement à chaque routeur</strong> par où envoyer les paquets. C'est l'administrateur qui contrôle totalement le chemin. Distance administrative = 1 (très prioritaire). La route par défaut (<code>0.0.0.0 0.0.0.0</code>) correspond à "tout ce que je ne connais pas, envoie là".
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">routage-statique.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Syntaxe : ip route DESTINATION MASQUE PROCHAIN_SAUT</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Route par défaut = tout envoyer vers 100.15.1.30 (souvent vers FAI)</span>
+<span class="cmd">ip route</span> <span class="ip">0.0.0.0 0.0.0.0</span> <span class="value">100.15.1.30</span>
+
+<span class="comment">!! Route spécifique vers le réseau 192.168.2.0/24 via 10.10.10.6</span>
+<span class="cmd">ip route</span> <span class="ip">192.168.2.0 255.255.255.0</span> <span class="value">10.10.10.6</span>
+
+<span class="comment">!! Route vers un réseau /16 via une passerelle</span>
+<span class="cmd">ip route</span> <span class="ip">179.58.0.0 255.255.0.0</span> <span class="value">64.0.0.1</span></div>
+  </div>
+
+  <div class="explanation">
+    <div class="exp-item"><span class="exp-cmd">ip route 0.0.0.0 0.0.0.0 X.X.X.X</span><div class="exp-text"><strong>Route par défaut.</strong> "Si je ne sais pas où envoyer ce paquet, je l'envoie vers X.X.X.X." Équivalent de la gateway par défaut d'un PC. Utilisée pour sortir vers Internet.</div></div>
+    <div class="exp-item"><span class="exp-cmd">ip route DEST MASQUE NEXT-HOP</span><div class="exp-text">Syntaxe complète. DEST = réseau destination, MASQUE = masque de ce réseau, NEXT-HOP = IP du prochain routeur qui sait y aller.</div></div>
+  </div>
+</section>
+
+<!-- S11 -->
+<section class="section" id="s11">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv3"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv3">Niveau 3 · Routage dynamique</span>
+      <h2 class="section-title">Routage dynamique RIP v2</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    RIP (Routing Information Protocol) est un protocole de routage dynamique : les routeurs <strong>échangent automatiquement</strong> leurs tables de routage. Distance administrative = 120. On déclare uniquement les réseaux <em>directement connectés</em> à chaque routeur. <code>No auto-summary</code> est indispensable pour supporter les sous-réseaux.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">rip-v2.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Même structure sur chaque routeur</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="cmd">router rip</span>
+<span class="cmd">version 2</span>                      <span class="comment">!! RIPv2 supporte VLSM et les sous-réseaux</span>
+<span class="cmd">no auto-summary</span>               <span class="comment">!! INDISPENSABLE — désactive la summarisation automatique</span>
+<span class="comment">!! Déclarer UNIQUEMENT les réseaux directement connectés à ce routeur</span>
+<span class="cmd">network</span> <span class="value">192.168.1.0</span>           <span class="comment">!! Réseau côté LAN</span>
+<span class="cmd">network</span> <span class="value">10.10.10.0</span>            <span class="comment">!! Réseau point-à-point vers autre routeur</span></div>
+  </div>
+
+  <div class="info-box note">
+    <span class="info-box-icon">📌</span>
+    <div>Avec RIP, on déclare les réseaux <strong>connectés directement</strong> au routeur, pas les réseaux distants. Le protocole s'occupe de propager l'info aux voisins automatiquement.</div>
+  </div>
+</section>
+
+<!-- S12 -->
+<section class="section" id="s12">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv3"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv3">Niveau 3 · Routage dynamique avancé</span>
+      <h2 class="section-title">Routage EIGRP</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    EIGRP est un protocole de routage dynamique Cisco <strong>plus évolué que RIP</strong>. Distance administrative = 90 (plus prioritaire que RIP). Il supporte les masques variables (VLSM) et converge rapidement. Le numéro de système autonome (AS) doit être <strong>identique sur tous les routeurs</strong> du même domaine EIGRP.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">eigrp.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">AS 92 sur tous les routeurs du domaine</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="cmd">router eigrp</span> <span class="value">92</span>               <span class="comment">!! 92 = numéro du système autonome (AS) — identique partout</span>
+<span class="cmd">no auto-summary</span>
+<span class="comment">!! Réseaux classful (classe entière) — pas besoin de wildcard</span>
+<span class="cmd">network</span> <span class="value">192.168.1.0</span>
+<span class="comment">!! Réseaux avec masque différent de la classe — ajouter le wildcard mask</span>
+<span class="cmd">network</span> <span class="value">100.15.1.28 0.0.0.3</span>   <span class="comment">!! Réseau /30 → wildcard = 0.0.0.3</span>
+<span class="cmd">network</span> <span class="value">64.0.0.0 0.0.0.3</span>      <span class="comment">!! Réseau /30</span></div>
+  </div>
+
+  <div class="explanation">
+    <div class="exp-item"><span class="exp-cmd">router eigrp 92</span><div class="exp-text">Lance le processus EIGRP avec l'AS numéro 92. Tous les routeurs d'un même réseau EIGRP doivent utiliser le même numéro AS.</div></div>
+    <div class="exp-item"><span class="exp-cmd">network X.X.X.X 0.0.0.3</span><div class="exp-text">Le wildcard mask est le masque inversé. Pour /30 (255.255.255.252), le wildcard est 0.0.0.3. Nécessaire uniquement si le masque est différent de la classe naturelle.</div></div>
+  </div>
+
+  <div class="ref-table" style="margin-top:16px">
+    <table class="ref-table">
+      <thead><tr><th>Masque</th><th>Wildcard (inversé)</th><th>CIDR</th></tr></thead>
+      <tbody>
+        <tr><td>255.0.0.0</td><td>0.255.255.255</td><td>/8</td></tr>
+        <tr><td>255.255.0.0</td><td>0.0.255.255</td><td>/16</td></tr>
+        <tr><td>255.255.255.0</td><td>0.0.0.255</td><td>/24</td></tr>
+        <tr><td>255.255.255.252</td><td>0.0.0.3</td><td>/30</td></tr>
+        <tr><td>255.255.128.0</td><td>0.0.127.255</td><td>/17</td></tr>
+        <tr><td>255.240.0.0</td><td>0.15.255.255</td><td>/12</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- S13 -->
+<section class="section" id="s13">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv3"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv3">Niveau 3 · Interfaces WAN</span>
+      <h2 class="section-title">Configuration d'interfaces (FA et Série)</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Les interfaces <strong>FastEthernet</strong> (fa0/0) connectent un routeur au LAN ou à un autre équipement réseau. Les interfaces <strong>Série</strong> (se0/0/0) connectent deux routeurs via un lien WAN simulé. Sur le lien série, l'un des deux routeurs doit fournir la <em>clock rate</em> (côté DCE).
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">interfaces-routeur.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">FA + Série avec clock rate</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Interface FastEthernet vers le LAN</span>
+<span class="cmd">interface</span> <span class="interface">fa0/0</span>
+<span class="cmd">ip address</span> <span class="ip">192.168.1.254 255.255.255.0</span>
+<span class="cmd">no shutdown</span>                    <span class="comment">!! INDISPENSABLE — les interfaces sont off par défaut</span>
+
+<span class="comment">!! Interface Série WAN — côté qui fournit l'horloge (DCE)</span>
+<span class="cmd">interface</span> <span class="interface">se0/0/0</span>
+<span class="cmd">ip address</span> <span class="ip">10.10.10.5 255.255.255.252</span>
+<span class="cmd">clock rate</span> <span class="value">4000000</span>             <span class="comment">!! Seulement sur le côté DCE du câble série</span>
+<span class="cmd">no shutdown</span></div>
+  </div>
+
+  <div class="info-box tip">
+    <span class="info-box-icon">💡</span>
+    <div><strong>no shutdown</strong> est obligatoire sur chaque interface. Sans lui, l'interface reste éteinte même si l'IP est configurée. C'est une des erreurs les plus fréquentes en TP.</div>
+  </div>
+</section>
+
+<!-- S14 -->
+<section class="section" id="s14">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv3"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv3">Niveau 3 · NAT</span>
+      <h2 class="section-title">NAT — Déclaration inside / outside</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    NAT (Network Address Translation) traduit les adresses IP privées en adresses publiques pour sortir sur Internet. <strong>Première étape obligatoire</strong> : déclarer sur chaque interface si elle est côté réseau interne (inside) ou côté Internet (outside).
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">nat-inside-outside.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Toujours faire ça en premier</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Interface côté réseau privé (LAN)</span>
+<span class="cmd">interface</span> <span class="interface">fa0/0</span>
+<span class="cmd">ip nat inside</span>                  <span class="comment">!! Réseau privé = inside</span>
+<span class="cmd">exit</span>
+
+<span class="comment">!! Autre interface LAN (si plusieurs réseaux privés)</span>
+<span class="cmd">interface</span> <span class="interface">fa0/1</span>
+<span class="cmd">ip nat inside</span>
+<span class="cmd">exit</span>
+
+<span class="comment">!! Interface côté Internet / FAI</span>
+<span class="cmd">interface</span> <span class="interface">se0/0/0</span>
+<span class="cmd">ip nat outside</span>                 <span class="comment">!! Internet = outside</span></div>
+  </div>
+</section>
+
+<!-- S15 -->
+<section class="section" id="s15">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv3"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv3">Niveau 3 · NAT Statique</span>
+      <h2 class="section-title">NAT Statique — 1 IP privée = 1 IP publique</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Le NAT statique associe <strong>de façon permanente</strong> une adresse IP privée à une adresse IP publique. Utilisé pour exposer un serveur interne sur Internet. Une seule machine peut utiliser cette adresse publique. Exemple : serveur web 192.168.1.150 accessible via l'IP publique 201.49.10.17.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">nat-statique.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Après avoir déclaré inside/outside</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Associer l'IP privée 192.168.1.150 à l'IP publique 201.49.10.17</span>
+<span class="cmd">ip nat inside source static</span> <span class="ip">192.168.1.150 201.49.10.17</span></div>
+  </div>
+</section>
+
+<!-- S16 -->
+<section class="section" id="s16">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv3"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv3">Niveau 3 · NAT Dynamique</span>
+      <h2 class="section-title">NAT Dynamique — Pool d'adresses publiques</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Le NAT dynamique permet à plusieurs machines privées de partager un pool d'adresses publiques. <strong>Attention : les machines ne peuvent pas sortir simultanément</strong> car chaque adresse publique n'est utilisée que par une machine à la fois.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">nat-dynamique.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">3 étapes obligatoires</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Étape D.1 — Créer le pool d'adresses publiques</span>
+<span class="cmd">ip nat pool</span> <span class="value">POOL-NAT</span> <span class="ip">201.49.10.18 201.49.10.20</span> <span class="cmd">netmask</span> <span class="ip">255.255.255.252</span>
+
+<span class="comment">!! Étape D.2 — ACL pour définir qui peut utiliser le NAT</span>
+<span class="comment">!! (Exclure les machines en NAT statique si besoin)</span>
+<span class="cmd">access-list 22 deny host</span> <span class="ip">192.168.1.150</span>    <span class="comment">!! Exclure le serveur en NAT statique</span>
+<span class="cmd">access-list 22 permit</span> <span class="ip">192.168.1.0 0.0.0.255</span>  <span class="comment">!! Autoriser tout le reste du réseau</span>
+
+<span class="comment">!! Étape D.3 — Appliquer le NAT dynamique</span>
+<span class="cmd">ip nat inside source list 22 pool</span> <span class="value">POOL-NAT</span></div>
+  </div>
+</section>
+
+<!-- S17 -->
+<section class="section" id="s17">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv3"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv3">Niveau 3 · PAT</span>
+      <h2 class="section-title">PAT / Surcharge NAT — Toutes les machines sur 1 IP publique</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Le PAT (Port Address Translation) est la forme la plus utilisée du NAT. <strong>Toutes les machines internes partagent la même IP publique</strong>, différenciées par leur numéro de port source. C'est ainsi que fonctionne votre box internet à la maison. Le mot-clé <code>overload</code> active le PAT.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">pat-overload.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Le plus utilisé en production</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Étape P.1 — ACL pour définir les machines autorisées</span>
+<span class="cmd">access-list 33 permit</span> <span class="ip">192.168.0.0 0.0.0.255</span>
+
+<span class="comment">!! Étape P.2 — Appliquer le PAT sur l'interface outside</span>
+<span class="comment">!! Le mot-clé OVERLOAD active le partage de l'IP publique par les ports</span>
+<span class="cmd">ip nat inside source list 33 interface</span> <span class="interface">se0/0/0</span> <span class="cmd">overload</span></div>
+  </div>
+</section>
+
+<!-- S18 -->
+<section class="section" id="s18">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv3"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv3">Niveau 3 · NAT avancé</span>
+      <h2 class="section-title">Redirection de port (Port Forwarding)</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    La redirection de port permet d'exposer un service interne sur Internet via une IP publique. Exemple : les requêtes HTTP (port 80) arrivant sur l'IP publique du routeur sont redirigées vers un serveur web interne.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">port-forwarding.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">NAT statique avec port TCP</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Rediriger HTTP (80) de l'IP publique 7.0.0.100 vers le serveur interne 10.0.0.12</span>
+<span class="cmd">ip nat inside source static tcp</span> <span class="ip">10.0.0.12</span> <span class="value">80</span> <span class="ip">7.0.0.100</span> <span class="value">80</span>
+
+<span class="comment">!! Syntaxe : ip nat inside source static tcp IP_PRIVÉE PORT_PRIVÉ IP_PUBLIQUE PORT_PUBLIC</span>
+<span class="comment">!! Exemple HTTPS aussi :</span>
+<span class="cmd">ip nat inside source static tcp</span> <span class="ip">192.168.20.99</span> <span class="value">443</span> <span class="ip">84.96.154.6</span> <span class="value">443</span></div>
+  </div>
+</section>
+
+<!-- NIVEAU 4 -->
+<div class="progress-bar">
+  <span class="progress-label">NIVEAU 4</span>
+  <div class="progress-steps">
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step current"></div>
+    <div class="progress-step next"></div>
+  </div>
+  <span class="progress-label">Filtrage & Services réseau</span>
+</div>
+
+<!-- S19 -->
+<section class="section" id="s19">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv4"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv4">Niveau 4 · Sécurité réseau</span>
+      <h2 class="section-title">ACL Standard — Filtrage par IP source</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Une ACL Standard filtre le trafic <strong>uniquement par adresse IP source</strong>. Numéros 1 à 99. Règle d'or : <strong>placer l'ACL standard le plus près de la destination</strong>. Le routeur analyse les règles dans l'ordre séquentiel. Si aucune règle ne correspond → refus implicite (tout est bloqué par défaut).
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">acl-standard.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">2 étapes : créer la règle + appliquer sur interface</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! ÉTAPE 1 : Créer les règles ACL 92</span>
+<span class="comment">!! Bloquer le réseau 172.16.1.0/24</span>
+<span class="cmd">access-list 92 deny</span> <span class="ip">172.16.1.0 0.0.0.255</span>
+<span class="comment">!! Autoriser tout le reste (sans cette ligne = tout bloqué)</span>
+<span class="cmd">access-list 92 permit any</span>
+
+<span class="comment">!! ÉTAPE 2 : Appliquer l'ACL sur une interface</span>
+<span class="cmd">interface</span> <span class="interface">fa0/0</span>
+<span class="cmd">ip access-group 92 out</span>         <span class="comment">!! out = trafic sortant de cette interface</span>
+
+<span class="comment">!! Pour bloquer une seule machine :</span>
+<span class="cmd">access-list 72 deny host</span> <span class="ip">192.168.0.1</span>
+<span class="cmd">access-list 72 permit any</span></div>
+  </div>
+
+  <div class="ref-table">
+    <table class="ref-table">
+      <thead><tr><th>Syntaxe</th><th>Signification</th></tr></thead>
+      <tbody>
+        <tr><td>deny 10.0.0.0 0.255.255.255</td><td>Bloquer tout le réseau 10.0.0.0/8</td></tr>
+        <tr><td>permit host 192.168.1.1</td><td>Autoriser uniquement cette machine</td></tr>
+        <tr><td>deny host 10.0.0.1</td><td>Bloquer uniquement cette machine</td></tr>
+        <tr><td>permit any</td><td>Autoriser tout le reste</td></tr>
+        <tr><td>ip access-group X in</td><td>Filtrer le trafic entrant sur l'interface</td></tr>
+        <tr><td>ip access-group X out</td><td>Filtrer le trafic sortant de l'interface</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- S20 -->
+<section class="section" id="s20">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv4"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv4">Niveau 4 · Sécurité avancée</span>
+      <h2 class="section-title">ACL Étendue — Filtrage IP source + destination + port</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Une ACL étendue filtre par <strong>IP source, IP destination, protocole et port</strong>. Numéros 100 à 199. Règle d'or : <strong>placer l'ACL étendue le plus près de la source</strong> pour éviter de laisser circuler le trafic inutilement.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">acl-etendue.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Numéros 100-199</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Syntaxe : access-list NUM ACTION PROTOCOLE SRC WILDCARD DST WILDCARD [PORT]</span>
+
+<span class="comment">!! Bloquer le trafic HTTP du réseau 172.16.1.0 vers 192.168.1.32/27</span>
+<span class="cmd">access-list 110 deny tcp</span> <span class="ip">172.16.1.0 0.0.0.255</span> <span class="ip">192.168.1.32 0.0.0.31</span> <span class="cmd">eq 80</span>
+<span class="cmd">access-list 110 permit ip any any</span>  <span class="comment">!! Autoriser le reste</span>
+
+<span class="comment">!! Appliquer sur l'interface la plus proche de la source</span>
+<span class="cmd">interface</span> <span class="interface">fa0/0</span>
+<span class="cmd">ip access-group 110 in</span></div>
+  </div>
+</section>
+
+<!-- S21 -->
+<section class="section" id="s21">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv4"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv4">Niveau 4 · Services réseau</span>
+      <h2 class="section-title">DHCP sur routeur Cisco</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Un routeur Cisco peut distribuer automatiquement des adresses IP aux équipements du réseau, <strong>sans serveur DHCP dédié</strong>. On crée un pool DHCP avec le réseau, la passerelle et le DNS, puis on exclut les adresses réservées aux équipements fixes.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">dhcp-routeur.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Service DHCP natif Cisco</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Créer le pool DHCP nommé CLIENT_LAN</span>
+<span class="cmd">ip dhcp pool</span> <span class="value">CLIENT_LAN</span>
+<span class="cmd">network</span> <span class="ip">192.168.0.0 255.255.255.0</span>     <span class="comment">!! Étendue d'adresses distribuées</span>
+<span class="cmd">dns-server</span> <span class="ip">8.8.8.8</span>                 <span class="comment">!! DNS Google (ou autre)</span>
+<span class="cmd">default-router</span> <span class="ip">192.168.0.1</span>         <span class="comment">!! Passerelle par défaut pour les clients</span>
+<span class="cmd">exit</span>
+
+<span class="comment">!! Exclure des adresses du pool (réservées aux équipements fixes)</span>
+<span class="cmd">ip dhcp excluded-address</span> <span class="ip">192.168.0.240 192.168.0.250</span>
+
+<span class="comment">!! Pool pour téléphones IP (VLAN voix)</span>
+<span class="cmd">ip dhcp pool</span> <span class="value">ETENDUE_TELEPHONE</span>
+<span class="cmd">network</span> <span class="ip">192.168.20.0 255.255.255.0</span>
+<span class="cmd">default-router</span> <span class="ip">192.168.20.254</span>
+<span class="cmd">option 150 ip</span> <span class="ip">192.168.20.254</span>      <span class="comment">!! Option 150 = adresse du serveur TFTP pour les téléphones Cisco</span></div>
+  </div>
+</section>
+
+<!-- S22 -->
+<section class="section" id="s22">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv4"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv4">Niveau 4 · DHCP relay</span>
+      <h2 class="section-title">DHCP Relay — ip helper-address</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Les requêtes DHCP fonctionnent en broadcast, donc elles sont <strong>bloquées par les routeurs</strong>. Pour permettre aux clients d'obtenir une IP depuis un serveur DHCP situé dans un autre réseau, on configure le routeur en "relay agent" : il transforme le broadcast en unicast vers le serveur DHCP.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">dhcp-relay.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Sur l'interface côté clients</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Sur l'interface FA du routeur côté réseau clients</span>
+<span class="cmd">interface</span> <span class="interface">fa0/1</span>
+<span class="comment">!! Rediriger les broadcasts DHCP vers le serveur 192.168.1.2</span>
+<span class="cmd">ip helper-address</span> <span class="ip">192.168.1.2</span></div>
+  </div>
+
+  <div class="info-box note">
+    <span class="info-box-icon">📌</span>
+    <div>Le processus DHCP se déroule en 4 étapes : <strong>D</strong>iscover (broadcast) → <strong>O</strong>ffer → <strong>R</strong>equest → <strong>A</strong>ck. Le relay intercepte le Discover et l'envoie en unicast au serveur DHCP.</div>
+  </div>
+</section>
+
+<!-- S23 -->
+<section class="section" id="s23">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv4"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv4">Niveau 4 · VoIP</span>
+      <h2 class="section-title">VLAN Voix & Configuration téléphonie IP</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Un VLAN voix (<code>switchport voice vlan</code>) permet au switch de <strong>prioriser le trafic téléphonique</strong> sur les mêmes ports que les données. Le routeur joue le rôle de serveur de téléphonie (Call Manager Express) en plus du routage inter-VLAN.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">vlan-voix-switch.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Switch — VLAN data + voix sur même port</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="cmd">vlan 10</span>
+<span class="cmd">name</span> <span class="value">data</span>
+<span class="cmd">vlan 20</span>
+<span class="cmd">name</span> <span class="value">voice</span>
+
+<span class="comment">!! Port trunk vers le routeur</span>
+<span class="cmd">interface</span> <span class="interface">g0/1</span>
+<span class="cmd">switchport mode trunk</span>
+<span class="cmd">switchport trunk allowed vlan all</span>
+<span class="cmd">exit</span>
+
+<span class="comment">!! Ports access avec VLAN voix en parallèle</span>
+<span class="cmd">interface range</span> <span class="interface">fa0/1 - 24</span>
+<span class="cmd">switchport mode access</span>
+<span class="cmd">switchport access vlan 10</span>      <span class="comment">!! VLAN data pour le PC</span>
+<span class="cmd">switchport voice vlan 20</span>       <span class="comment">!! VLAN voix pour le téléphone IP branché au même port</span></div>
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">telephonie-routeur.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Routeur — Call Manager Express</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="cmd">telephony-service</span>
+<span class="cmd">max-ephones</span> <span class="value">42</span>                <span class="comment">!! Nombre max de téléphones</span>
+<span class="cmd">max-dn</span> <span class="value">42</span>                     <span class="comment">!! Nombre max de numéros internes</span>
+<span class="cmd">ip source-address</span> <span class="ip">192.168.20.254</span> <span class="cmd">port</span> <span class="value">2000</span>   <span class="comment">!! IP du serveur téléphonie</span>
+<span class="cmd">auto assign 1 to 42</span>           <span class="comment">!! Attribution automatique des numéros</span>
+<span class="cmd">exit</span>
+
+<span class="comment">!! Définir les numéros internes</span>
+<span class="cmd">ephone-dn 1</span>
+<span class="cmd">number</span> <span class="value">101</span>                    <span class="comment">!! Numéro interne du téléphone 1</span>
+<span class="cmd">ephone-dn 2</span>
+<span class="cmd">number</span> <span class="value">102</span>                    <span class="comment">!! Numéro interne du téléphone 2</span></div>
+  </div>
+</section>
+
+<!-- NIVEAU 5 -->
+<div class="progress-bar">
+  <span class="progress-label">NIVEAU 5</span>
+  <div class="progress-steps">
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step current"></div>
+  </div>
+  <span class="progress-label">IPv6 & Haute disponibilité</span>
+</div>
+
+<!-- S24 -->
+<section class="section" id="s24">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv5"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv5">Niveau 5 · IPv6</span>
+      <h2 class="section-title">IPv6 — Bases, notation et types d'adresses</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    IPv6 utilise des adresses de <strong>128 bits</strong> notées en hexadécimal. Les règles de simplification RFC 5652 permettent de réduire l'écriture. Le masque s'exprime uniquement en CIDR (/64 le plus souvent).
+  </div>
+
+  <div class="ref-table">
+    <table class="ref-table">
+      <thead><tr><th>Type d'adresse IPv6</th><th>Équivalent IPv4</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td>::1</td><td>127.0.0.1</td><td>Loopback</td></tr>
+        <tr><td>::</td><td>0.0.0.0</td><td>Toutes les adresses</td></tr>
+        <tr><td>2000::/3</td><td>Adresses publiques</td><td>Routable sur Internet</td></tr>
+        <tr><td>FE80::/10</td><td>Adresses privées</td><td>Non routable — lien local uniquement</td></tr>
+        <tr><td>FC00::/7</td><td>—</td><td>Unique local (usage interne uniquement)</td></tr>
+        <tr><td>FF00::/8</td><td>224.0.0.0/4</td><td>Multicast</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box note">
+    <span class="info-box-icon">📌</span>
+    <div><strong>Règles de simplification RFC 5652 :</strong> les zéros en tête sont facultatifs · les adresses s'écrivent en minuscules · un seul groupe de blocs 0000 consécutifs peut être remplacé par <code>::</code> · si plusieurs groupes égaux, on remplace celui de gauche.</div>
+  </div>
+</section>
+
+<!-- S25 -->
+<section class="section" id="s25">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv5"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv5">Niveau 5 · IPv6</span>
+      <h2 class="section-title">Routage statique IPv6</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    La configuration IPv6 sur routeur nécessite <strong>d'activer le routage unicast IPv6</strong> avant tout. On assigne ensuite une adresse globale à chaque interface, et une adresse link-local (FE80). La route statique se configure avec <code>ipv6 route</code>.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">routage-ipv6.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">Routeur CAFE — exemple complet</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! 1. Activer le routage IPv6 (obligatoire)</span>
+<span class="cmd">ipv6 unicast-routing</span>
+
+<span class="comment">!! 2. Assigner une adresse IPv6 globale via EUI-64 (auto-génère la partie host)</span>
+<span class="cmd">interface</span> <span class="interface">fa0/0</span>
+<span class="cmd">ipv6 address</span> <span class="ip">2001:cafe::/64 eui-64</span>
+<span class="cmd">no shutdown</span>
+
+<span class="comment">!! 3. Activer l'adresse link-local FE80 (automatique)</span>
+<span class="cmd">ipv6 enable</span>
+
+<span class="comment">!! 4. Interface vers l'autre routeur (lien inter-routeurs)</span>
+<span class="cmd">interface</span> <span class="interface">fa0/1</span>
+<span class="cmd">ipv6 address</span> <span class="ip">fc00::1/64</span>
+<span class="cmd">no shutdown</span>
+<span class="cmd">exit</span>
+
+<span class="comment">!! 5. Route statique vers le réseau distant via le prochain saut</span>
+<span class="cmd">ipv6 route</span> <span class="ip">2001:abcd::/64</span> <span class="ip">fc00::2</span>   <span class="comment">!! Envoyer le trafic vers le routeur ABCD</span></div>
+  </div>
+</section>
+
+<!-- S26 -->
+<section class="section" id="s26">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv5"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv5">Niveau 5 · Haute disponibilité</span>
+      <h2 class="section-title">HSRP — Redondance de routeur (Cisco)</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    HSRP (Hot Standby Router Protocol) crée une <strong>adresse IP virtuelle partagée</strong> entre deux routeurs. Les clients pointent vers cette IP virtuelle comme passerelle. Si le routeur principal tombe, le secondaire prend automatiquement le relais. Nécessite 3 IPs pour 2 routeurs.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">hsrp.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">BOX01 = priorité haute (actif) / BOX02 = standby</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! Sur BOX01 (routeur principal — priorité 105 > 100)</span>
+<span class="cmd">interface</span> <span class="interface">fa0/0</span>
+<span class="cmd">standby 15 ip</span> <span class="ip">192.168.100.100</span>     <span class="comment">!! IP virtuelle commune aux 2 routeurs</span>
+<span class="cmd">standby 15 priority</span> <span class="value">105</span>          <span class="comment">!! Priorité haute = routeur actif</span>
+<span class="cmd">standby 15 preempt</span>               <span class="comment">!! Reprend le rôle actif si la prio redevient la plus haute</span>
+<span class="cmd">standby 15 track</span> <span class="interface">fa0/1</span>          <span class="comment">!! Baisse la prio de 10 si fa0/1 tombe</span>
+
+<span class="comment">!! Sur BOX02 (routeur secondaire — priorité 100)</span>
+<span class="cmd">interface</span> <span class="interface">fa0/0</span>
+<span class="cmd">standby 15 ip</span> <span class="ip">192.168.100.100</span>     <span class="comment">!! Même IP virtuelle</span>
+<span class="cmd">standby 15 priority</span> <span class="value">100</span>
+<span class="cmd">standby 15 preempt</span>
+<span class="cmd">standby 15 track</span> <span class="interface">fa0/1</span></div>
+  </div>
+</section>
+
+<!-- S27 -->
+<section class="section" id="s27">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv5"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv5">Niveau 5 · Haute disponibilité</span>
+      <h2 class="section-title">VRRP & GLBP — Alternatives à HSRP</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    <strong>VRRP</strong> est la version standard (multi-constructeurs) de HSRP. Il n'a besoin que de 2 IPs au lieu de 3. <strong>GLBP</strong> va plus loin en permettant la répartition de charge entre les routeurs (load balancing), avec un pourcentage configurable pour chaque routeur.
+  </div>
+
+  <div class="cmd-block">
+    <div class="cmd-block-header">
+      <span class="cmd-block-title">vrrp-glbp.ios</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="cmd-block-desc">VRRP = standard / GLBP = load balancing</span>
+        <button class="cmd-copy" onclick="copyCode(this)">Copier</button>
+      </div>
+    </div>
+    <div class="cmd-code"><span class="comment">!! VRRP — syntaxe identique à HSRP avec le mot-clé vrrp</span>
+<span class="comment">!! BOX01</span>
+<span class="cmd">interface</span> <span class="interface">fa0/0</span>
+<span class="cmd">vrrp 15 ip</span> <span class="ip">192.168.100.101</span>
+<span class="cmd">vrrp 15 priority</span> <span class="value">105</span>
+<span class="cmd">vrrp 15 preempt</span>
+
+<span class="comment">!! GLBP — load balancing entre les 2 routeurs</span>
+<span class="comment">!! BOX01 gère 25% du trafic, BOX02 gère 75%</span>
+<span class="cmd">interface</span> <span class="interface">fa0/0</span>
+<span class="cmd">glbp 15 ip</span> <span class="ip">192.168.100.100</span>
+<span class="cmd">glbp 15 priority</span> <span class="value">105</span>
+<span class="cmd">glbp 15 preempt</span>
+<span class="cmd">glbp 15 load-balancing</span> <span class="value">25</span>         <span class="comment">!! Ce routeur prend 25% du trafic</span></div>
+  </div>
+
+  <div class="ref-table">
+    <table class="ref-table">
+      <thead><tr><th>Protocole</th><th>Standard</th><th>IPs nécessaires</th><th>Load balancing</th></tr></thead>
+      <tbody>
+        <tr><td>HSRP</td><td>Cisco propriétaire</td><td>3 (2 + 1 virtuelle)</td><td>Non</td></tr>
+        <tr><td>VRRP</td><td>IEEE (multi-vendor)</td><td>2 (1 physique = virtuelle)</td><td>Non</td></tr>
+        <tr><td>GLBP</td><td>Cisco propriétaire</td><td>3 (2 + 1 virtuelle)</td><td>Oui</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- S28 -->
+<section class="section" id="s28">
+  <div class="section-header">
+    <div class="level-indicator"><div class="level-dot lv5"></div><div class="level-line"></div></div>
+    <div class="section-meta">
+      <span class="section-tag tag-lv5">Niveau 5 · Référence</span>
+      <h2 class="section-title">Ports TCP/UDP — À connaître par cœur</h2>
+    </div>
+  </div>
+  <div class="section-context">
+    Les numéros de port associent un service réseau à une application. <strong>Ports bien connus : 1 à 1023.</strong> Ports dynamiques (navigateurs, apps) : 1024 à 65535. Ces ports sont utilisés dans les ACL étendues et les redirections de port.
+  </div>
+
+  <div class="ref-table">
+    <table class="ref-table">
+      <thead><tr><th>Port</th><th>Protocole</th><th>Service</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td>80</td><td>TCP</td><td>HTTP</td><td>Pages web non chiffrées</td></tr>
+        <tr><td>443</td><td>TCP/UDP</td><td>HTTPS</td><td>Pages web chiffrées (SSL/TLS)</td></tr>
+        <tr><td>20-21</td><td>TCP</td><td>FTP</td><td>Transfert de fichiers</td></tr>
+        <tr><td>69</td><td>UDP</td><td>TFTP</td><td>Transfert simple (sans auth)</td></tr>
+        <tr><td>53</td><td>UDP/TCP</td><td>DNS</td><td>Résolution de noms de domaine</td></tr>
+        <tr><td>67-68</td><td>UDP</td><td>DHCP</td><td>Distribution automatique d'IP</td></tr>
+        <tr><td>23</td><td>TCP</td><td>Telnet</td><td>Accès distant non chiffré</td></tr>
+        <tr><td>22</td><td>TCP</td><td>SSH</td><td>Accès distant chiffré (à privilégier)</td></tr>
+        <tr><td>389</td><td>TCP</td><td>LDAP</td><td>Annuaire (Active Directory)</td></tr>
+        <tr><td>88</td><td>TCP</td><td>Kerberos</td><td>Authentification Active Directory</td></tr>
+        <tr><td>110</td><td>TCP</td><td>POP3</td><td>Réception de mails</td></tr>
+        <tr><td>25</td><td>TCP</td><td>SMTP</td><td>Envoi de mails</td></tr>
+        <tr><td>143</td><td>TCP</td><td>IMAP</td><td>Envoi et réception de mails</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box tip">
+    <span class="info-box-icon">💡</span>
+    <div>Sur Windows, la liste complète des ports est dans <code>C:\Windows\System32\drivers\etc\services</code>. Sur Cisco, <code>show ip access-lists</code> affiche les ACL configurées avec leurs compteurs d'application.</div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+function copyCode(btn) {
+  const block = btn.closest('.cmd-block');
+  const code = block.querySelector('.cmd-code').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '✓ Copié';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copier';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// Active TOC link on scroll
+const sections = document.querySelectorAll('section[id]');
+const tocLinks = document.querySelectorAll('.toc a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocLinks.forEach(link => link.classList.remove('active'));
+      const active = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+// ── RECHERCHE AVEC NAVIGATION ──
+const searchInput = document.getElementById('pageSearch');
+const searchCountEl = document.getElementById('searchCount');
+const btnPrev = document.getElementById('btnPrev');
+const btnNext = document.getElementById('btnNext');
+
+let matches = [];
+let currentIndex = -1;
+
+function clearHighlights() {
+  document.querySelectorAll('mark.search-highlight').forEach(el => {
+    const text = document.createTextNode(el.textContent);
+    el.parentNode.replaceChild(text, el);
+  });
+  // Normaliser les noeuds texte fusionnés
+  document.body.normalize();
+}
+
+function highlightAll(query) {
+  clearHighlights();
+  matches = [];
+  currentIndex = -1;
+
+  if (!query) {
+    updateUI();
+    return;
+  }
+
+  const walker = document.createTreeWalker(document.querySelector('.content'), NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+
+  nodes.forEach(node => {
+    const parent = node.parentNode;
+    if (!parent) return;
+    if (parent.closest('.cmd-code') || parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE') return;
+
+    const text = node.textContent;
+    const lower = text.toLowerCase();
+    const lowerQuery = query.toLowerCase();
+    let idx = lower.indexOf(lowerQuery);
+    if (idx === -1) return;
+
+    const frag = document.createDocumentFragment();
+    let lastIdx = 0;
+    while (idx !== -1) {
+      // Texte avant
+      if (idx > lastIdx) frag.appendChild(document.createTextNode(text.slice(lastIdx, idx)));
+      // Surlignage
+      const mark = document.createElement('mark');
+      mark.className = 'search-highlight';
+      mark.textContent = text.slice(idx, idx + lowerQuery.length);
+      frag.appendChild(mark);
+      matches.push(mark);
+      lastIdx = idx + lowerQuery.length;
+      idx = lower.indexOf(lowerQuery, lastIdx);
+    }
+    // Texte après le dernier match
+    if (lastIdx < text.length) frag.appendChild(document.createTextNode(text.slice(lastIdx)));
+    parent.replaceChild(frag, node);
+  });
+
+  if (matches.length > 0) {
+    currentIndex = 0;
+    highlightCurrent();
+  }
+  updateUI();
+}
+
+function highlightCurrent() {
+  matches.forEach((m, i) => m.classList.toggle('current', i === currentIndex));
+  if (matches[currentIndex]) {
+    matches[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function updateUI() {
+  if (!searchInput.value.trim()) {
+    searchCountEl.textContent = '';
+    searchCountEl.className = '';
+    btnPrev.disabled = true;
+    btnNext.disabled = true;
+  } else if (matches.length === 0) {
+    searchCountEl.textContent = 'Aucun résultat';
+    searchCountEl.className = 'empty';
+    btnPrev.disabled = true;
+    btnNext.disabled = true;
+  } else {
+    searchCountEl.textContent = `${currentIndex + 1} / ${matches.length}`;
+    searchCountEl.className = 'found';
+    btnPrev.disabled = false;
+    btnNext.disabled = false;
+  }
+}
+
+let searchTimeout;
+searchInput.addEventListener('input', () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    highlightAll(searchInput.value.trim());
+  }, 250);
+});
+
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    e.shiftKey ? prevResult() : nextResult();
+  }
+  if (e.key === 'Escape') {
+    searchInput.value = '';
+    clearHighlights();
+    matches = [];
+    updateUI();
+  }
+});
+
+function nextResult() {
+  if (!matches.length) return;
+  currentIndex = (currentIndex + 1) % matches.length;
+  highlightCurrent();
+  updateUI();
+}
+
+function prevResult() {
+  if (!matches.length) return;
+  currentIndex = (currentIndex - 1 + matches.length) % matches.length;
+  highlightCurrent();
+  updateUI();
+}
+
+btnNext.addEventListener('click', nextResult);
+btnPrev.addEventListener('click', prevResult);
+
+// ── BURGER — masquer/afficher le sommaire ──
+const tocNav = document.getElementById('tocNav');
+const tocOpenBtn = document.getElementById('tocOpenBtn');
+
+document.getElementById('burgerBtn').addEventListener('click', () => {
+  tocNav.classList.add('collapsed');
+  tocOpenBtn.classList.add('show');
+});
+
+tocOpenBtn.addEventListener('click', () => {
+  tocNav.classList.remove('collapsed');
+  tocOpenBtn.classList.remove('show');
+});
+
+// Ctrl+F → focus recherche
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+    e.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+  }
+});
+</script>
+</body>
+</html>

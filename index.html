@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Centre d'étude Nexus — Base de connaissances</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F8F9FA;
+    --bg-sidebar: #FFFFFF;
+    --bg-header: #1A1A2E;
+    --text: #1A1A2E;
+    --text-light: #6B7280;
+    --text-muted: #9CA3AF;
+    --blue: #2563EB;
+    --blue-light: #EFF6FF;
+    --blue-hover: #1D4ED8;
+    --border: #E5E7EB;
+    --border-light: #F3F4F6;
+    --sidebar-width: 280px;
+    --header-height: 56px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+    --radius: 6px;
+    --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    height: var(--header-height);
+    background: var(--bg-header);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 14px;
+    flex-shrink: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    width: 30px; height: 30px;
+    background: var(--blue);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo-icon svg { width: 16px; height: 16px; fill: white; }
+
+  .logo-text {
+    display: flex; flex-direction: column; line-height: 1.1;
+  }
+
+  .logo-title {
+    font-size: 13px; font-weight: 600;
+    color: #FFFFFF; letter-spacing: 0.01em;
+  }
+
+  .logo-sub {
+    font-size: 10px; font-weight: 400;
+    color: rgba(255,255,255,0.45);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .header-sep {
+    width: 1px; height: 24px;
+    background: rgba(255,255,255,0.12);
+    margin: 0 4px;
+  }
+
+  /* Search in header */
+  .header-search {
+    flex: 1; max-width: 400px;
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: var(--radius);
+    padding: 0 12px;
+    height: 34px;
+    transition: var(--transition);
+  }
+
+  .header-search:focus-within {
+    background: rgba(255,255,255,0.11);
+    border-color: rgba(37,99,235,0.6);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+  }
+
+  .header-search svg { width: 14px; height: 14px; opacity: 0.45; flex-shrink: 0; }
+  .header-search svg path { stroke: white; }
+
+  .header-search input {
+    background: none; border: none; outline: none;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px; color: white;
+    width: 100%;
+  }
+
+  .header-search input::placeholder { color: rgba(255,255,255,0.35); }
+
+  .search-shortcut {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; color: rgba(255,255,255,0.30);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 3px; padding: 1px 5px;
+    flex-shrink: 0;
+  }
+
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+  .btn-toggle-sidebar {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: var(--radius);
+    cursor: pointer; color: white;
+    display: flex; align-items: center; justify-content: center;
+    transition: var(--transition);
+  }
+
+  .btn-toggle-sidebar:hover { background: rgba(255,255,255,0.13); }
+  .btn-toggle-sidebar svg { width: 16px; height: 16px; }
+
+  /* ── LAYOUT ── */
+  .app-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+    transition: width var(--transition), opacity var(--transition);
+  }
+
+  .sidebar.collapsed {
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sidebar-inner {
+    width: var(--sidebar-width);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .sidebar-section-label {
+    font-size: 10px; font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 16px 16px 8px;
+  }
+
+  .nav-list { list-style: none; overflow-y: auto; flex: 1; padding-bottom: 16px; }
+
+  .nav-item { position: relative; }
+
+  .nav-link {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 0;
+    font-size: 13px; font-weight: 400;
+    color: var(--text-light);
+    transition: var(--transition);
+    user-select: none;
+    border-left: 2px solid transparent;
+  }
+
+  .nav-link:hover { background: var(--blue-light); color: var(--blue); }
+
+  .nav-link.active {
+    background: var(--blue-light);
+    color: var(--blue);
+    font-weight: 500;
+    border-left-color: var(--blue);
+  }
+
+  .nav-link .nav-icon {
+    width: 16px; height: 16px; flex-shrink: 0; opacity: 0.6;
+  }
+
+  .nav-link .nav-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .nav-link .chevron {
+    margin-left: auto; width: 14px; height: 14px;
+    transition: transform var(--transition);
+    opacity: 0.5;
+  }
+
+  .nav-link.open .chevron { transform: rotate(90deg); }
+
+  /* Submenu */
+  .submenu { display: none; background: var(--border-light); }
+  .submenu.open { display: block; }
+
+  .submenu-group-label {
+    font-size: 10px; font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 10px 16px 4px 32px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .submenu-group-label::before {
+    content: '';
+    width: 12px; height: 1px;
+    background: var(--border);
+  }
+
+  .submenu-link {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 16px 6px 36px;
+    font-size: 12px; color: var(--text-light);
+    cursor: pointer;
+    transition: var(--transition);
+    border-left: 2px solid transparent;
+  }
+
+  .submenu-link:hover { background: var(--blue-light); color: var(--blue); }
+
+  .submenu-link.active {
+    background: var(--blue-light);
+    color: var(--blue);
+    font-weight: 500;
+    border-left-color: var(--blue);
+  }
+
+  .submenu-link svg { width: 13px; height: 13px; flex-shrink: 0; opacity: 0.55; }
+
+  .sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px; color: var(--text-muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .sidebar-footer span { font-family: 'IBM Plex Mono', monospace; }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* Breadcrumb / toolbar */
+  .content-toolbar {
+    height: 44px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 20px; gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--text-muted);
+  }
+
+  .breadcrumb .sep { opacity: 0.4; }
+  .breadcrumb .current { color: var(--text); font-weight: 500; }
+
+  .toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+  .badge {
+    font-size: 10px; font-family: 'IBM Plex Mono', monospace;
+    background: var(--blue-light); color: var(--blue);
+    border: 1px solid rgba(37,99,235,0.15);
+    border-radius: 4px; padding: 2px 7px;
+  }
+
+  /* Welcome screen */
+  .welcome {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px; padding: 40px;
+    text-align: center;
+  }
+
+  .welcome-icon {
+    width: 56px; height: 56px;
+    background: var(--blue-light);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 4px;
+  }
+
+  .welcome-icon svg { width: 28px; height: 28px; }
+
+  .welcome h2 {
+    font-size: 18px; font-weight: 600; color: var(--text);
+  }
+
+  .welcome p {
+    font-size: 13px; color: var(--text-light);
+    max-width: 380px; line-height: 1.6;
+  }
+
+  .welcome-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-top: 8px; max-width: 480px; width: 100%;
+  }
+
+  .welcome-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 12px;
+    font-size: 12px; color: var(--text-light);
+    cursor: pointer; transition: var(--transition);
+    text-align: left;
+  }
+
+  .welcome-card:hover {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    color: var(--blue);
+  }
+
+  .welcome-card-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; color: var(--blue);
+    margin-bottom: 4px; font-weight: 500;
+  }
+
+  .welcome-card-name { font-weight: 500; font-size: 12px; }
+
+  /* PDF viewer area */
+  .pdf-area {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .pdf-area.visible { display: flex; }
+
+  /* PDF.js toolbar */
+  .pdf-toolbar {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 16px;
+    display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pdf-search-box {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 0 10px;
+    height: 30px; flex: 1; max-width: 320px;
+    transition: var(--transition);
+  }
+
+  .pdf-search-box:focus-within {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  }
+
+  .pdf-search-box svg { width: 13px; height: 13px; opacity: 0.4; flex-shrink: 0; }
+  .pdf-search-box svg path { stroke: var(--text); }
+
+  .pdf-search-box input {
+    background: none; border: none; outline: none;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px; color: var(--text); width: 100%;
+  }
+
+  .pdf-search-box input::placeholder { color: var(--text-muted); }
+
+  .pdf-btn {
+    height: 30px; padding: 0 10px;
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 12px; font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--text-light); cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    transition: var(--transition);
+  }
+
+  .pdf-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .pdf-btn svg { width: 13px; height: 13px; }
+
+  .pdf-btn.primary {
+    background: var(--blue); border-color: var(--blue);
+    color: white;
+  }
+
+  .pdf-btn.primary:hover { background: var(--blue-hover); }
+
+  .page-info {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--text-muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .page-input {
+    width: 36px; height: 24px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--text);
+    outline: none;
+  }
+
+  .zoom-select {
+    height: 30px; padding: 0 8px;
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 12px; font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--text-light); cursor: pointer; outline: none;
+  }
+
+  .search-results-info {
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .search-results-info.found { color: var(--blue); }
+  .search-results-info.not-found { color: #EF4444; }
+
+  /* PDF canvas container */
+  .pdf-canvas-container {
+    flex: 1; overflow-y: auto; overflow-x: auto;
+    background: #E8E9EB;
+    display: flex; flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    gap: 16px;
+  }
+
+  .pdf-page-wrapper {
+    position: relative;
+    background: white;
+    box-shadow: var(--shadow-md);
+    border-radius: 2px;
+  }
+
+  .pdf-page-wrapper canvas { display: block; }
+
+  .highlight-layer {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+  }
+
+  .text-layer {
+    position: absolute;
+    top: 0; left: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .text-layer span {
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+  }
+
+  /* Loading state */
+  .pdf-loading {
+    flex: 1; display: flex;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px;
+  }
+
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .pdf-loading p { font-size: 13px; color: var(--text-muted); }
+
+  /* Search highlight */
+  .search-highlight {
+    background: rgba(253, 224, 71, 0.55);
+    border-radius: 2px;
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .search-highlight.current {
+    background: rgba(251, 146, 60, 0.65);
+    outline: 2px solid #F97316;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+  /* Responsive sidebar toggle hint */
+  .sidebar-toggle-hint {
+    position: fixed;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+  }
+
+  .sidebar-toggle-float {
+    width: 20px; height: 48px;
+    background: white;
+    border: 1px solid var(--border);
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sidebar-toggle-float.show {
+    opacity: 1; pointer-events: all;
+  }
+
+  .sidebar-toggle-float:hover { background: var(--blue-light); }
+  .sidebar-toggle-float svg { width: 12px; height: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div class="logo-text">
+      <span class="logo-title">Centre d'étude Nexus</span>
+      <span class="logo-sub">Base de connaissances</span>
+    </div>
+  </div>
+
+  <div class="header-sep"></div>
+
+  <div class="header-search">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" stroke-width="2" stroke-linecap="round"/></svg>
+    <input type="text" id="globalSearch" placeholder="Rechercher un cours, une procédure…" autocomplete="off">
+    <span class="search-shortcut">Ctrl+K</span>
+  </div>
+
+  <div class="header-right">
+    <button class="btn-toggle-sidebar" id="toggleSidebar" title="Afficher/masquer le menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- BODY -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-section-label">Navigation</div>
+      <ul class="nav-list" id="navList">
+
+        <!-- 1 Réseaux -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="loadPdf('pdf/Reseaux-All.pdf', 'Réseaux', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="12" y1="13" x2="5" y2="17"/><line x1="12" y1="13" x2="19" y2="17"/></svg>
+            Réseaux
+            <span class="nav-num">01</span>
+          </div>
+        </li>
+
+        <!-- 1b Réseaux 2 -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="loadPage('reseaux.html', 'Réseaux — Commandes', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Réseaux 2
+            <span class="nav-num">01b</span>
+          </div>
+        </li>
+
+        <!-- 1c Réseaux 3 -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="loadPage('reseaux3.html', 'Réseaux — Cisco par équipement', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Réseaux 3
+            <span class="nav-num">01c</span>
+          </div>
+        </li>
+
+        <!-- 2 Microsoft -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="loadPdf('pdf/Microsoft-All.pdf', 'Microsoft', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
+            Microsoft
+            <span class="nav-num">02</span>
+          </div>
+        </li>
+
+        <!-- 2b Microsoft 2 -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="loadPage('microsoft.html', 'Microsoft — Procédures', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Microsoft 2
+            <span class="nav-num">02b</span>
+          </div>
+        </li>
+
+        <!-- 2c Microsoft 3 -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="loadPage('microsoft2.html', 'Microsoft — Divers', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Microsoft 3
+            <span class="nav-num">02c</span>
+          </div>
+        </li>
+
+        <!-- 3 Linux -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="loadPdf('pdf/Linux-All.pdf', 'Linux', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Linux
+            <span class="nav-num">03</span>
+          </div>
+        </li>
+
+        <!-- 3b Linux 2 -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="loadPage('linux.html', 'Linux — Commandes', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            Linux 2
+            <span class="nav-num">03b</span>
+          </div>
+        </li>
+
+        <!-- 4 Sécurité -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="loadPdf('pdf/Securite-All.pdf', 'Sécurité', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Sécurité
+            <span class="nav-num">04</span>
+          </div>
+        </li>
+
+        <!-- 5 Virtualisation -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="loadPdf('pdf/Virtualisation-All.pdf', 'Virtualisation', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
+            Virtualisation
+            <span class="nav-num">05</span>
+          </div>
+        </li>
+
+        <!-- 6 Cloud-Save -->
+        <li class="nav-item">
+          <div class="nav-link" onclick="loadPdf('pdf/Cloud-Save-All.pdf', 'Cloud & Save', this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>
+            Cloud & Save
+            <span class="nav-num">06</span>
+          </div>
+        </li>
+
+        <!-- 7 Procédures perso -->
+        <li class="nav-item">
+          <div class="nav-link" id="nav7" onclick="toggleSubmenu(this)">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Procédures perso
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="submenu" id="submenu7">
+
+            <!-- Sous-groupe Microsoft -->
+            <div class="submenu-group-label">Microsoft</div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Activation-Routage.pdf', 'Activation du Routage', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Activation Routage
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/AD-Roles-FSMO.pdf', 'AD – Rôles FSMO', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              AD – Rôles FSMO
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Creation-AD-et-nouvelle-foret.pdf', 'Création AD & nouvelle forêt', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Création AD & forêt
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Creation-gpo-pour-installation-logiciel.pdf', 'Création GPO installation logiciel', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              GPO installation logiciel
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Gestion-des-profils-itinerant.pdf', 'Gestion des profils itinérants', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Profils itinérants
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Gestion-des-strategies-GPO.pdf', 'Gestion des stratégies GPO', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Stratégies GPO
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Installation-FTP-pour-utilisateur.pdf', 'Installation FTP utilisateur', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Installation FTP
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Installation-IIS-Creation-de-site.pdf', 'Installation IIS + Création de site', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              IIS + Création de site
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Microsoft-eval.pdf', 'Microsoft – Évaluation', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Microsoft eval
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Mise-en-place-serveur-DNS-en-parallele.pdf', 'Serveur DNS en parallèle', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              DNS en parallèle
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Organisation-gestion-utilisateur-AGDLP.pdf', 'Organisation AGDLP', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Organisation AGDLP
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Partage-DNS-entre-2-serveurs.pdf', 'Partage DNS entre 2 serveurs', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Partage DNS 2 serveurs
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Partage-dossier-AGDLP.pdf', 'Partage dossier AGDLP', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Partage dossier AGDLP
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Reservation-DHCP.pdf', 'Réservation DHCP', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Réservation DHCP
+            </div>
+
+            <!-- Sous-groupe Linux -->
+            <div class="submenu-group-label">Linux</div>
+            <div class="submenu-link" onclick="loadPdf('pdf/0-Linux-Commande-de-base.pdf', 'Linux – Commandes de base', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Commandes de base
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/1-Linux-Base-de-connaissances-operationnelle.pdf', 'Linux – Base opérationnelle', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Base opérationnelle
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/2-logique-execution.pdf', 'Logique d\'exécution', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Logique d'exécution
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/3-deroule-en-3-blocs.pdf', 'Déroulé en 3 blocs', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Déroulé en 3 blocs
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Commande-BDD-Linux.pdf', 'Commandes BDD Linux', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Commandes BDD Linux
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Eval-procedure-perso.pdf', 'Éval procédure perso', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Éval procédure perso
+            </div>
+            <div class="submenu-link" onclick="loadPdf('pdf/Procedure-linux-dns-dhcp.pdf', 'Procédure Linux DNS-DHCP', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Linux DNS-DHCP
+            </div>
+
+          </div>
+        </li>
+
+      </ul>
+
+      <div class="sidebar-footer">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>TSSR — 2025/2026</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- FLOAT TOGGLE (when sidebar collapsed) -->
+  <div class="sidebar-toggle-hint">
+    <button class="sidebar-toggle-float" id="floatToggle" onclick="document.getElementById('toggleSidebar').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- Toolbar -->
+    <div class="content-toolbar">
+      <div class="breadcrumb" id="breadcrumb">
+        <span>Nexus</span>
+        <span class="sep">›</span>
+        <span class="current" id="breadcrumbCurrent">Accueil</span>
+      </div>
+      <div class="toolbar-right">
+        <span class="badge" id="docBadge" style="display:none"></span>
+      </div>
+    </div>
+
+    <!-- Welcome screen -->
+    <div class="welcome" id="welcomeScreen">
+      <div class="welcome-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <h2>Centre d'étude Nexus</h2>
+      <p>Sélectionne un cours dans le menu à gauche pour afficher le PDF directement dans cette fenêtre. Utilise la barre de recherche pour naviguer dans le document.</p>
+      <div class="welcome-grid">
+        <div class="welcome-card" onclick="loadPdf('pdf/Reseaux-All.pdf','Réseaux', document.querySelector('.nav-link'))">
+          <div class="welcome-card-num">01</div>
+          <div class="welcome-card-name">Réseaux</div>
+        </div>
+        <div class="welcome-card" onclick="loadPdf('pdf/Microsoft-All.pdf','Microsoft', null)">
+          <div class="welcome-card-num">02</div>
+          <div class="welcome-card-name">Microsoft</div>
+        </div>
+        <div class="welcome-card" onclick="loadPdf('pdf/Linux-All.pdf','Linux', null)">
+          <div class="welcome-card-num">03</div>
+          <div class="welcome-card-name">Linux</div>
+        </div>
+        <div class="welcome-card" onclick="loadPdf('pdf/Securite-All.pdf','Sécurité', null)">
+          <div class="welcome-card-num">04</div>
+          <div class="welcome-card-name">Sécurité</div>
+        </div>
+        <div class="welcome-card" onclick="loadPdf('pdf/Virtualisation-All.pdf','Virtualisation', null)">
+          <div class="welcome-card-num">05</div>
+          <div class="welcome-card-name">Virtualisation</div>
+        </div>
+        <div class="welcome-card" onclick="loadPdf('pdf/Cloud-Save-All.pdf','Cloud & Save', null)">
+          <div class="welcome-card-num">06</div>
+          <div class="welcome-card-name">Cloud & Save</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PDF Area -->
+    <div class="pdf-area" id="pdfArea">
+
+      <!-- PDF Toolbar -->
+      <div class="pdf-toolbar">
+        <div class="pdf-search-box">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" stroke-width="2" stroke-linecap="round"/></svg>
+          <input type="text" id="pdfSearchInput" placeholder="Rechercher dans ce PDF…" autocomplete="off">
+        </div>
+        <button class="pdf-btn" id="btnPrevResult" title="Résultat précédent">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="pdf-btn" id="btnNextResult" title="Résultat suivant">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <span class="search-results-info" id="searchResultsInfo"></span>
+
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+          <button class="pdf-btn" id="btnPrevPage">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Préc.
+          </button>
+          <div class="page-info">
+            <input type="number" class="page-input" id="pageInput" value="1" min="1">
+            <span>/ <span id="totalPages">—</span></span>
+          </div>
+          <button class="pdf-btn" id="btnNextPage">
+            Suiv.
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+
+          <select class="zoom-select" id="zoomSelect">
+            <option value="0.75">75%</option>
+            <option value="1" selected>100%</option>
+            <option value="1.25">125%</option>
+            <option value="1.5">150%</option>
+            <option value="1.75">175%</option>
+            <option value="2">200%</option>
+          </select>
+
+          <button class="pdf-btn primary" title="Ouvrir dans un nouvel onglet pour copier-coller" onclick="openInNewTab()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Ouvrir / Copier
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="pdf-loading" id="pdfLoading" style="display:none">
+        <div class="spinner"></div>
+        <p>Chargement du document…</p>
+      </div>
+
+      <!-- Canvas container -->
+      <div class="pdf-canvas-container" id="pdfCanvasContainer"></div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  // ── STATE ──
+  let pdfDoc = null;
+  let currentPage = 1;
+  let totalPages = 0;
+  let scale = 1;
+  let currentPdfPath = '';
+  let searchMatches = [];
+  let currentMatchIndex = -1;
+  let searchTimeout = null;
+  let activeNavEl = null;
+
+  // ── SIDEBAR TOGGLE ──
+  const sidebar = document.getElementById('sidebar');
+  const floatToggle = document.getElementById('floatToggle');
+
+  document.getElementById('toggleSidebar').addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    floatToggle.classList.toggle('show', sidebar.classList.contains('collapsed'));
+  });
+
+  // ── SUBMENU ──
+  function toggleSubmenu(el) {
+    const submenu = el.nextElementSibling;
+    el.classList.toggle('open');
+    submenu.classList.toggle('open');
+  }
+
+  // ── LOAD PDF ──
+  async function loadPdf(path, title, navEl) {
+    if (navEl) {
+      if (activeNavEl) activeNavEl.classList.remove('active');
+      navEl.classList.add('active');
+      activeNavEl = navEl;
+    }
+
+    document.getElementById('breadcrumbCurrent').textContent = title;
+    document.getElementById('docBadge').textContent = title.toUpperCase();
+    document.getElementById('docBadge').style.display = 'inline';
+
+    document.getElementById('welcomeScreen').style.display = 'none';
+    const pdfArea = document.getElementById('pdfArea');
+    pdfArea.classList.add('visible');
+
+    // Cacher la zone iframe si présente
+    const iframeArea = document.getElementById('iframeArea');
+    if (iframeArea) iframeArea.style.display = 'none';
+
+    document.getElementById('pdfLoading').style.display = 'flex';
+    document.getElementById('pdfCanvasContainer').style.display = 'none';
+
+    currentPdfPath = path;
+    currentPage = 1;
+    searchMatches = [];
+    currentMatchIndex = -1;
+    document.getElementById('pdfSearchInput').value = '';
+    document.getElementById('searchResultsInfo').textContent = '';
+    document.getElementById('pageInput').value = 1;
+
+    try {
+      pdfDoc = await pdfjsLib.getDocument(path).promise;
+      totalPages = pdfDoc.numPages;
+      document.getElementById('totalPages').textContent = totalPages;
+      document.getElementById('pageInput').max = totalPages;
+
+      document.getElementById('pdfLoading').style.display = 'none';
+      document.getElementById('pdfCanvasContainer').style.display = 'flex';
+
+      await renderAllPages();
+    } catch(e) {
+      document.getElementById('pdfLoading').style.display = 'none';
+      document.getElementById('pdfCanvasContainer').style.display = 'flex';
+      document.getElementById('pdfCanvasContainer').innerHTML =
+        `<div style="padding:40px;text-align:center;color:#EF4444;font-size:13px;">
+          <p>⚠️ Impossible de charger le PDF.</p>
+          <p style="margin-top:8px;color:#6B7280;">Vérifiez que le fichier <strong>${path}</strong> est bien dans le dossier <strong>pdf/</strong>.</p>
+        </div>`;
+    }
+  }
+
+  // ── RENDER ALL PAGES ──
+  async function renderAllPages() {
+    const container = document.getElementById('pdfCanvasContainer');
+    container.innerHTML = '';
+
+    const pixelRatio = window.devicePixelRatio || 2;
+    const renderScale = scale * pixelRatio;
+
+    for (let i = 1; i <= totalPages; i++) {
+      const page = await pdfDoc.getPage(i);
+      const viewport = page.getViewport({ scale });
+      const hiResViewport = page.getViewport({ scale: renderScale });
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'pdf-page-wrapper';
+      wrapper.id = `page-wrapper-${i}`;
+      wrapper.style.width = viewport.width + 'px';
+      wrapper.style.height = viewport.height + 'px';
+
+      const canvas = document.createElement('canvas');
+      canvas.width = hiResViewport.width;
+      canvas.height = hiResViewport.height;
+      canvas.style.width = viewport.width + 'px';
+      canvas.style.height = viewport.height + 'px';
+      canvas.id = `page-canvas-${i}`;
+
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport: hiResViewport }).promise;
+
+      wrapper.appendChild(canvas);
+      container.appendChild(wrapper);
+    }
+
+    if (document.getElementById('pdfSearchInput').value.trim()) {
+      await performSearch(document.getElementById('pdfSearchInput').value.trim());
+    }
+  }
+
+  // ── ZOOM ──
+  document.getElementById('zoomSelect').addEventListener('change', async (e) => {
+    scale = parseFloat(e.target.value);
+    if (pdfDoc) await renderAllPages();
+  });
+
+  // ── PAGE NAV ──
+  document.getElementById('btnPrevPage').addEventListener('click', () => {
+    if (currentPage > 1) scrollToPage(currentPage - 1);
+  });
+
+  document.getElementById('btnNextPage').addEventListener('click', () => {
+    if (currentPage < totalPages) scrollToPage(currentPage + 1);
+  });
+
+  document.getElementById('pageInput').addEventListener('change', (e) => {
+    const p = parseInt(e.target.value);
+    if (p >= 1 && p <= totalPages) scrollToPage(p);
+  });
+
+  function scrollToPage(pageNum) {
+    currentPage = pageNum;
+    document.getElementById('pageInput').value = pageNum;
+    const wrapper = document.getElementById(`page-wrapper-${pageNum}`);
+    if (wrapper) wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Update current page on scroll
+  document.getElementById('pdfCanvasContainer').addEventListener('scroll', () => {
+    const container = document.getElementById('pdfCanvasContainer');
+    const wrappers = container.querySelectorAll('.pdf-page-wrapper');
+    let closest = 1;
+    let minDist = Infinity;
+    wrappers.forEach((w, i) => {
+      const rect = w.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const dist = Math.abs(rect.top - containerRect.top);
+      if (dist < minDist) { minDist = dist; closest = i + 1; }
+    });
+    if (closest !== currentPage) {
+      currentPage = closest;
+      document.getElementById('pageInput').value = closest;
+    }
+  });
+
+  // ── SEARCH IN PDF ──
+  document.getElementById('pdfSearchInput').addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+    if (!query) {
+      clearHighlights();
+      document.getElementById('searchResultsInfo').textContent = '';
+      searchMatches = []; currentMatchIndex = -1;
+      return;
+    }
+    searchTimeout = setTimeout(() => performSearch(query), 300);
+  });
+
+  document.getElementById('pdfSearchInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.shiftKey ? prevMatch() : nextMatch();
+    }
+  });
+
+  document.getElementById('btnPrevResult').addEventListener('click', prevMatch);
+  document.getElementById('btnNextResult').addEventListener('click', nextMatch);
+
+  async function performSearch(query) {
+    if (!pdfDoc || !query) return;
+    clearHighlights();
+    searchMatches = [];
+    currentMatchIndex = -1;
+    const lowerQuery = query.toLowerCase();
+    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+      const page = await pdfDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale });
+      const textContent = await page.getTextContent();
+      const wrapper = document.getElementById(`page-wrapper-${pageNum}`);
+      if (!wrapper) continue;
+      let fullText = '';
+      const items = textContent.items;
+      const itemRanges = [];
+      for (const item of items) {
+        const start = fullText.length;
+        fullText += item.str;
+        itemRanges.push({ start, end: fullText.length, item });
+      }
+      const lowerFull = fullText.toLowerCase();
+      let idx = 0;
+      while ((idx = lowerFull.indexOf(lowerQuery, idx)) !== -1) {
+        const matchStart = idx;
+        const matchEnd = idx + lowerQuery.length;
+        for (const range of itemRanges) {
+          if (range.end <= matchStart || range.start >= matchEnd) continue;
+          const item = range.item;
+          const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
+          const x = tx[4];
+          const y = tx[5];
+          const w = item.width * scale;
+          const h = item.height > 0 ? item.height * scale : 12 * scale;
+          const highlight = document.createElement('div');
+          highlight.className = 'search-highlight';
+          highlight.style.left = x + 'px';
+          highlight.style.top = (y - h) + 'px';
+          highlight.style.width = w + 'px';
+          highlight.style.height = h + 'px';
+          wrapper.appendChild(highlight);
+          searchMatches.push({ pageNum, el: highlight });
+        }
+        idx += lowerQuery.length;
+      }
+    }
+    updateSearchInfo();
+    if (searchMatches.length > 0) {
+      currentMatchIndex = 0;
+      highlightCurrent();
+    }
+  }
+
+  function clearHighlights() {
+    document.querySelectorAll('.search-highlight').forEach(el => el.remove());
+  }
+
+  function updateSearchInfo() {
+    const info = document.getElementById('searchResultsInfo');
+    if (searchMatches.length === 0) {
+      info.textContent = 'Aucun résultat';
+      info.className = 'search-results-info not-found';
+    } else {
+      info.textContent = `${currentMatchIndex + 1} / ${searchMatches.length}`;
+      info.className = 'search-results-info found';
+    }
+  }
+
+  function highlightCurrent() {
+    document.querySelectorAll('.search-highlight.current').forEach(el => el.classList.remove('current'));
+    if (currentMatchIndex >= 0 && searchMatches[currentMatchIndex]) {
+      const match = searchMatches[currentMatchIndex];
+      match.el.classList.add('current');
+      match.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      scrollToPage(match.pageNum);
+      updateSearchInfo();
+    }
+  }
+
+  function nextMatch() {
+    if (searchMatches.length === 0) return;
+    currentMatchIndex = (currentMatchIndex + 1) % searchMatches.length;
+    highlightCurrent();
+  }
+
+  function prevMatch() {
+    if (searchMatches.length === 0) return;
+    currentMatchIndex = (currentMatchIndex - 1 + searchMatches.length) % searchMatches.length;
+    highlightCurrent();
+  }
+
+  // ── OUVRIR DANS NOUVEL ONGLET ──
+  function openInNewTab() {
+    if (currentPdfPath) {
+      window.open(currentPdfPath, '_blank');
+    }
+  }
+
+  // ── CHARGER UNE PAGE HTML ──
+  function loadPage(path, title, navEl) {
+    if (navEl) {
+      if (activeNavEl) activeNavEl.classList.remove('active');
+      navEl.classList.add('active');
+      activeNavEl = navEl;
+    }
+
+    document.getElementById('breadcrumbCurrent').textContent = title;
+    document.getElementById('docBadge').textContent = title.toUpperCase();
+    document.getElementById('docBadge').style.display = 'inline';
+
+    document.getElementById('welcomeScreen').style.display = 'none';
+    document.getElementById('pdfArea').classList.remove('visible');
+
+    // Afficher ou créer la zone iframe
+    let iframeArea = document.getElementById('iframeArea');
+    if (!iframeArea) {
+      iframeArea = document.createElement('div');
+      iframeArea.id = 'iframeArea';
+      iframeArea.style.cssText = 'flex:1;display:flex;flex-direction:column;overflow:hidden;';
+      document.querySelector('.main').appendChild(iframeArea);
+    }
+
+    iframeArea.style.display = 'flex';
+    iframeArea.innerHTML = `<iframe src="${path}" style="flex:1;border:none;width:100%;height:100%;" title="${title}"></iframe>`;
+
+    // Cacher la zone PDF si visible
+    document.getElementById('pdfArea').classList.remove('visible');
+  }
+
+  // ── GLOBAL SEARCH (sidebar filter) ──
+  document.getElementById('globalSearch').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('.nav-link, .submenu-link').forEach(el => {
+      const text = el.textContent.toLowerCase();
+      el.style.display = (!q || text.includes(q)) ? '' : 'none';
+    });
+    if (q) {
+      document.querySelectorAll('.submenu').forEach(s => s.classList.add('open'));
+      document.querySelectorAll('.nav-link[id="nav7"]').forEach(el => el.classList.add('open'));
+    } else {
+      document.querySelectorAll('.submenu').forEach(s => s.classList.remove('open'));
+    }
+  });
+
+  // Ctrl+K focus search
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('globalSearch').focus();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f' && pdfDoc) {
+      e.preventDefault();
+      document.getElementById('pdfSearchInput').focus();
+    }
+  });
+</script>
+</body>
+</html>

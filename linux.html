@@ -1,0 +1,2670 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux – TSSR Révision</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --orange: #f0883e;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --cyan: #39d353;
+
+    /* Niveaux */
+    --lv1: #1f6feb;
+    --lv2: #388bfd;
+    --lv3: #f0883e;
+    --lv4: #bc8cff;
+    --lv5: #3fb950;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    z-index: 100;
+    transition: transform .3s ease;
+  }
+
+  #sidebar-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  #sidebar-header h1 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* Recherche */
+  #search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  #search {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: .85rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  #search:focus { border-color: var(--accent); }
+  #search::placeholder { color: var(--text-dim); }
+
+  .nav-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 26px; height: 26px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: .75rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: color .2s, border-color .2s;
+  }
+  .nav-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  #search-info {
+    font-size: .72rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+    min-height: 14px;
+  }
+
+  /* Nav sections */
+  #nav-sections { padding: 8px 0; flex: 1; }
+
+  .nav-section-title {
+    padding: 8px 16px 4px;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    font-size: .82rem;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+    line-height: 1.3;
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(88,166,255,.08);
+  }
+
+  .nav-badge {
+    margin-left: auto;
+    font-size: .65rem;
+    padding: 1px 5px;
+    border-radius: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .badge-lv1 { background: rgba(31,111,235,.25); color: #58a6ff; }
+  .badge-lv2 { background: rgba(56,139,253,.2); color: #79c0ff; }
+  .badge-lv3 { background: rgba(240,136,62,.2); color: #ffa657; }
+  .badge-lv4 { background: rgba(188,140,255,.2); color: #d2a8ff; }
+  .badge-lv5 { background: rgba(63,185,80,.2); color: #56d364; }
+
+  /* ── MAIN ── */
+  #main {
+    margin-left: 280px;
+    flex: 1;
+    padding: 24px;
+    max-width: 960px;
+  }
+
+  /* Top bar */
+  #topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  #burger {
+    display: none;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+
+  #page-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  #page-title span { color: #39d353; }
+
+  .tag {
+    background: rgba(57,211,83,.12);
+    color: #39d353;
+    font-size: .72rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    border: 1px solid rgba(57,211,83,.3);
+  }
+
+  /* ── LEVEL SECTIONS ── */
+  .level-section { margin-bottom: 40px; }
+
+  .level-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .level-badge {
+    font-size: .8rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: .05em;
+  }
+  .lv1 .level-badge { background: rgba(31,111,235,.2); color: #58a6ff; border: 1px solid rgba(31,111,235,.4); }
+  .lv2 .level-badge { background: rgba(56,139,253,.2); color: #79c0ff; border: 1px solid rgba(56,139,253,.4); }
+  .lv3 .level-badge { background: rgba(240,136,62,.2); color: #ffa657; border: 1px solid rgba(240,136,62,.4); }
+  .lv4 .level-badge { background: rgba(188,140,255,.2); color: #d2a8ff; border: 1px solid rgba(188,140,255,.4); }
+  .lv5 .level-badge { background: rgba(63,185,80,.2); color: #56d364; border: 1px solid rgba(63,185,80,.4); }
+
+  .level-title { font-size: 1.1rem; font-weight: 700; }
+  .lv1 .level-title { color: #58a6ff; }
+  .lv2 .level-title { color: #79c0ff; }
+  .lv3 .level-title { color: #ffa657; }
+  .lv4 .level-title { color: #d2a8ff; }
+  .lv5 .level-title { color: #56d364; }
+
+  .level-desc {
+    font-size: .82rem;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: #444c56; }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-title-wrap { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+
+  .cmd-badge {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: .78rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .lv1 .cmd-badge { background: rgba(31,111,235,.15); color: #58a6ff; }
+  .lv2 .cmd-badge { background: rgba(56,139,253,.12); color: #79c0ff; }
+  .lv3 .cmd-badge { background: rgba(240,136,62,.15); color: #ffa657; }
+  .lv4 .cmd-badge { background: rgba(188,140,255,.15); color: #d2a8ff; }
+  .lv5 .cmd-badge { background: rgba(63,185,80,.15); color: #56d364; }
+
+  .card-title {
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .card-desc {
+    font-size: .8rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .card-toggle {
+    color: var(--text-dim);
+    font-size: .9rem;
+    transition: transform .2s;
+    flex-shrink: 0;
+  }
+  .card.open .card-toggle { transform: rotate(180deg); }
+
+  .card-body {
+    display: none;
+    padding: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .card.open .card-body { display: block; }
+
+  /* Code blocks */
+  .code-block {
+    position: relative;
+    margin: 8px 0;
+  }
+
+  pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: .82rem;
+    color: #e6edf3;
+    overflow-x: auto;
+    white-space: pre;
+    line-height: 1.55;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: .72rem;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+  /* Inline code */
+  code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    background: rgba(110,118,129,.15);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: .85em;
+    color: #e6edf3;
+  }
+
+  /* Info / note boxes */
+  .note {
+    background: rgba(57,211,83,.07);
+    border-left: 3px solid #39d353;
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: .83rem;
+    color: var(--text-dim);
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+
+  .info {
+    background: rgba(88,166,255,.07);
+    border-left: 3px solid var(--accent);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: .83rem;
+    color: var(--text-dim);
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+
+  .warn {
+    background: rgba(210,153,34,.07);
+    border-left: 3px solid var(--yellow);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: .83rem;
+    color: var(--text-dim);
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; margin: 10px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .82rem;
+  }
+  th {
+    background: var(--bg3);
+    color: var(--text-dim);
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+  td code { font-size: .8rem; }
+
+  /* Highlight for search */
+  mark {
+    background: rgba(255,215,0,.3);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+
+  /* Search result highlight on card */
+  .card.search-match { border-color: rgba(88,166,255,.5); }
+  .card.search-hidden { display: none; }
+
+  /* ── OVERLAY ── */
+  #overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 99;
+  }
+  #overlay.show { display: block; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    #sidebar {
+      transform: translateX(-100%);
+    }
+    #sidebar.open {
+      transform: translateX(0);
+    }
+    #main {
+      margin-left: 0;
+    }
+    #burger { display: flex; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Overlay mobile -->
+<div id="overlay"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <h1>🐧 Linux</h1>
+    <div id="search-wrapper">
+      <input type="text" id="search" placeholder="Rechercher…" autocomplete="off">
+      <button class="nav-btn" id="btn-prev" title="Résultat précédent">▲</button>
+      <button class="nav-btn" id="btn-next" title="Résultat suivant">▼</button>
+    </div>
+    <div id="search-info"></div>
+  </div>
+  <div id="nav-sections">
+    <div class="nav-section-title">Niveaux</div>
+
+    <div class="nav-item" data-target="lv1">
+      <span>📦</span>
+      <span>Installation &amp; Base</span>
+      <span class="nav-badge badge-lv1">LV1</span>
+    </div>
+    <div class="nav-item" data-target="lv2">
+      <span>👤</span>
+      <span>Utilisateurs &amp; Droits</span>
+      <span class="nav-badge badge-lv2">LV2</span>
+    </div>
+    <div class="nav-item" data-target="lv3">
+      <span>🌐</span>
+      <span>LAMP / MariaDB / Apache</span>
+      <span class="nav-badge badge-lv3">LV3</span>
+    </div>
+    <div class="nav-item" data-target="lv4">
+      <span>⚙️</span>
+      <span>DNS / DHCP / Routage</span>
+      <span class="nav-badge badge-lv4">LV4</span>
+    </div>
+    <div class="nav-item" data-target="lv5">
+      <span>🔧</span>
+      <span>Scripts Bash avancés</span>
+      <span class="nav-badge badge-lv5">LV5</span>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main id="main">
+  <div id="topbar">
+    <button id="burger">☰</button>
+    <div id="page-title">🐧 Linux <span>Debian 12</span></div>
+    <span class="tag">TSSR</span>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       NIVEAU 1 – Installation & Commandes de base
+  ════════════════════════════════════════════════════ -->
+  <section class="level-section lv1" id="lv1">
+    <div class="level-header">
+      <span class="level-badge">LV1</span>
+      <span class="level-title">Installation &amp; Commandes de base</span>
+      <span class="level-desc">Debian 12, navigation, fichiers</span>
+    </div>
+
+    <!-- Installation VM -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">VirtualBox</span>
+          <div>
+            <div class="card-title">Installation Debian 12 (VM VirtualBox)</div>
+            <div class="card-desc">Paramètres de base pour la machine TSSR</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="note">RAM = 2048 Mo · HD = 20 Go · Carte réseau → Réseau Privé Hôte #2. Lancer le Routeur DHCP avant.</div>
+        <div class="table-wrap"><table>
+          <tr><th>Paramètre</th><th>Valeur</th></tr>
+          <tr><td>Langue</td><td>Français</td></tr>
+          <tr><td>Clavier</td><td>Français</td></tr>
+          <tr><td>Nom machine</td><td><code>lx</code></td></tr>
+          <tr><td>Nom de domaine</td><td>laisser vide</td></tr>
+          <tr><td>Mot de passe root</td><td><code>Reponse2025</code></td></tr>
+          <tr><td>Utilisateur / login</td><td><code>tssr</code></td></tr>
+          <tr><td>Partition</td><td>Assisté – tout dans une seule partition</td></tr>
+          <tr><td>Sélection logiciels</td><td>Serveur SSH + Utilitaires système <strong>uniquement</strong></td></tr>
+          <tr><td>GRUB</td><td>Oui → <code>/dev/sda</code></td></tr>
+        </table></div>
+        <div class="info">Proxy GRETA : <code>http://172.20.0.246:3128</code> &nbsp;|&nbsp; ISO Debian 12.9 = 632 Mo</div>
+      </div>
+    </div>
+
+    <!-- Config réseau Master -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">nano</span>
+          <div>
+            <div class="card-title">Configuration réseau du Master Linux</div>
+            <div class="card-desc">IP statique + sudo pour tssr</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Passer root
+su -
+
+# Éditer la config réseau
+nano /etc/network/interfaces -l
+
+# Modifier / ajouter (ligne ~12) :
+iface enp0s3 inet static
+address 192.168.240.200
+netmask 255.255.255.0
+gateway 192.168.240.254
+
+# Redémarrer la carte
+ifdown enp0s3 && ifup enp0s3
+
+# Installer sudo et ajouter tssr
+apt update && apt install sudo -y
+usermod -aG sudo tssr
+
+# Optionnel : réduire le délai sudo (4h)
+# Dans /etc/sudoers, insérer :
+Defaults timestamp_timeout=240
+
+reboot</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kit démarrage clone -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Kit clone</span>
+          <div>
+            <div class="card-title">Kit démarrage – À faire sur chaque clone</div>
+            <div class="card-desc">Modifier IP + hostname puis reboot</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Étape 1 – Modifier l'adresse IP
+sudo nano /etc/network/interfaces -l
+# Changer : address 192.168.240.XXX
+
+# Étape 2a – Modifier le hostname
+sudo nano /etc/hostname
+# Remplacer par : nom_machine
+
+# Étape 2b – Modifier /etc/hosts
+sudo nano /etc/hosts
+# Remplacer : 127.0.1.1 lx
+# Par :       127.0.1.1 nom_machine
+
+# Étape 3 – Redémarrer
+sudo reboot</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commandes de base navigation -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Navigation</span>
+          <div>
+            <div class="card-title">Commandes de base – Navigation &amp; Fichiers</div>
+            <div class="card-desc">pwd, ls, cd, touch, nano, cat, mkdir, cp, mv, rm, man, grep</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrap"><table>
+          <tr><th>Commande</th><th>Description</th><th>Exemple</th></tr>
+          <tr><td><code>pwd</code></td><td>Répertoire actuel</td><td><code>pwd</code> → <code>/home/tssr</code></td></tr>
+          <tr><td><code>ls</code></td><td>Lister le contenu</td><td><code>ls -al</code> (détails + cachés)</td></tr>
+          <tr><td><code>cd</code></td><td>Changer de répertoire</td><td><code>cd /tmp</code></td></tr>
+          <tr><td><code>touch</code></td><td>Créer un fichier vide</td><td><code>touch fichier.txt</code></td></tr>
+          <tr><td><code>nano</code></td><td>Éditer un fichier</td><td><code>nano fichier.txt</code></td></tr>
+          <tr><td><code>cat</code></td><td>Afficher le contenu</td><td><code>cat /etc/hosts</code></td></tr>
+          <tr><td><code>head -n X</code></td><td>X premières lignes</td><td><code>head -n 5 fichier</code></td></tr>
+          <tr><td><code>tail -n X</code></td><td>X dernières lignes</td><td><code>tail -n 10 syslog</code></td></tr>
+          <tr><td><code>mkdir</code></td><td>Créer un dossier</td><td><code>mkdir backup</code></td></tr>
+          <tr><td><code>cp</code></td><td>Copier</td><td><code>cp -R dossier1 dossier2</code></td></tr>
+          <tr><td><code>mv</code></td><td>Déplacer / renommer</td><td><code>mv old.txt new.txt</code></td></tr>
+          <tr><td><code>rm</code></td><td>Supprimer</td><td><code>rm -R dossier</code></td></tr>
+          <tr><td><code>man</code></td><td>Manuel d'une commande</td><td><code>man ls</code></td></tr>
+          <tr><td><code>grep</code></td><td>Chercher dans un fichier</td><td><code>grep -i http /etc/services</code></td></tr>
+          <tr><td><code>clear</code></td><td>Effacer le terminal</td><td><code>clear</code> ou <kbd>Ctrl+L</kbd></td></tr>
+        </table></div>
+        <div class="info"><strong>Prompt :</strong> <code>#</code> = root (admin) &nbsp;|&nbsp; <code>$</code> = utilisateur normal</div>
+        <div class="info"><strong>Nano :</strong> <kbd>Ctrl+X</kbd> quitter &nbsp;|&nbsp; <kbd>O</kbd> puis <kbd>Entrée</kbd> pour sauvegarder</div>
+      </div>
+    </div>
+
+    <!-- Arborescence Linux -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Arborescence</span>
+          <div>
+            <div class="card-title">Arborescence Linux (FHS)</div>
+            <div class="card-desc">Structure des répertoires principaux</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrap"><table>
+          <tr><th>Répertoire</th><th>Rôle (équivalent Windows)</th></tr>
+          <tr><td><code>/</code></td><td>Racine (≃ <code>C:\</code>)</td></tr>
+          <tr><td><code>/sys</code></td><td>Fichiers système (≃ <code>C:\Windows\System32</code>)</td></tr>
+          <tr><td><code>/bin</code></td><td>Programmes / exécutables</td></tr>
+          <tr><td><code>/boot</code></td><td>Fichiers de démarrage</td></tr>
+          <tr><td><code>/dev</code></td><td>Périphériques</td></tr>
+          <tr><td><code>/media</code></td><td>Périphériques amovibles (clés USB…)</td></tr>
+          <tr><td><code>/tmp</code></td><td>Temporaire (vidé au redémarrage)</td></tr>
+          <tr><td><code>/lib</code></td><td>Librairies partagées (≃ DLL)</td></tr>
+          <tr><td><code>/root</code></td><td>Home de l'administrateur root</td></tr>
+          <tr><td><code>/home</code></td><td>Dossiers personnels (<code>/home/tssr</code> ≃ <code>C:\Users\tssr</code>)</td></tr>
+          <tr><td><code>/etc</code></td><td>Fichiers de configuration</td></tr>
+          <tr><td><code>/var</code></td><td>Données variables (logs, sites web…)</td></tr>
+          <tr><td><code>/proc</code></td><td>Informations système en temps réel</td></tr>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- Paramètres de commandes -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Options</span>
+          <div>
+            <div class="card-title">Paramètres courts et longs</div>
+            <div class="card-desc">Syntaxe des options Linux</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="note">Paramètres courts (1 lettre) : <code>-a</code> / combinables : <code>ls -al</code> = <code>ls -a -l</code></div>
+        <div class="note">Paramètres longs (plusieurs lettres) : <code>--all</code></div>
+        <div class="code-block">
+          <pre><code>ls -a          # fichiers cachés
+ls -l          # format long (droits, taille…)
+ls -al         # combiné
+grep -i http   # insensible à la casse</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info système -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Système</span>
+          <div>
+            <div class="card-title">Informations système</div>
+            <div class="card-desc">Version, CPU, disque, RAM, réseau, processus</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Version Debian
+cat /etc/debian_version
+lsb_release -a
+uname -a        # info noyau complète
+uname -r        # version noyau seule
+
+# CPU
+cat /proc/cpuinfo
+
+# Disques
+sudo fdisk -l
+df -h           # espace disque
+
+# RAM
+free -m
+
+# Charge système
+uptime
+
+# Réseau
+ip a            # toutes les cartes détaillé
+ip -br a        # résumé (IP)
+ip -br -4 a     # IPv4 seulement
+ip l            # interfaces Ethernet
+ip -br l        # résumé MAC
+
+# DNS configuré
+cat /etc/resolv.conf
+
+# Processus
+ps              # processus session courante
+ps -f           # format complet
+ps -ef          # tous les processus
+ps -u tssr      # processus d'un utilisateur
+ps -e -o user,cputime,comm,etime   # colonnes choisies
+ps -eH          # arborescence</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="info"><strong>kill :</strong> <code>kill PID</code> (normal) &nbsp;|&nbsp; <code>kill -9 PID</code> (forcer)</div>
+        <div class="info"><strong>Tâche de fond :</strong> ajouter <code>&amp;</code> après la commande</div>
+      </div>
+    </div>
+
+    <!-- SSH -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">ssh</span>
+          <div>
+            <div class="card-title">Connexion SSH depuis Windows</div>
+            <div class="card-desc">Terminal / cmd Windows → machine Linux</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Depuis Windows (Terminal / cmd)
+ssh tssr@192.168.240.200
+
+# Copier fichiers Windows → Linux (scp)
+scp "C:\users\Pascal\tp\*.csv" tssr@192.168.240.30:/home/tssr/
+
+# Copier fichiers Linux → Windows
+scp tssr@192.168.240.30:/home/tssr/*.sql "C:\users\Pascal\tp\"</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="note">WinSCP = alternative graphique pour les transferts de fichiers.</div>
+      </div>
+    </div>
+
+    <!-- TAR -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">tar</span>
+          <div>
+            <div class="card-title">Compression / Décompression tar.gz</div>
+            <div class="card-desc">Archives tar avec gzip</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Compresser un dossier
+tar -czvf mon_archive.tar.gz dossier_a_compresser
+# -c créer | -z gzip | -v verbeux | -f fichiers
+
+# Décompresser dans un dossier
+tar -xzvf mon_archive.tar.gz -C /dossier/destination
+# -x décompresser | -C dossier de destination</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Redirections et tubes -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">&gt; | &gt;&gt; |</span>
+          <div>
+            <div class="card-title">Redirections et tubes (pipe)</div>
+            <div class="card-desc">Rediriger la sortie, enchaîner des commandes</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># > : écrire (écrase)
+echo "bonjour" > fichier.txt
+
+# >> : ajouter (append)
+echo "suite" >> fichier.txt
+
+# Rediriger stdout + stderr
+commande > ok.txt 2> erreurs.txt
+
+# Tube | : sortie de cmd1 → entrée de cmd2
+ls -l | grep scripts
+lsb_release -a | grep Description | cut -d':' -f 2</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════════════
+       NIVEAU 2 – Utilisateurs, Groupes, Droits
+  ════════════════════════════════════════════════════ -->
+  <section class="level-section lv2" id="lv2">
+    <div class="level-header">
+      <span class="level-badge">LV2</span>
+      <span class="level-title">Utilisateurs, Groupes &amp; Droits</span>
+      <span class="level-desc">adduser, chmod, chown, id…</span>
+    </div>
+
+    <!-- Utilisateurs -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Utilisateurs</span>
+          <div>
+            <div class="card-title">Gestion des utilisateurs</div>
+            <div class="card-desc">adduser, passwd, deluser, useradd (scripts)</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Créer un utilisateur (interactif)
+sudo adduser vador
+
+# Modifier le mot de passe
+sudo passwd vador
+
+# Supprimer (sans supprimer /home)
+sudo deluser vador
+
+# Supprimer + supprimer /home
+sudo deluser --remove-home vador
+
+# ── Pour les scripts (non-interactif) ──
+sudo useradd vador --home-dir /home/vador/ --create-home
+echo "vador:Reponse2025" | sudo chpasswd
+sudo userdel -r vador    # supprime aussi /home</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Groupes -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Groupes</span>
+          <div>
+            <div class="card-title">Gestion des groupes</div>
+            <div class="card-desc">addgroup, usermod, gpasswd, id, getent</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Créer un groupe
+sudo addgroup jedis
+
+# Ajouter user dans un groupe (sans retirer des autres)
+sudo usermod -aG jedis vador
+
+# Ajouter user ET retirer de tous les autres groupes
+sudo usermod -g jedis vador
+
+# Retirer user d'un groupe
+sudo gpasswd --delete vador jedis
+
+# Voir les groupes d'un utilisateur
+id vador
+
+# Voir les membres d'un groupe
+getent group jedis
+
+# Supprimer un groupe
+sudo delgroup jedis</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="warn"><strong>-aG</strong> (Append Group) conserve les groupes existants. Sans <code>-a</code>, l'utilisateur est retiré de tous ses autres groupes !</div>
+      </div>
+    </div>
+
+    <!-- Droits chmod -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">chmod</span>
+          <div>
+            <div class="card-title">Droits – chmod (lecture / écriture / exécution)</div>
+            <div class="card-desc">r=4, w=2, x=1 – méthode octale et symbolique</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrap"><table>
+          <tr><th>Droit</th><th>Lettre</th><th>Valeur</th></tr>
+          <tr><td>Lecture (read)</td><td><code>r</code></td><td>4</td></tr>
+          <tr><td>Écriture (write)</td><td><code>w</code></td><td>2</td></tr>
+          <tr><td>Exécution</td><td><code>x</code></td><td>1</td></tr>
+        </table></div>
+        <div class="table-wrap" style="margin-top:10px"><table>
+          <tr><th>Cible</th><th>Lettre</th></tr>
+          <tr><td>Propriétaire (User)</td><td><code>u</code></td></tr>
+          <tr><td>Groupe</td><td><code>g</code></td></tr>
+          <tr><td>Autres (Others)</td><td><code>o</code></td></tr>
+        </table></div>
+        <div class="code-block">
+          <pre><code># Méthode octale (chiffres)
+chmod 760 fichier       # u=rwx(7) g=rw(6) o=---
+chmod 764 fichier       # u=rwx g=rw o=r
+chmod 774 -R dossier/   # récursif
+
+# Méthode symbolique
+chmod u+x,g+w,o-r fichier
+chmod u=rwx,g=rw,o=r fichier
+chmod +x script.sh      # exécutable pour tous
+
+# Lire les droits
+ls -l
+# -rwxrw-r-- 1 vador empire 33 ... fichier
+#  ^^^        = droits u(rwx) g(rw) o(r)</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="info">
+          Exemple <code>-rwxrw-r--</code> : <br>
+          <code>-</code> fichier | <code>rwx</code> propriétaire | <code>rw-</code> groupe | <code>r--</code> autres
+        </div>
+      </div>
+    </div>
+
+    <!-- chown -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">chown</span>
+          <div>
+            <div class="card-title">Changer le propriétaire – chown</div>
+            <div class="card-desc">Propriétaire et groupe d'un fichier/dossier</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># chown utilisateur:groupe fichier
+chown tssr:jedis perso
+sudo chown vador:empire planetoilenoire.txt
+
+# Récursif sur un dossier
+sudo chown -R client1:www-data /home/client1/</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- chattr -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">chattr</span>
+          <div>
+            <div class="card-title">Verrouiller un fichier – chattr</div>
+            <div class="card-desc">Empêcher la modification (ex: /etc/resolv.conf)</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Verrouiller (immutable)
+chattr +i /etc/resolv.conf
+
+# Déverrouiller
+chattr -i /etc/resolv.conf</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════════════
+       NIVEAU 3 – LAMP : MariaDB, Apache2, Nginx
+  ════════════════════════════════════════════════════ -->
+  <section class="level-section lv3" id="lv3">
+    <div class="level-header">
+      <span class="level-badge">LV3</span>
+      <span class="level-title">LAMP – MariaDB / Apache2 / Nginx</span>
+      <span class="level-desc">Serveurs web, bases de données, PHP</span>
+    </div>
+
+    <!-- MariaDB installation -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">MariaDB</span>
+          <div>
+            <div class="card-title">Installation et sécurisation MariaDB</div>
+            <div class="card-desc">Installation, mysql_secure_installation, connexion</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Installation
+sudo apt update
+sudo apt install mariadb-server -y
+
+# Sécurisation (répondre ENTRÉE partout sauf mot de passe)
+sudo mysql_secure_installation
+# → New password: Reponse2026
+
+# Connexion
+mariadb -u root -p          # demande le mdp
+mariadb -u root -pReponse2026  # mdp direct (pas d'espace)
+
+# Quitter
+exit</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SQL de base -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">SQL base</span>
+          <div>
+            <div class="card-title">Commandes SQL essentielles</div>
+            <div class="card-desc">Bases, tables, utilisateurs, droits</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code>-- Lister les bases
+SHOW DATABASES;
+
+-- Se connecter à une base
+USE cinema;
+
+-- Lister les tables
+SHOW TABLES;
+
+-- Structure d'une table
+DESCRIBE journaliste;
+
+-- Voir le contenu
+SELECT * FROM journaliste;
+SELECT * FROM journaliste\G   -- affichage vertical lisible
+
+-- Créer / Supprimer une base
+CREATE DATABASE cinema;
+DROP DATABASE cinema;
+
+-- Info session courante
+STATUS;</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Utilisateurs et droits SQL -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">SQL users</span>
+          <div>
+            <div class="card-title">Utilisateurs MariaDB – Création et droits</div>
+            <div class="card-desc">CREATE USER, GRANT, FLUSH, REVOKE, SHOW GRANTS</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code>-- Étape 1 : créer l'utilisateur
+CREATE USER admincine@localhost IDENTIFIED BY 'Reponse2025';
+
+-- Étape 2 : donner tous les droits sur une base
+GRANT ALL PRIVILEGES ON cinema.* TO admincine@localhost;
+
+-- Étape 2 (version détaillée)
+GRANT SELECT,INSERT,UPDATE,CREATE,DELETE,DROP,ALTER
+  ON cinema.* TO admincine@localhost;
+
+-- Étape 3 : appliquer
+FLUSH PRIVILEGES;
+
+-- Droits sur une table précise
+GRANT INSERT,SELECT ON cinema.film TO stagiaire@localhost;
+
+-- Retirer un droit
+REVOKE INSERT ON cinema.film FROM stagiaire@localhost;
+
+-- Voir les droits d'un utilisateur
+SHOW GRANTS FOR admincine@localhost;
+SHOW GRANTS;   -- voir ses propres droits</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="table-wrap"><table>
+          <tr><th>Droit SQL</th><th>Action</th></tr>
+          <tr><td><code>SELECT</code></td><td>Lire</td></tr>
+          <tr><td><code>INSERT</code></td><td>Insérer</td></tr>
+          <tr><td><code>UPDATE</code></td><td>Modifier</td></tr>
+          <tr><td><code>DELETE</code></td><td>Supprimer des lignes</td></tr>
+          <tr><td><code>CREATE</code></td><td>Créer tables</td></tr>
+          <tr><td><code>DROP</code></td><td>Supprimer tables</td></tr>
+          <tr><td><code>ALTER</code></td><td>Modifier structure</td></tr>
+          <tr><td><code>GRANT</code></td><td>Donner des droits</td></tr>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- Création de tables -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">CREATE TABLE</span>
+          <div>
+            <div class="card-title">Création de tables – types et contraintes</div>
+            <div class="card-desc">Types de données, PRIMARY KEY, FOREIGN KEY</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code>-- Table journaliste
+CREATE TABLE journaliste (
+  Idj    INT AUTO_INCREMENT,
+  Nom    CHAR(60) NOT NULL,
+  Prenom CHAR(50) NOT NULL,
+  Email  CHAR(100) UNIQUE NOT NULL,
+  PRIMARY KEY (Idj)
+) ENGINE=InnoDB;
+
+-- Table article avec clé étrangère
+CREATE TABLE article (
+  Ida      INT AUTO_INCREMENT,
+  Titre    CHAR(255),
+  Contenu  MEDIUMTEXT,
+  Parution DATE,
+  Rubrique ENUM('sport','culture','informatique'),
+  Idj      INT,
+  PRIMARY KEY (Ida)
+) ENGINE=InnoDB;
+
+-- Ajouter la clé étrangère
+ALTER TABLE article
+  ADD CONSTRAINT fk_journaliste
+  FOREIGN KEY (Idj) REFERENCES journaliste(Idj)
+  ON DELETE CASCADE;</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="table-wrap"><table>
+          <tr><th>Type</th><th>Description</th></tr>
+          <tr><td><code>CHAR(n)</code></td><td>Chaîne fixe (performance)</td></tr>
+          <tr><td><code>VARCHAR(n)</code></td><td>Chaîne variable (stockage)</td></tr>
+          <tr><td><code>TEXT / MEDIUMTEXT</code></td><td>65K / 16M caractères</td></tr>
+          <tr><td><code>INT / TINYINT / BIGINT</code></td><td>Entiers (tailles variées)</td></tr>
+          <tr><td><code>FLOAT(m,d) / DECIMAL(m,d)</code></td><td>Décimaux</td></tr>
+          <tr><td><code>DATE / DATETIME / YEAR</code></td><td>Dates</td></tr>
+          <tr><td><code>ENUM('a','b')</code></td><td>Liste de valeurs</td></tr>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ALTER TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">ALTER TABLE</span>
+          <div>
+            <div class="card-title">Modifier la structure d'une table</div>
+            <div class="card-desc">ADD, DROP, MODIFY, CHANGE, RENAME</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code>-- Supprimer un champ
+ALTER TABLE article DROP rubrique;
+
+-- Ajouter un champ (en fin de table)
+ALTER TABLE journaliste ADD telephone INT(10) UNSIGNED ZEROFILL;
+
+-- Ajouter un champ APRÈS un champ précis
+ALTER TABLE journaliste ADD telephone INT(10) UNSIGNED ZEROFILL AFTER prenom;
+
+-- Modifier un champ (type/contrainte)
+ALTER TABLE article MODIFY titre CHAR(140) NOT NULL;
+
+-- Renommer un champ
+ALTER TABLE journaliste CHANGE email courriel CHAR(100) UNIQUE;
+
+-- Renommer une table
+ALTER TABLE article RENAME articles;</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSERT DELETE -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">INSERT/DELETE</span>
+          <div>
+            <div class="card-title">Insérer et supprimer des données</div>
+            <div class="card-desc">INSERT INTO, DELETE FROM</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code>-- Insérer plusieurs lignes
+INSERT INTO journaliste VALUES
+  (NULL, 'Terrieur','Alain','alain@mail.com'),
+  (NULL, 'Terrieur','Alex','alex@mail.com');
+
+-- Insérer sur des champs précis
+INSERT INTO journaliste(nom,prenom,courriel)
+  VALUES ('Lot','Samantha','sam@mail.com');
+
+-- Supprimer une ligne
+DELETE FROM journaliste WHERE idj=3;
+
+-- Vider toute la table
+DELETE FROM journaliste;</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dump MariaDB -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">mysqldump</span>
+          <div>
+            <div class="card-title">Sauvegarde et restauration de base (dump)</div>
+            <div class="card-desc">mysqldump, mysql / mariadb &lt; dump.sql</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Sauvegarder (tables + données)
+mysqldump -u root -pReponse2026 journal > /home/tssr/journal.sql
+
+# Sauvegarder (tables seulement)
+mysqldump -u root -pReponse2026 --no-data journal > /home/tssr/journal-nodata.sql
+
+# Sauvegarder (données seulement)
+mysqldump -u root -pReponse2026 --no-create-info journal > /home/tssr/journal-data.sql
+
+# Restaurer
+mysql -u root -pReponse2026 journal < /home/tssr/journal.sql
+
+# Injecter dump via mariadb
+mariadb -u adminparcinfo -pReponse2025 parcinfo < /tmp/parcinfo.sql</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Apache2 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Apache2</span>
+          <div>
+            <div class="card-title">Installation et configuration Apache2</div>
+            <div class="card-desc">VirtualHost, a2ensite, a2dissite, .htaccess</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Installation Apache2 + PHP
+sudo apt install apache2 -y
+sudo apt install php -y
+sudo apt install libapache2-mod-php php-mysql -y
+sudo apt install php-cli php-common php-mbstring php-gd php-intl php-xml php-zip php-curl php-xmlrpc -y
+
+# Autoriser Apache à lire /home/client1 (dans apache2.conf)
+sudo nano /etc/apache2/apache2.conf -l
+# Ajouter :
+<Directory /home/client1/>
+  Options Indexes FollowSymLinks
+  AllowOverride None
+  Require all granted
+</Directory>
+
+# Créer la config d'un site (copier le défaut)
+cd /etc/apache2/sites-available
+sudo cp 000-default.conf site1.conf
+sudo nano /etc/apache2/sites-available/site1.conf
+# Modifier ligne 9  : ServerName www.site1.tssr
+# Modifier ligne 12 : DocumentRoot /home/client1/site1
+
+# Droits dossier web
+sudo chown client1:www-data -R /home/client1/
+sudo chmod 774 -R /home/client1/
+
+# Activer / désactiver
+sudo a2ensite site1.conf
+sudo a2dissite 000-default.conf
+sudo systemctl reload apache2</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+
+        <!-- htaccess -->
+        <div class="info" style="margin-top:10px"><strong>.htaccess – Sécuriser un site par mot de passe</strong></div>
+        <div class="code-block">
+          <pre><code># 1. Autoriser .htaccess dans la conf du site
+<Directory /home/client4/www-cine/>
+  AllowOverRide All
+</Directory>
+sudo systemctl restart apache2
+
+# 2. Créer le fichier .htaccess
+sudo touch /home/client4/www-cine/.htaccess
+sudo nano /home/client4/www-cine/.htaccess
+# Contenu :
+AuthType Basic
+AuthUserFile /etc/apache2/coffre/fort
+AuthName "ZONE SECRETE"
+Require valid-user
+
+# 3. Créer les utilisateurs
+sudo mkdir /etc/apache2/coffre
+sudo htpasswd -c /etc/apache2/coffre/fort client4   # -c = créer
+sudo htpasswd /etc/apache2/coffre/fort pascal        # ajouter</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+
+        <!-- URL rewrite -->
+        <div class="info" style="margin-top:10px"><strong>URL Rewriting avec .htaccess</strong></div>
+        <div class="code-block">
+          <pre><code># Activer le module rewrite
+sudo a2enmod rewrite
+
+# Dans .htaccess :
+RewriteEngine on
+# URL réelle  : /fiche.php?iddvd=2
+# URL rewrite  : /critique-2-film.html
+RewriteRule ^critique-([0-9]{1,})-film.html$ fiche.php?iddvd=$1</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nginx -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Nginx</span>
+          <div>
+            <div class="card-title">Installation et configuration Nginx</div>
+            <div class="card-desc">Alternative à Apache2, lien symbolique sites-enabled</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Installation
+sudo apt install nginx -y
+sudo apt install php-fpm php-mysql -y
+
+# Créer le dossier web
+sudo mkdir /var/www/cine.ma
+# Copier les fichiers dans /var/www/cine.ma/
+
+# Droits
+sudo chown -R tssr:www-data /var/www/cine.ma
+sudo chmod -R 755 /var/www/cine.ma
+
+# Créer la config (copier le défaut)
+sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/cine
+sudo nano /etc/nginx/sites-available/cine</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="code-block">
+          <pre><code># Contenu du fichier cine (config nginx) :
+server {
+  listen 80;
+  root /var/www/cine.ma;
+  index index.php;
+  server_name www.cine.ma;
+  location / {
+    try_files $uri $uri/ =404;
+  }
+  location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+    fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+  }
+}</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="code-block">
+          <pre><code># Activer le site (lien symbolique)
+sudo ln -s /etc/nginx/sites-available/cine /etc/nginx/sites-enabled/cine
+
+# Redémarrer Nginx
+sudo systemctl restart nginx</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HAProxy -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">HAProxy</span>
+          <div>
+            <div class="card-title">Load Balancing avec HAProxy</div>
+            <div class="card-desc">Reverse proxy – répartition de charge Round Robin</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code>sudo apt install haproxy -y
+cd /etc/haproxy/
+sudo cp haproxy.cfg haproxy.cfg.original
+sudo nano haproxy.cfg
+
+# Ajouter à la fin :
+frontend frontsite
+  bind *:80
+  default_backend backsite
+
+backend backsite
+  balance roundrobin
+  server web01 192.168.240.51:80
+  server web02 192.168.240.52:80
+  server web03 192.168.240.53:80
+
+sudo systemctl restart haproxy</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WordPress -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">WordPress</span>
+          <div>
+            <div class="card-title">Installation WordPress sur Debian 12</div>
+            <div class="card-desc">MariaDB + Apache2 + PHP + WordPress</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># 1. Préparer MariaDB
+sudo apt install mariadb-server -y
+sudo mysql_secure_installation   # mdp: Reponse2025
+mariadb -u root -pReponse2025
+  CREATE DATABASE wp;
+  CREATE USER adminwp@localhost IDENTIFIED BY 'Reponse2025';
+  GRANT ALL PRIVILEGES ON wp.* TO adminwp@localhost;
+  FLUSH PRIVILEGES;
+  exit;
+
+# 2. Installer Apache2 + PHP
+sudo apt install apache2 php libapache2-mod-php php-mysql -y
+sudo apt install php-cli php-common php-mbstring php-gd php-intl php-xml php-zip php-curl php-xmlrpc -y
+
+# 3. Télécharger WordPress
+sudo apt install curl -y
+cd /tmp
+curl -LO https://wordpress.org/latest.tar.gz --proxy 172.20.0.246:3128
+tar -xzvf latest.tar.gz -C /home/tssr
+
+# 4. Déplacer et configurer
+sudo mv wordpress /var/www/html/
+cd /var/www/html/wordpress
+sudo mv wp-config-sample.php wp-config.php
+sudo nano wp-config.php -l
+# Ligne 23: define('DB_NAME', 'wp');
+# Ligne 26: define('DB_USER', 'adminwp');
+# Ligne 29: define('DB_PASSWORD', 'Reponse2025');
+
+sudo systemctl restart apache2</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════════════
+       NIVEAU 4 – DNS / DHCP / Routage / NFTables
+  ════════════════════════════════════════════════════ -->
+  <section class="level-section lv4" id="lv4">
+    <div class="level-header">
+      <span class="level-badge">LV4</span>
+      <span class="level-title">DNS / DHCP / Routage / NFTables</span>
+      <span class="level-desc">bind9, isc-dhcp-server, nft, routeur 3 pattes</span>
+    </div>
+
+    <!-- DNS BIND9 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">BIND9</span>
+          <div>
+            <div class="card-title">Serveur DNS – Installation et zone directe</div>
+            <div class="card-desc">bind9, named.conf.local, db.tssr.local</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Installation
+sudo apt install bind9 dnsutils -y
+
+# Sauvegarde des conf
+cd /etc/bind/
+sudo mkdir backup_conf
+sudo cp named* backup_conf/
+
+# Étape 3a – Déclarer la zone dans named.conf.local
+sudo nano named.conf.local
+zone "tssr.local" {
+  type master;
+  file "/var/cache/bind/db.tssr.local";
+};
+
+# Étape 3b – Créer le fichier de zone
+sudo cp db.local /var/cache/bind/db.tssr.local
+sudo nano /var/cache/bind/db.tssr.local</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="code-block">
+          <pre><code>; Contenu de db.tssr.local :
+$TTL 604800
+@ IN SOA dns-01.tssr.local. admin.tssr.local. (
+  2         ; Serial (incrémenter à chaque modif)
+  604800    ; Refresh
+  86400     ; Retry
+  2419200   ; Expire
+  604800 )  ; Negative Cache TTL
+;
+@      IN NS  dns-01.tssr.local.
+dns-01 IN A   192.168.240.251
+router IN A   192.168.240.254
+box    IN CNAME router</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="code-block">
+          <pre><code># Modifier le DNS de la machine
+sudo nano /etc/resolv.conf
+nameserver 192.168.240.251
+
+# Redémarrer et vérifier
+sudo systemctl restart bind9
+sudo named-checkconf /etc/bind/named.conf.local
+sudo named-checkzone tssr.local /var/cache/bind/db.tssr.local
+
+# Tests
+dig box.tssr.local
+dig -x 192.168.240.254    # zone inversée</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone inversée -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Zone PTR</span>
+          <div>
+            <div class="card-title">Zone de recherche inversée (PTR)</div>
+            <div class="card-desc">IP → Nom – fichier db.240.168.192</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Dans named.conf.local – ajouter :
+zone "240.168.192.in-addr.arpa" {
+  type master;
+  file "/var/cache/bind/db.240.168.192";
+};
+
+# Créer le fichier
+sudo cp db.127 /var/cache/bind/db.240.168.192
+sudo nano /var/cache/bind/db.240.168.192</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="code-block">
+          <pre><code>; Contenu db.240.168.192 :
+$TTL 604800
+@ IN SOA dns-01.tssr.local. admin.tssr.local. (
+  1       ; Serial
+  604800  ; Refresh
+  86400   ; Retry
+  2419200 ; Expire
+  604800 )
+;
+@ IN NS dns-01.tssr.local.
+251 IN PTR dns-01.tssr.local.
+254 IN PTR router.tssr.local.</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Options DNS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">named.conf.options</span>
+          <div>
+            <div class="card-title">Options DNS – ACL, forwarders, restrictions</div>
+            <div class="card-desc">allow-query, allow-recursion, allow-transfer</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code>sudo nano /etc/bind/named.conf.options
+
+acl monreseau {
+  192.168.240.0/24;
+  192.168.57.0/24;
+};
+acl messerveursdns {
+  192.168.240.251;
+  192.168.240.252;
+};
+
+options {
+  directory "/var/cache/bind";
+  forwarders { 8.8.8.8; };
+  dnssec-validation auto;
+  listen-on-v6 { any; };
+  allow-query    { "any"; };
+  allow-recursion{ "monreseau"; };
+  allow-transfer { "messerveursdns"; };
+};</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DNS secondaire -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">DNS Slave</span>
+          <div>
+            <div class="card-title">DNS Secondaire (slave)</div>
+            <div class="card-desc">Configuration DNS-02 – transfert de zone depuis DNS-01</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Sur DNS-02 – named.conf.local :
+zone "tssr.local" {
+  type slave;
+  masters { 192.168.240.251; };
+  file "/var/lib/bind/db.tssr.local";
+};
+zone "240.168.192.in-addr.arpa" {
+  type slave;
+  masters { 192.168.240.251; };
+  file "/var/lib/bind/db.240.168.192";
+};
+
+sudo systemctl restart bind9
+
+# Vérifier que les fichiers sont copiés
+ls /var/lib/bind/
+
+# Suivre les logs bind9 en temps réel
+sudo journalctl -u named -f</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DHCP -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">isc-dhcp</span>
+          <div>
+            <div class="card-title">Serveur DHCP – Installation et configuration</div>
+            <div class="card-desc">isc-dhcp-server, étendue, réservation, leases</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Installation
+sudo apt install isc-dhcp-server -y
+
+# Sauvegarde
+sudo cp /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.origin
+sudo cp /etc/default/isc-dhcp-server /etc/default/isc-dhcp-server.origin
+
+# Définir l'interface dans isc-dhcp-server
+sudo nano /etc/default/isc-dhcp-server
+# INTERFACESv4="enp0s3"
+
+# Configurer l'étendue
+sudo nano /etc/dhcp/dhcpd.conf</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="code-block">
+          <pre><code># Contenu dhcpd.conf :
+subnet 192.168.240.0 netmask 255.255.255.0 {
+  range 192.168.240.5 192.168.240.30;
+  option domain-name-servers 8.8.8.8;
+  option routers 192.168.240.254;
+  option broadcast-address 192.168.240.255;
+  default-lease-time 600;
+  max-lease-time 7200;
+}
+
+# Réservation d'adresse
+Authoritative;
+host alpine00 {
+  hardware ethernet 08:00:27:64:c7:03;
+  fixed-address 192.168.240.29;
+}</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="code-block">
+          <pre><code># Redémarrer
+sudo systemctl restart isc-dhcp-server
+
+# Voir les baux actifs
+cat /var/lib/dhcp/dhcpd.leases
+
+# Relay DHCP (pour un autre réseau)
+sudo apt install isc-dhcp-relay
+# Répondre : serveur DHCP = 192.168.240.253</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Routage NFTables -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">NFTables</span>
+          <div>
+            <div class="card-title">Routeur 3 pattes – Routage NAT avec NFTables</div>
+            <div class="card-desc">ip_forward, nft, masquerade, sauvegarde des règles</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="note">Carte réseau : enp0s3=NAT(Internet), enp0s8=192.168.240.254, enp0s9=192.168.57.254</div>
+        <div class="code-block">
+          <pre><code># Étape 1 – Activer le routage IP
+sudo nano /etc/sysctl.conf -l
+# Décommenter la ligne 28 :
+net.ipv4.ip_forward=1
+sudo sysctl -p    # vérifier
+
+# Étape 2 – Créer la table NAT (nft)
+sudo nft add table NAT
+sudo nft add chain NAT POST-RT '{ type nat hook postrouting priority 0 ;}'
+sudo nft add rule NAT POST-RT oif enp0s3 masquerade
+
+# Étape 3 – Sauvegarder les règles (en root)
+su -
+nft list ruleset > /etc/nftables.conf
+systemctl enable nftables.service
+
+# Commandes de diagnostic NFT
+nft list ruleset    # afficher les règles
+nft flush ruleset   # supprimer toutes les règles
+nft -c -f /etc/nftables.conf   # vérifier la syntaxe</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="table-wrap"><table>
+          <tr><th>Hook</th><th>Moment</th><th>Usage</th></tr>
+          <tr><td><code>prerouting</code></td><td>À l'arrivée du paquet</td><td>DNAT, redirections</td></tr>
+          <tr><td><code>input</code></td><td>Destiné à la machine</td><td>Firewall local</td></tr>
+          <tr><td><code>forward</code></td><td>Paquet traversant</td><td>Filtrage routé</td></tr>
+          <tr><td><code>postrouting</code></td><td>Avant la sortie</td><td>SNAT / masquerade</td></tr>
+          <tr><td><code>output</code></td><td>Généré par la machine</td><td>Filtrage sortant local</td></tr>
+        </table></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════════════
+       NIVEAU 5 – Scripts Bash avancés
+  ════════════════════════════════════════════════════ -->
+  <section class="level-section lv5" id="lv5">
+    <div class="level-header">
+      <span class="level-badge">LV5</span>
+      <span class="level-title">Scripts Bash avancés</span>
+      <span class="level-desc">Variables, conditions, boucles, cut, awk, sed, cron</span>
+    </div>
+
+    <!-- Variables -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Variables</span>
+          <div>
+            <div class="card-title">Variables et paramètres dans un script</div>
+            <div class="card-desc">Déclaration, lecture, paramètres $0 $1 $*</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code>#!/bin/bash
+
+# Déclarer et afficher
+prenom="Pascal"
+echo $prenom
+echo ${prenom}       # forme sûre (évite ambiguïté)
+
+# Lire une saisie utilisateur
+read -p "Votre prénom : " prenom
+
+# Paramètres positionnels
+echo "$0"   # nom du script
+echo "$1"   # 1er paramètre
+echo "$2"   # 2e paramètre
+echo "$*"   # tous les paramètres
+echo "$#"   # nombre de paramètres
+
+# Supprimer une variable
+unset prenom
+
+# Variable depuis une commande (sous-shell)
+ipv4=$(ip -br a | grep enp0s3 | awk '{print $3}' | cut -d'/' -f 1)</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- cut -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">cut</span>
+          <div>
+            <div class="card-title">Commande cut – Extraire des champs</div>
+            <div class="card-desc">-d délimiteur, -f champ, -c caractère</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Fichier users.txt : CIVILITE:NOM:PRENOM
+
+# 3e champ (PRENOM)
+cut -d':' -f 3 users.txt
+
+# 2e et 3e champs
+cut -d':' -f 2,3 users.txt
+
+# Champs 1 à 3
+cut -d':' -f 1-3 users.txt
+
+# Combiner avec pipe
+lsb_release -a | grep Description | cut -d':' -f 2
+ip -br a | grep enp0s3 | cut -d' ' -f 25   # IP
+ip -br a | grep enp0s3 | cut -c 33-50      # par position</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- awk -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">awk</span>
+          <div>
+            <div class="card-title">Commande awk – Traitement de champs avancé</div>
+            <div class="card-desc">print $N, gsub, -F délimiteur</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># $0 = ligne entière, $1 = 1er champ…
+ip -br a | grep enp0s3 | awk '{print $3}'    # IP avec masque
+ip -br a | grep enp0s3 | awk '{print $3}' | cut -d'/' -f 1  # IP seule
+
+# gsub : substitution globale
+ip -br a | grep enp0s3 | awk '{gsub(/\/24/,"");print $3}'
+
+# Délimiteur personnalisé
+cat /etc/group | grep '^sudo' | awk -F: '{print $4}'
+
+# Équivalents cut ↔ awk :
+free -h | grep Mem | cut -d' ' -f 12
+free -h | grep Mem | awk '{print $2}'
+
+df -h | grep '^/dev' | awk '{print $2}'
+cat /proc/cpuinfo | grep 'cpu cores' | awk '{print $4}'</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- sed -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">sed</span>
+          <div>
+            <div class="card-title">Commande sed – Édition de flux</div>
+            <div class="card-desc">p, d, s, a, i, c, -n, -i (modifier en place)</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># p = afficher les correspondances (-n = seulement les résultats)
+sed -n '/^Une/p' exemple.txt
+
+# = = numéros de lignes
+sed -n '/^Une/=' exemple.txt
+
+# Afficher lignes 1 à 3
+sed -n '1,3p' exemple.txt
+
+# a = ajouter APRÈS la correspondance
+sed '/^Ceci/a Ligne ajoutée après' exemple.txt
+
+# i = ajouter AVANT
+sed '/^12/i Une série de chiffres :' exemple.txt
+
+# c = remplacer la ligne entière
+sed '/^Une/c Je préfère ça !' exemple.txt
+
+# d = supprimer les lignes correspondantes
+sed '/^Une/d' exemple.txt
+
+# s = substitution (1ère occurrence)
+sed -n '/terminant/s/par/avec/p' exemple.txt
+# s + g = toutes les occurrences
+sed -n '/terminant/s/par/avec/pg' exemple.txt
+
+# ! = négation
+sed -n '/ligne/!p' exemple.txt
+
+# Cumuler plusieurs commandes
+sed '/Une/d;s/12/CC/g' exemple.txt
+
+# -i = modifier en place (sauvegarde avec .bak)
+sed -i.bak 's/12/CC/g' exemple.txt
+
+# I = insensible à la casse
+sed '/^Une/Icd Je préfère ça !' exemple.txt</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conditions if -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">if / elif</span>
+          <div>
+            <div class="card-title">Conditions – if / elif / else</div>
+            <div class="card-desc">Comparaisons, tests fichiers, regex =~</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code>#!/bin/bash
+# Syntaxe de base
+if [[ condition ]]; then
+  commande
+elif [[ autre_condition ]]; then
+  commande
+else
+  commande
+fi</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <div class="table-wrap"><table>
+          <tr><th>Opérateur</th><th>Signification</th></tr>
+          <tr><td><code>=</code> ou <code>-eq</code></td><td>Égal</td></tr>
+          <tr><td><code>!=</code> ou <code>-ne</code></td><td>Différent</td></tr>
+          <tr><td><code>&gt;</code> ou <code>-gt</code></td><td>Supérieur</td></tr>
+          <tr><td><code>&lt;</code> ou <code>-lt</code></td><td>Inférieur</td></tr>
+          <tr><td><code>-ge</code></td><td>Supérieur ou égal</td></tr>
+          <tr><td><code>-le</code></td><td>Inférieur ou égal</td></tr>
+          <tr><td><code>-f fichier</code></td><td>Fichier existe</td></tr>
+          <tr><td><code>-d dossier</code></td><td>Dossier existe</td></tr>
+          <tr><td><code>-x fichier</code></td><td>Fichier exécutable</td></tr>
+          <tr><td><code>-s fichier</code></td><td>Fichier non vide</td></tr>
+          <tr><td><code>||</code></td><td>OU logique</td></tr>
+          <tr><td><code>&amp;&amp;</code></td><td>ET logique</td></tr>
+          <tr><td><code>=~</code></td><td>Regex (correspond à)</td></tr>
+        </table></div>
+        <div class="code-block">
+          <pre><code>#!/bin/bash
+shopt -s nocasematch   # insensible à la casse (Debian)
+
+echo "Êtes-vous heureux ? (oui/non)"
+read reponse
+
+if [[ ${reponse} =~ ^(oui|o|yes|y)$ ]]; then
+  echo "Super nouvelle !"
+elif [[ ${reponse} =~ ^(non|no|n)$ ]]; then
+  echo "Mangez du chocolat !"
+else
+  echo "Je n'ai pas compris"
+fi
+
+# Test fichier
+fichier=/home/tssr/scripts/tssr.txt
+if [[ -f ${fichier} ]]; then
+  echo "Le fichier existe"
+else
+  echo "Fichier absent"
+  touch ${fichier}
+fi</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boucles while -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">while</span>
+          <div>
+            <div class="card-title">Boucle while</div>
+            <div class="card-desc">Répéter tant que la condition est vraie, break</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code>#!/bin/bash
+var=0
+while [ ${var} = 0 ]; do
+  # ...traitement...
+  var=1   # ou break; pour quitter
+done
+
+# Attendre qu'un fichier existe
+while ! [[ -f /home/tssr/scripts/tssr.txt ]]; do
+  sleep 10
+done
+echo "Le fichier existe"
+
+# Lancer en tâche de fond
+bash s17.sh &</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boucle for -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">for</span>
+          <div>
+            <div class="card-title">Boucle for</div>
+            <div class="card-desc">Itérer sur liste, plage, fichiers, commandes</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code">#!/bin/bash
+# Méthode 1 : liste explicite
+for var in 1 2 3 4 5; do echo "${var}"; done
+
+# Méthode 2 : plage
+for var in {1..10}; do echo "${var} – Bonjour"; done
+
+# Méthode 3 : style C
+for (( var=1; var<=10; var++ )); do echo "${var}"; done
+
+# Méthode 4 : pas de 2
+for (( var=1; var<=10; var+=2 )); do echo "${var}"; done
+
+# Itérer sur des fichiers
+for ligne in $(ls *.sh); do echo ${ligne}; done
+
+# Itérer sur le contenu d'un fichier
+for ligne in $(cat /etc/passwd | cut -d':' -f 1); do
+  echo "User = ${ligne}"
+done</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- case -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">case</span>
+          <div>
+            <div class="card-title">Structure case (switch)</div>
+            <div class="card-desc">Menu interactif avec sélection</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code">#!/bin/bash
+echo "1 – Date"
+echo "2 – Mon IP"
+echo "3 – Version Debian"
+echo "4 – Quitter"
+read menu
+
+case ${menu} in
+  1) date ;;
+  2) ip -br a | grep enp0s3 | awk '{print $3}' | cut -d'/' -f 1 ;;
+  3) cat /etc/debian_version ;;
+  4) exit ;;
+  *) echo "Choix incorrect" ;;
+esac</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calculs -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">let / $((</span>
+          <div>
+            <div class="card-title">Calculs mathématiques</div>
+            <div class="card-desc">let, $(( )), opérations</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code>nombre=9
+let nombre+=1      # 10
+let nombre-=1      # 9
+let nombre2=nombre+5
+nombre2=$((nombre2+3))</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Couleurs -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Couleurs</span>
+          <div>
+            <div class="card-title">Couleurs dans les scripts bash</div>
+            <div class="card-desc">echo -e avec codes ANSI</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code># Syntaxe : \033[STYLE;COULEUR_TEXTE;COULEUR_FONDm
+# STYLE : 0=reset 1=light 3=italic 4=underline 7=reverse
+# COULEURS TEXTE : 30=noir 31=rouge 32=vert 33=jaune
+#                  34=bleu 35=magenta 36=cyan 37=blanc
+# COULEURS FOND  : 40 à 47 (mêmes couleurs)
+
+VERT='\033[0;32m'
+ROUGE='\033[0;31m'
+NOCOLOR='\033[0m'
+
+echo -e "${VERT}Texte en vert${NOCOLOR}"
+echo -e "${ROUGE}Texte en rouge${NOCOLOR}"</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gestion des erreurs $? -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">$?</span>
+          <div>
+            <div class="card-title">Gestion des erreurs – Code de retour $?</div>
+            <div class="card-desc">0 = succès, ≠0 = erreur – redirection stderr</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code">sudo useradd vador --home-dir /home/vador/ --create-home
+if [[ $? -ne 0 ]]; then
+  echo "ÉCHEC création de vador"
+  exit
+else
+  echo "vador:Reponse2025" | sudo chpasswd
+fi
+
+# Rediriger stdout et stderr
+ls *.sh > ok.txt 2> erreurs.txt</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRON -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">cron</span>
+          <div>
+            <div class="card-title">Planification – crontab</div>
+            <div class="card-desc">Exécuter scripts de façon récurrente</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code"># Voir les crons
+crontab -l
+
+# Créer / modifier
+crontab -e
+
+# Syntaxe :
+# <min> <hr> <jour_mois> <mois> <jour_semaine> <commande>
+# * = toujours | , = liste | - = intervalle | */X = tous les X
+
+# Tous les vendredis à 18h29
+29 18 * * 5 bash /home/tssr/script.sh
+
+# Toutes les 10 min le mercredi entre 9h et 12h
+*/10 9-12 * * 3 bash script.sh
+
+# Tous les jours à 14h
+0 14 * * * bash /home/tssr/backup.sh
+
+# Jours de la semaine : 0/7=dim 1=lun 2=mar 3=mer 4=jeu 5=ven 6=sam</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script backup complet -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Script backup</span>
+          <div>
+            <div class="card-title">Script de backup BDD + site web (tar.gz + cron)</div>
+            <div class="card-desc">Backup horodaté, mysqldump, tar, crontab</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <pre><code">#!/bin/bash
+# backup.sh – sauvegarde quotidienne à 14h
+dossier="$(date +%Y-%m-%d)-cine"
+mkdir /tmp/${dossier}
+mysqldump -u root -pReponse2025 cine > /tmp/${dossier}/cine.sql
+sudo cp -R /var/www/html/ /tmp/${dossier}/
+tar -czvf /home/tssr/backup/${dossier}.tar.gz -C /tmp/ ${dossier}
+
+# Dans crontab -e :
+# 0 14 * * * bash /home/tssr/backup.sh</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script import users -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Script users</span>
+          <div>
+            <div class="card-title">Script import d'utilisateurs depuis CSV</div>
+            <div class="card-desc">Boucle for, useradd, chpasswd, usermod</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="note">Fichier <code>users.txt</code> : <code>alex:sudo:Reponse2025</code> (1 ligne par user)</div>
+        <div class="code-block">
+          <pre><code">#!/bin/bash
+fichier=/home/tssr/scripts/users.txt
+
+# Étape 1 : vérifier que le fichier existe
+if ! [[ -f ${fichier} ]]; then
+  echo "Fichier users.txt introuvable, abandon."
+  exit
+fi
+
+# Étape 2 : confirmer l'import
+echo "Importer les utilisateurs ? (o/n)"
+read reponse
+if [[ ${reponse} != "o" ]]; then exit; fi
+
+# Étape 3 : créer les utilisateurs
+for vligne in $(cat ${fichier}); do
+  login=$(echo ${vligne}     | cut -d':' -f 1)
+  groupe=$(echo ${vligne}    | cut -d':' -f 2)
+  motdepasse=$(echo ${vligne}| cut -d':' -f 3)
+
+  sudo useradd ${login} --home-dir /home/${login}/ --create-home
+  echo "${login}:${motdepasse}" | sudo chpasswd
+
+  if [[ ${groupe} = 'sudo' ]]; then
+    sudo usermod -aG sudo ${login}
+  fi
+done
+
+# Lancer en root :
+# sudo bash import_users.sh</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Regex -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-wrap">
+          <span class="cmd-badge">Regex</span>
+          <div>
+            <div class="card-title">Expressions régulières – syntaxe</div>
+            <div class="card-desc">Ancres, classes, quantificateurs, groupes</div>
+          </div>
+        </div>
+        <span class="card-toggle">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrap"><table>
+          <tr><th>Regex</th><th>Signification</th></tr>
+          <tr><td><code>^</code></td><td>Début de chaîne</td></tr>
+          <tr><td><code>$</code></td><td>Fin de chaîne</td></tr>
+          <tr><td><code>[aio]</code></td><td>Classe de caractères (a ou i ou o)</td></tr>
+          <tr><td><code>[a-z]</code></td><td>Intervalle (toutes les minuscules)</td></tr>
+          <tr><td><code>[0-9]</code></td><td>Chiffres</td></tr>
+          <tr><td><code>|</code></td><td>OU</td></tr>
+          <tr><td><code>?</code></td><td>0 ou 1 fois <code>= {0,1}</code></td></tr>
+          <tr><td><code>+</code></td><td>1 fois ou plus <code>= {1,}</code></td></tr>
+          <tr><td><code>*</code></td><td>0 fois ou plus <code>= {0,}</code></td></tr>
+          <tr><td><code>{3}</code></td><td>Exactement 3 fois</td></tr>
+          <tr><td><code>{3,5}</code></td><td>Entre 3 et 5 fois</td></tr>
+          <tr><td><code>i</code></td><td>Option insensible à la casse</td></tr>
+          <tr><td><code>\\</code></td><td>Caractère d'échappement</td></tr>
+        </table></div>
+        <div class="code-block">
+          <pre><code># Valider un numéro de téléphone FR (0X XX XX XX XX)
+#^0[1-9]([\- ]?[0-9]{2}){4}$#
+
+# Valider un email basique
+#^[a-z0-9\-_](.?[a-z0-9\-_]){0,127}@[a-z0-9][a-z0-9\-]{1,64}.[a-z]{2,}$#i</code></pre>
+          <button class="copy-btn">Copier</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+// ─── Burger menu ─────────────────────────────────────────
+const sidebar  = document.getElementById('sidebar');
+const overlay  = document.getElementById('overlay');
+const burger   = document.getElementById('burger');
+
+burger.addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+});
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+});
+
+// ─── Nav scroll ──────────────────────────────────────────
+document.querySelectorAll('.nav-item[data-target]').forEach(item => {
+  item.addEventListener('click', () => {
+    const target = document.getElementById(item.dataset.target);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+});
+
+// Active nav item on scroll
+const sections = document.querySelectorAll('.level-section');
+const navItems = document.querySelectorAll('.nav-item[data-target]');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navItems.forEach(n => n.classList.remove('active'));
+      const active = document.querySelector(`.nav-item[data-target="${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+// ─── Card toggle ─────────────────────────────────────────
+document.querySelectorAll('.card-header').forEach(header => {
+  header.addEventListener('click', () => {
+    header.closest('.card').classList.toggle('open');
+  });
+});
+
+// ─── Copy buttons ────────────────────────────────────────
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const pre = btn.previousElementSibling;
+    const text = pre ? pre.textContent : '';
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copié';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copier';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  });
+});
+
+// ─── Search ──────────────────────────────────────────────
+const searchInput = document.getElementById('search');
+const searchInfo  = document.getElementById('search-info');
+const btnPrev     = document.getElementById('btn-prev');
+const btnNext     = document.getElementById('btn-next');
+
+let matches = [];
+let currentIdx = -1;
+
+function escapeReg(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function clearHighlights() {
+  document.querySelectorAll('mark').forEach(m => {
+    m.replaceWith(document.createTextNode(m.textContent));
+  });
+  // Merge adjacent text nodes
+  document.querySelectorAll('.card').forEach(c => c.normalize());
+}
+
+function highlightNode(node, regex) {
+  const results = [];
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = node.textContent;
+    if (!regex.test(text)) return results;
+    regex.lastIndex = 0;
+    const frag = document.createDocumentFragment();
+    let last = 0, m;
+    while ((m = regex.exec(text)) !== null) {
+      frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+      const mark = document.createElement('mark');
+      mark.textContent = m[0];
+      frag.appendChild(mark);
+      results.push(mark);
+      last = m.index + m[0].length;
+    }
+    frag.appendChild(document.createTextNode(text.slice(last)));
+    node.replaceWith(frag);
+  } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE') {
+    Array.from(node.childNodes).forEach(child => {
+      results.push(...highlightNode(child, regex));
+    });
+  }
+  return results;
+}
+
+function doSearch(q) {
+  clearHighlights();
+  matches = [];
+  currentIdx = -1;
+
+  document.querySelectorAll('.card').forEach(card => {
+    card.classList.remove('search-match', 'search-hidden');
+  });
+
+  if (!q) {
+    searchInfo.textContent = '';
+    return;
+  }
+
+  const regex = new RegExp(escapeReg(q), 'gi');
+
+  document.querySelectorAll('.card').forEach(card => {
+    const cardMarks = highlightNode(card, new RegExp(escapeReg(q), 'gi'));
+    if (cardMarks.length > 0) {
+      card.classList.add('search-match');
+      matches.push(...cardMarks);
+    } else {
+      // Don't hide cards, just don't mark
+    }
+  });
+
+  if (matches.length === 0) {
+    searchInfo.textContent = 'Aucun résultat';
+    return;
+  }
+
+  currentIdx = 0;
+  scrollToMatch(currentIdx);
+  searchInfo.textContent = `${currentIdx + 1} / ${matches.length}`;
+}
+
+function scrollToMatch(idx) {
+  matches.forEach((m, i) => {
+    m.style.background = i === idx ? 'rgba(255,180,0,.6)' : 'rgba(255,215,0,.3)';
+  });
+  if (matches[idx]) {
+    // Open parent card if closed
+    const card = matches[idx].closest('.card');
+    if (card && !card.classList.contains('open')) {
+      card.classList.add('open');
+    }
+    matches[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  searchInfo.textContent = `${idx + 1} / ${matches.length}`;
+}
+
+searchInput.addEventListener('input', () => {
+  doSearch(searchInput.value.trim());
+});
+
+btnNext.addEventListener('click', () => {
+  if (!matches.length) return;
+  currentIdx = (currentIdx + 1) % matches.length;
+  scrollToMatch(currentIdx);
+});
+
+btnPrev.addEventListener('click', () => {
+  if (!matches.length) return;
+  currentIdx = (currentIdx - 1 + matches.length) % matches.length;
+  scrollToMatch(currentIdx);
+});
+
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (e.shiftKey) btnPrev.click(); else btnNext.click();
+  }
+});
+</script>
+</body>
+</html>

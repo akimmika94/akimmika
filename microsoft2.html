@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft 3 — Divers</title>
+<style>
+/* ── RESET & ROOT ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0D1117;
+  --surface:#161B22;
+  --surface2:#1C2128;
+  --border:#30363D;
+  --border2:#21262D;
+  --text:#E6EDF3;
+  --text-muted:#8B949E;
+  --text-dim:#484F58;
+
+  --l1:#58A6FF;   /* bleu — Niveau 1 Fondamentaux */
+  --l1-bg:rgba(88,166,255,0.08);
+  --l1-border:rgba(88,166,255,0.25);
+
+  --l2:#3FB950;   /* vert — Niveau 2 Intermédiaire */
+  --l2-bg:rgba(63,185,80,0.08);
+  --l2-border:rgba(63,185,80,0.25);
+
+  --l3:#D29922;   /* orange — Niveau 3 Avancé */
+  --l3-bg:rgba(210,153,34,0.08);
+  --l3-border:rgba(210,153,34,0.25);
+
+  --l4:#BC8CFF;   /* violet — Niveau 4 Expert */
+  --l4-bg:rgba(188,140,255,0.08);
+  --l4-border:rgba(188,140,255,0.25);
+
+  --red:#F85149;
+  --font:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+  --radius:6px;
+  --transition:.2s ease;
+}
+
+html,body{height:100%;overflow:hidden;font-family:var(--sans)}
+body{background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+
+/* ── TOP BAR ── */
+.topbar{
+  height:48px;background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;padding:0 16px;flex-shrink:0;
+}
+
+.burger{
+  width:32px;height:32px;background:transparent;border:1px solid var(--border);
+  border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;flex-direction:column;gap:4px;flex-shrink:0;
+  transition:var(--transition);
+}
+.burger:hover{background:var(--surface2);border-color:#58A6FF}
+.burger span{display:block;width:14px;height:1.5px;background:var(--text-muted);transition:var(--transition)}
+
+.page-title{
+  font-family:var(--font);font-size:13px;color:var(--text);font-weight:500;
+  display:flex;align-items:center;gap:8px;
+}
+.page-title .chip{
+  font-size:10px;padding:2px 7px;border-radius:4px;
+  background:rgba(88,166,255,0.15);color:var(--l1);border:1px solid var(--l1-border);
+  font-weight:600;letter-spacing:.04em;
+}
+
+/* Search */
+.search-wrap{
+  flex:1;max-width:380px;display:flex;align-items:center;gap:6px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:0 10px;height:32px;transition:var(--transition);
+}
+.search-wrap:focus-within{border-color:var(--l1);box-shadow:0 0 0 3px rgba(88,166,255,.12)}
+.search-wrap svg{width:13px;height:13px;opacity:.4;flex-shrink:0}
+.search-wrap input{
+  background:none;border:none;outline:none;width:100%;
+  font-family:var(--sans);font-size:12px;color:var(--text);
+}
+.search-wrap input::placeholder{color:var(--text-dim)}
+
+.nav-arrows{display:flex;gap:4px;margin-left:auto}
+.nav-btn{
+  height:28px;padding:0 10px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);font-size:11px;font-family:var(--font);color:var(--text-muted);
+  cursor:pointer;display:flex;align-items:center;gap:4px;transition:var(--transition);
+}
+.nav-btn:hover{border-color:var(--l1);color:var(--l1)}
+.search-info{font-family:var(--font);font-size:10px;color:var(--text-dim);min-width:50px;text-align:center}
+.search-info.found{color:var(--l1)}
+.search-info.nope{color:var(--red)}
+
+/* ── LAYOUT ── */
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:260px;background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;
+  transition:width .22s cubic-bezier(.4,0,.2,1),opacity .22s;
+}
+.sidebar.collapsed{width:0;opacity:0;pointer-events:none}
+.sidebar-inner{width:260px;overflow-y:auto;padding:12px 0 16px}
+
+.toc-label{
+  font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text-dim);padding:0 14px 8px;
+}
+
+.toc-section{
+  display:flex;align-items:center;gap:8px;padding:7px 14px;
+  cursor:pointer;font-size:12px;color:var(--text-muted);
+  border-left:2px solid transparent;transition:var(--transition);
+  font-family:var(--font);
+}
+.toc-section:hover{background:var(--surface2);color:var(--text)}
+.toc-section.active{background:var(--surface2);color:var(--l1);border-left-color:var(--l1)}
+.toc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.l1-dot{background:var(--l1)}
+.l2-dot{background:var(--l2)}
+.l3-dot{background:var(--l3)}
+.l4-dot{background:var(--l4)}
+
+.toc-divider{height:1px;background:var(--border2);margin:8px 14px}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:0}
+
+/* Level header bands */
+.level-band{
+  position:sticky;top:0;z-index:10;
+  padding:8px 24px;display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid;backdrop-filter:blur(8px);
+}
+.level-band.l1{background:rgba(13,17,23,.92);border-color:var(--l1-border)}
+.level-band.l2{background:rgba(13,17,23,.92);border-color:var(--l2-border)}
+.level-band.l3{background:rgba(13,17,23,.92);border-color:var(--l3-border)}
+.level-band.l4{background:rgba(13,17,23,.92);border-color:var(--l4-border)}
+
+.level-badge{
+  font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:.06em;
+  padding:3px 8px;border-radius:4px;
+}
+.l1 .level-badge{background:var(--l1-bg);color:var(--l1);border:1px solid var(--l1-border)}
+.l2 .level-badge{background:var(--l2-bg);color:var(--l2);border:1px solid var(--l2-border)}
+.l3 .level-badge{background:var(--l3-bg);color:var(--l3);border:1px solid var(--l3-border)}
+.l4 .level-badge{background:var(--l4-bg);color:var(--l4);border:1px solid var(--l4-border)}
+
+.level-title{font-size:13px;font-weight:600;color:var(--text)}
+.level-sub{font-size:11px;color:var(--text-muted);margin-left:auto;font-family:var(--font)}
+
+/* Cards */
+.cards-grid{padding:20px 24px;display:flex;flex-direction:column;gap:12px}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;transition:border-color var(--transition);
+}
+.card:hover{border-color:var(--border2)}
+.card.l1:hover{border-color:var(--l1-border)}
+.card.l2:hover{border-color:var(--l2-border)}
+.card.l3:hover{border-color:var(--l3-border)}
+.card.l4:hover{border-color:var(--l4-border)}
+
+.card-header{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--border2);cursor:pointer;user-select:none;
+}
+.card-accent{width:3px;border-radius:2px;height:20px;flex-shrink:0}
+.card.l1 .card-accent{background:var(--l1)}
+.card.l2 .card-accent{background:var(--l2)}
+.card.l3 .card-accent{background:var(--l3)}
+.card.l4 .card-accent{background:var(--l4)}
+
+.card-title{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.card-tag{
+  font-family:var(--font);font-size:10px;padding:2px 6px;border-radius:3px;
+  color:var(--text-dim);background:var(--surface2);border:1px solid var(--border2);
+}
+.card-chevron{
+  width:14px;height:14px;opacity:.4;transition:transform var(--transition);flex-shrink:0;
+}
+.card.open .card-chevron{transform:rotate(90deg)}
+
+.card-body{display:none;padding:0}
+.card.open .card-body{display:block}
+
+/* Steps */
+.step{
+  display:flex;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border2);
+  align-items:flex-start;
+}
+.step:last-child{border-bottom:none}
+.step-num{
+  font-family:var(--font);font-size:10px;color:var(--text-dim);
+  min-width:22px;padding-top:2px;flex-shrink:0;
+}
+.step-content{flex:1}
+.step-action{font-size:12.5px;color:var(--text);line-height:1.5;margin-bottom:4px}
+.step-action mark{background:rgba(88,166,255,.15);color:var(--l1);border-radius:3px;padding:0 3px}
+
+/* Code blocks */
+.code-block{
+  background:var(--surface2);border:1px solid var(--border2);border-radius:5px;
+  padding:10px 14px;margin:6px 0;position:relative;
+  font-family:var(--font);font-size:12px;color:#A5D6FF;
+  line-height:1.6;white-space:pre-wrap;word-break:break-all;
+}
+.code-block.cmd{color:#79C0FF}
+.code-block.ps{color:#BC8CFF}
+
+.copy-btn{
+  position:absolute;top:6px;right:8px;
+  font-family:var(--font);font-size:10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  color:var(--text-muted);cursor:pointer;padding:2px 7px;
+  transition:var(--transition);opacity:.6;
+}
+.copy-btn:hover{opacity:1;border-color:var(--l1);color:var(--l1)}
+.copy-btn.copied{border-color:var(--l2);color:var(--l2);opacity:1}
+
+/* Info / Warning boxes */
+.note{
+  display:flex;gap:8px;padding:8px 12px;border-radius:5px;margin:6px 0;
+  font-size:12px;line-height:1.5;
+}
+.note.info{background:rgba(88,166,255,.07);border:1px solid var(--l1-border);color:#8BBFE8}
+.note.warn{background:rgba(210,153,34,.07);border:1px solid rgba(210,153,34,.25);color:#C8A84B}
+.note.danger{background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.25);color:#E87770}
+.note.tip{background:rgba(63,185,80,.07);border:1px solid var(--l2-border);color:#6CCB78}
+.note-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+
+/* Search highlight */
+.hl{background:rgba(210,153,34,.35);border-radius:2px;padding:0 1px}
+.hl.current{background:rgba(210,153,34,.65);outline:1px solid var(--l3)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <button class="burger" id="burgerBtn" title="Afficher/masquer le sommaire">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="page-title">
+    Microsoft 3 — Divers
+    <span class="chip">02c</span>
+  </div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="searchInput" placeholder="Rechercher une procédure, commande…" autocomplete="off">
+  </div>
+  <div class="nav-arrows">
+    <button class="nav-btn" id="prevMatch">▲</button>
+    <span class="search-info" id="searchInfo"></span>
+    <button class="nav-btn" id="nextMatch">▼</button>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="app-body">
+
+  <!-- SIDEBAR / TOC -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+      <div class="toc-label">Sommaire</div>
+
+      <div class="toc-section" onclick="scrollToLevel('l1')">
+        <span class="toc-dot l1-dot"></span>Niv. 1 — Fondamentaux
+      </div>
+      <div class="toc-section" onclick="scrollToSection('s-profil')">
+        <span style="width:8px;flex-shrink:0"></span>Profil itinérant
+      </div>
+      <div class="toc-section" onclick="scrollToSection('s-dhcp')">
+        <span style="width:8px;flex-shrink:0"></span>DHCP
+      </div>
+
+      <div class="toc-divider"></div>
+
+      <div class="toc-section" onclick="scrollToLevel('l2')">
+        <span class="toc-dot l2-dot"></span>Niv. 2 — Intermédiaire
+      </div>
+      <div class="toc-section" onclick="scrollToSection('s-gpo-fichiers')">
+        <span style="width:8px;flex-shrink:0"></span>GPO — Gestion fichiers
+      </div>
+      <div class="toc-section" onclick="scrollToSection('s-gpo-wallpaper')">
+        <span style="width:8px;flex-shrink:0"></span>GPO — Fond d'écran
+      </div>
+      <div class="toc-section" onclick="scrollToSection('s-gpo-blocnote')">
+        <span style="width:8px;flex-shrink:0"></span>GPO — Bloquer Bloc-notes
+      </div>
+
+      <div class="toc-divider"></div>
+
+      <div class="toc-section" onclick="scrollToLevel('l3')">
+        <span class="toc-dot l3-dot"></span>Niv. 3 — Avancé
+      </div>
+      <div class="toc-section" onclick="scrollToSection('s-msi')">
+        <span style="width:8px;flex-shrink:0"></span>Déploiement MSI Firefox
+      </div>
+      <div class="toc-section" onclick="scrollToSection('s-dns-inverse')">
+        <span style="width:8px;flex-shrink:0"></span>DNS — Zone inversée
+      </div>
+
+      <div class="toc-divider"></div>
+
+      <div class="toc-section" onclick="scrollToLevel('l4')">
+        <span class="toc-dot l4-dot"></span>Niv. 4 — Expert
+      </div>
+      <div class="toc-section" onclick="scrollToSection('s-core')">
+        <span style="width:8px;flex-shrink:0"></span>Windows Server Core
+      </div>
+      <div class="toc-section" onclick="scrollToSection('s-dc2')">
+        <span style="width:8px;flex-shrink:0"></span>DC secondaire (PowerShell)
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="mainContent">
+
+    <!-- ═══════════════════════════════════════════════════
+         NIVEAU 1 — FONDAMENTAUX
+    ════════════════════════════════════════════════════ -->
+    <div class="level-band l1" id="l1">
+      <span class="level-badge">NIV. 1</span>
+      <span class="level-title">Fondamentaux</span>
+      <span class="level-sub">Profil itinérant · DHCP de base</span>
+    </div>
+    <div class="cards-grid">
+
+      <!-- PROFIL ITINÉRANT -->
+      <div class="card l1" id="s-profil">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-accent"></div>
+          <span class="card-title">Profil itinérant — Configuration</span>
+          <span class="card-tag">AD · Partage</span>
+          <svg class="card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="card-body">
+
+          <div class="step">
+            <span class="step-num">01</span>
+            <div class="step-content">
+              <div class="step-action">Créer le dossier <mark>profil</mark> sur le second disque dur (ex. <mark>S:\profil</mark>)</div>
+              <div class="note info"><span class="note-icon">ℹ</span>Ce dossier contiendra les profils de chaque utilisateur. Il doit être sur une partition dédiée au partage, pas sur C:.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">02</span>
+            <div class="step-content">
+              <div class="step-action">Clic droit sur le dossier → <mark>Propriétés</mark> → onglet <mark>Partage</mark> → <mark>Partage avancé</mark></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">03</span>
+            <div class="step-content">
+              <div class="step-action">Cocher <mark>Partager ce dossier</mark>, nommer le partage <mark>profil</mark></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">04</span>
+            <div class="step-content">
+              <div class="step-action">Cliquer sur <mark>Autorisations</mark> → sélectionner <mark>Tout le monde</mark> → cocher <mark>Contrôle total</mark> → OK</div>
+              <div class="note warn"><span class="note-icon">⚠</span>Le contrôle total ici est côté partage SMB. Les droits NTFS (onglet Sécurité) peuvent être affinés séparément pour plus de granularité.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">05</span>
+            <div class="step-content">
+              <div class="step-action">Dans <mark>Utilisateurs et ordinateurs Active Directory</mark>, sélectionner les utilisateurs concernés (ex. groupe Formation) → clic droit → <mark>Propriétés</mark></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">06</span>
+            <div class="step-content">
+              <div class="step-action">Onglet <mark>Profil</mark> → champ <mark>Chemin du profil</mark> → entrer le chemin UNC avec variable :</div>
+              <div class="code-block">\\192.168.100.240\profil\%username%</div>
+              <div class="note tip"><span class="note-icon">✓</span><strong>%username%</strong> est automatiquement remplacé par le nom de connexion de chaque utilisateur → chaque user obtient son propre sous-dossier.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">07</span>
+            <div class="step-content">
+              <div class="step-action">Cliquer <mark>Appliquer</mark> puis <mark>OK</mark>. Vérifier sur un utilisateur individuel : onglet Profil doit afficher le chemin réseau renseigné.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">08</span>
+            <div class="step-content">
+              <div class="step-action">Se connecter depuis un PC client avec l'un des utilisateurs du groupe pour valider la création automatique du profil réseau.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DHCP -->
+      <div class="card l1" id="s-dhcp">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-accent"></div>
+          <span class="card-title">DHCP — Installation & Configuration d'étendue</span>
+          <span class="card-tag">Rôle · Étendue · Réservation</span>
+          <svg class="card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="card-body">
+
+          <div class="step">
+            <span class="step-num">01</span>
+            <div class="step-content">
+              <div class="step-action">Gestionnaire de serveur → <mark>Gérer</mark> → <mark>Ajouter des rôles et fonctionnalités</mark> → cocher <mark>Serveur DHCP</mark> → Suivant × 3 → Installer</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">02</span>
+            <div class="step-content">
+              <div class="step-action">Après installation : cliquer sur le <mark>triangle jaune</mark> → <mark>Terminer la configuration DHCP</mark> → Suivant → Valider → Terminer</div>
+              <div class="note tip"><span class="note-icon">✓</span>Ne rien modifier dans cette fenêtre de post-déploiement.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">03</span>
+            <div class="step-content">
+              <div class="step-action">Gestionnaire de serveur → <mark>Outils</mark> → <mark>DHCP</mark> → dérouler le nœud du serveur → clic droit sur <mark>IPv4</mark> → <mark>Nouvelle étendue</mark></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">04</span>
+            <div class="step-content">
+              <div class="step-action">Assistant Nouvelle étendue — renseigner :</div>
+              <div class="code-block">Nom        : LAN 192.168.100.100 - 192.168.100.199
+Description: LAN GRETA
+IP début   : 192.168.100.100
+IP fin     : 192.168.100.199
+Masque     : 255.255.255.0</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">05</span>
+            <div class="step-content">
+              <div class="step-action">Page <mark>Ajout d'exclusions</mark> : ne rien ajouter → Suivant</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">06</span>
+            <div class="step-content">
+              <div class="step-action">Page <mark>Durée du bail</mark> : passer à <mark>1 heure</mark> → Suivant</div>
+              <div class="note info"><span class="note-icon">ℹ</span>Bail court recommandé en environnement lab/formation : les adresses sont recyclées rapidement.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">07</span>
+            <div class="step-content">
+              <div class="step-action">Configurer les options DHCP maintenant → Oui → Suivant</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">08</span>
+            <div class="step-content">
+              <div class="step-action">Page <mark>Routeur (passerelle par défaut)</mark> : entrer l'IP de la passerelle → cliquer <mark>Ajouter</mark> → Suivant</div>
+              <div class="code-block">Passerelle : 192.168.100.240</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">09</span>
+            <div class="step-content">
+              <div class="step-action">Pages <mark>Nom de domaine et DNS</mark> et <mark>WINS</mark> : ne rien modifier → Suivant × 2</div>
+              <div class="note info"><span class="note-icon">ℹ</span>Le serveur DNS 192.168.100.240 est déjà pré-renseigné automatiquement depuis l'AD.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">10</span>
+            <div class="step-content">
+              <div class="step-action">Page <mark>Activer l'étendue</mark> : cocher <mark>Oui, activer cette étendue maintenant</mark> → Suivant → Terminer</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">11</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Réservation d'IP</strong> — Dans la console DHCP : IPv4 → Étendue → clic droit sur <mark>Réservations</mark> → <mark>Nouvelle réservation</mark></div>
+              <div class="code-block">Nom          : pc100
+Adresse IP   : 192.168.100.100
+Adresse MAC  : 08-00-27-AA-BE-8D
+Types        : Les deux (DHCP + BOOTP)</div>
+              <div class="note tip"><span class="note-icon">✓</span>Cliquer <mark>Ajouter</mark> puis rafraîchir la console (icône verte F5). La réservation apparaît dans l'arborescence.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">12</span>
+            <div class="step-content">
+              <div class="step-action">Sur le PC client : passer la carte réseau en <mark>DHCP automatique</mark> (retirer l'IP statique) → vérifier avec :</div>
+              <div class="code-block cmd">ipconfig /all</div>
+              <div class="note tip"><span class="note-icon">✓</span>DHCP activé : Oui — Adresse IPv4 : 192.168.100.100 — Passerelle : 192.168.100.240</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /cards-grid l1 -->
+
+
+    <!-- ═══════════════════════════════════════════════════
+         NIVEAU 2 — INTERMÉDIAIRE
+    ════════════════════════════════════════════════════ -->
+    <div class="level-band l2" id="l2">
+      <span class="level-badge">NIV. 2</span>
+      <span class="level-title">Intermédiaire</span>
+      <span class="level-sub">GPO avancées · AGDLP · Mappage de lecteurs</span>
+    </div>
+    <div class="cards-grid">
+
+      <!-- GPO FICHIERS / AGDLP -->
+      <div class="card l2" id="s-gpo-fichiers">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-accent"></div>
+          <span class="card-title">Gestion des fichiers — AGDLP + GPO Mappage</span>
+          <span class="card-tag">AGDLP · Script · Mappage</span>
+          <svg class="card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="card-body">
+
+          <div class="step">
+            <span class="step-num">01</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Script de création AGDLP</strong> — Exécuter le script batch (adapter le nom de domaine en haut du script) et saisir le nom du dossier à créer :</div>
+              <div class="code-block cmd">REM ETAPE01 — Créer le dossier
+mkdir s:\%dossier%
+
+REM ETAPE02 — Créer les 3 groupes DL (F/C/R)
+dsadd group cn=dl_Dossier_%dossier%_F,ou=groupes,...
+dsadd group cn=dl_Dossier_%dossier%_C,ou=groupes,...
+dsadd group cn=dl_Dossier_%dossier%_R,ou=groupes,...
+
+REM ETAPE03 — Désactiver l'héritage NTFS
+icacls s:\%dossier% /inheritance:d
+
+REM ETAPE04 — Supprimer le groupe Utilisateurs
+icacls s:\%dossier% /remove:g "Utilisateurs"
+
+REM ETAPE05 — Appliquer droits sur les 3 groupes DL
+icacls s:\%dossier% /grant dl_Dossier_%dossier%_F:(OI)(CI)(F)
+icacls s:\%dossier% /grant dl_Dossier_%dossier%_C:(OI)(CI)(M)
+icacls s:\%dossier% /grant dl_Dossier_%dossier%_R:(OI)(CI)(RX)</div>
+              <div class="note warn"><span class="note-icon">⚠</span>Penser à modifier le nom de domaine en haut du script avant exécution. Répéter pour chaque dossier (Informatique, Formation, Administration, Public).</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">02</span>
+            <div class="step-content">
+              <div class="step-action">Après création par script, appliquer les droits de partage <strong>manuellement</strong> : Clic droit dossier → Propriétés → Sécurité → Partage avancé → Autorisations → Tout le monde → <mark>Modifier + Lecture</mark> (pas besoin de Contrôle total)</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">03</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Ajouter les membres dans les groupes DL</strong> — Dans l'AD, naviguer vers chaque groupe DL et ajouter les groupes globaux correspondants :</div>
+              <div class="code-block">dl_Dossier_public_F      ← ajouter : Utilisateurs du domaine
+dl_Dossier_informatique_F ← ajouter : g_informatique
+dl_Dossier_formation_F    ← ajouter : g_formateur
+dl_Dossier_administration_F ← ajouter : g_greta, g_delegue</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">04</span>
+            <div class="step-content">
+              <div class="step-action"><strong>GPO — Mappage Public par script</strong> — Créer le script <mark>mappage_public.bat</mark> :</div>
+              <div class="code-block cmd">net use p: \\192.168.100.240\public</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">05</span>
+            <div class="step-content">
+              <div class="step-action">Gestionnaire de serveur → Outils → <mark>Gestion des stratégies de groupe</mark> → clic droit sur le domaine <mark>@greta</mark> → <mark>Créer un objet GPO dans ce domaine et le lier ici…</mark></div>
+              <div class="code-block">Nom : Mappage_public_script_P</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">06</span>
+            <div class="step-content">
+              <div class="step-action">Clic droit sur la GPO → <mark>Modifier</mark> → <mark>Configuration utilisateur</mark> → Stratégies → Paramètres Windows → <mark>Scripts (Ouverture de session)</mark> → double-clic sur <mark>Ouverture de session</mark></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">07</span>
+            <div class="step-content">
+              <div class="step-action">Cliquer <mark>Ajouter</mark> → <mark>Parcourir</mark> → copier le fichier <mark>mappage_public.bat</mark> dans le dossier <mark>Logon</mark> de la GPO → le sélectionner → OK → OK</div>
+              <div class="note tip"><span class="note-icon">✓</span>Utiliser "Afficher les fichiers" pour coller le .bat dans le dossier Logon accessible depuis la fenêtre Parcourir.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">08</span>
+            <div class="step-content">
+              <div class="step-action"><strong>GPO — Mappage par Préférences (sans script)</strong> — Pour les OU Informatique et Formation : GPO → Modifier → Configuration utilisateur → Préférences → Paramètres Windows → <mark>Mappages de lecteurs</mark> → Nouveau → <mark>Lecteur mappé</mark></div>
+              <div class="code-block">Informatique → \\192.168.100.240\informatique  Lettre: I
+Formation    → \\192.168.100.240\formation     Lettre: F
+Administration → \\192.168.100.240\administration Lettre: G</div>
+              <div class="note info"><span class="note-icon">ℹ</span>Pour Administration (délégués) : créer la GPO au niveau du domaine @greta et faire un <strong>filtrage de sécurité</strong> pour cibler uniquement g_greta et g_delegue. Retirer "Utilisateurs authentifiés" du filtrage et les remettre dans l'onglet <strong>Délégation</strong> en Lecture seule.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">09</span>
+            <div class="step-content">
+              <div class="step-action">Appliquer les stratégies sur serveur et client :</div>
+              <div class="code-block cmd">gpupdate /force</div>
+              <div class="step-action" style="margin-top:6px">Redémarrer le PC client, se reconnecter avec un utilisateur et vérifier les lecteurs réseau dans le Poste de travail.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- GPO FOND D'ÉCRAN -->
+      <div class="card l2" id="s-gpo-wallpaper">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-accent"></div>
+          <span class="card-title">GPO — Déploiement fond d'écran</span>
+          <span class="card-tag">GPO · Bureau · UNC</span>
+          <svg class="card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="card-body">
+
+          <div class="step">
+            <span class="step-num">01</span>
+            <div class="step-content">
+              <div class="step-action">Créer le dossier <mark>wallpaper</mark> sur <mark>S:\</mark>, y copier l'image (.jpg ou .bmp)</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">02</span>
+            <div class="step-content">
+              <div class="step-action">Partager le dossier : Propriétés → Partage → Partage avancé → Autorisations → Tout le monde → <mark>Modifier + Lecture</mark> → Appliquer OK</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">03</span>
+            <div class="step-content">
+              <div class="step-action">Gestion des stratégies de groupe → clic droit sur <mark>@greta</mark> → <mark>Créer un objet GPO…</mark></div>
+              <div class="code-block">Nom : wallpaper</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">04</span>
+            <div class="step-content">
+              <div class="step-action">Clic droit GPO → Modifier → <mark>Configuration utilisateur</mark> → Stratégies → Modèles d'administration → Bureau → <mark>Bureau</mark> → double-clic sur <mark>Papier peint du Bureau</mark></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">05</span>
+            <div class="step-content">
+              <div class="step-action">Sélectionner <mark>Activé</mark> → renseigner le chemin UNC de l'image → Style : <mark>Ajuster</mark> → Appliquer → OK</div>
+              <div class="code-block">\\192.168.100.240\wallpaper\montagne.jpg</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">06</span>
+            <div class="step-content">
+              <div class="step-action">Appliquer côté serveur et client :</div>
+              <div class="code-block cmd">gpupdate /force</div>
+              <div class="step-action" style="margin-top:6px">Redémarrer le client, se reconnecter avec un utilisateur → vérifier le nouveau fond d'écran.</div>
+              <div class="note warn"><span class="note-icon">⚠</span>L'utilisateur ne peut pas modifier le fond d'écran tant que la GPO est active (paramètre verrouillé).</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- GPO BLOC-NOTES -->
+      <div class="card l2" id="s-gpo-blocnote">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-accent"></div>
+          <span class="card-title">GPO — Interdire le Bloc-notes</span>
+          <span class="card-tag">GPO · Restriction · Système</span>
+          <svg class="card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="card-body">
+
+          <div class="step">
+            <span class="step-num">01</span>
+            <div class="step-content">
+              <div class="step-action">Gestion des stratégies de groupe → clic droit sur <mark>@greta</mark> → <mark>Créer un objet GPO…</mark></div>
+              <div class="code-block">Nom : BLOC-NOTEPAD</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">02</span>
+            <div class="step-content">
+              <div class="step-action">Clic droit GPO → Modifier → <mark>Configuration utilisateur</mark> → Stratégies → Modèles d'administration → <mark>Système</mark> → double-clic sur <mark>Ne pas exécuter les applications Windows spécifiées</mark></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">03</span>
+            <div class="step-content">
+              <div class="step-action">Sélectionner <mark>Activé</mark> → cliquer sur <mark>Afficher…</mark> → ajouter dans la liste :</div>
+              <div class="code-block">NOTEPAD.EXE</div>
+              <div class="step-action" style="margin-top:4px">→ OK → Appliquer → OK</div>
+              <div class="note info"><span class="note-icon">ℹ</span>Cette méthode (Modèles d'administration → Système) est plus fiable que la méthode par "Stratégies de restriction logicielle" sur les versions récentes de Windows 10/11.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">04</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Filtrage de sécurité</strong> — Onglet <mark>Étendue</mark> → retirer <mark>Utilisateurs authentifiés</mark> → ajouter le groupe ciblé (ex. <mark>g_greta</mark>)</div>
+              <div class="note tip"><span class="note-icon">✓</span>Onglet <strong>Délégation</strong> → Ajouter → "Utilisateurs authentifiés" → autorisation : Lecture. Sans cela la GPO ne peut pas être lue du tout.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">05</span>
+            <div class="step-content">
+              <div class="step-action">Appliquer sur serveur et client :</div>
+              <div class="code-block cmd">gpupdate /force</div>
+              <div class="step-action" style="margin-top:6px">Redémarrer le client → se connecter avec un utilisateur du groupe <mark>g_greta</mark> → tenter d'ouvrir le Bloc-notes → message de restriction attendu.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /cards-grid l2 -->
+
+
+    <!-- ═══════════════════════════════════════════════════
+         NIVEAU 3 — AVANCÉ
+    ════════════════════════════════════════════════════ -->
+    <div class="level-band l3" id="l3">
+      <span class="level-badge">NIV. 3</span>
+      <span class="level-title">Avancé</span>
+      <span class="level-sub">Déploiement MSI · DNS inverse · CNAME</span>
+    </div>
+    <div class="cards-grid">
+
+      <!-- DÉPLOIEMENT MSI -->
+      <div class="card l3" id="s-msi">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-accent"></div>
+          <span class="card-title">Déploiement MSI Firefox par GPO</span>
+          <span class="card-tag">GPO · MSI · Installation logiciel</span>
+          <svg class="card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="card-body">
+
+          <div class="step">
+            <span class="step-num">01</span>
+            <div class="step-content">
+              <div class="step-action">Télécharger Firefox au format <mark>.msi</mark> (pas .exe) depuis :</div>
+              <div class="code-block">https://www.mozilla.org/fr/firefox/all/#product-desktop-release</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">02</span>
+            <div class="step-content">
+              <div class="step-action">Créer le dossier <mark>S:\Appli</mark> et y déposer le fichier <mark>Firefox.msi</mark></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">03</span>
+            <div class="step-content">
+              <div class="step-action">Rendre le partage <strong>invisible</strong> (nom avec $) : Propriétés → Partage avancé → Ajouter un nom de partage</div>
+              <div class="code-block">Nom du partage : appli$
+Description    : INVISIBLE</div>
+              <div class="step-action" style="margin-top:4px">Supprimer le partage initial "Appli" → ne garder que <mark>appli$</mark> → OK</div>
+              <div class="note info"><span class="note-icon">ℹ</span>Un partage terminé par <strong>$</strong> est invisible dans l'explorateur réseau mais accessible directement via le chemin UNC.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">04</span>
+            <div class="step-content">
+              <div class="step-action">Dans l'AD : créer une <mark>OU PC</mark> → y glisser le compte ordinateur PC client (depuis le conteneur Computers)</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">05</span>
+            <div class="step-content">
+              <div class="step-action">Gestion des stratégies de groupe → clic droit sur <mark>OU PC</mark> → <mark>Créer un objet GPO…</mark></div>
+              <div class="code-block">Nom : INSTALL-MSI</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">06</span>
+            <div class="step-content">
+              <div class="step-action">Clic droit GPO → Modifier → <mark>Configuration ordinateur</mark> → Stratégies → Paramètres du logiciel → <mark>Installation de logiciel</mark> → clic droit à droite → <mark>Nouveau</mark> → <mark>Package…</mark></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">07</span>
+            <div class="step-content">
+              <div class="step-action">Dans la barre d'adresse, saisir le chemin UNC du partage caché :</div>
+              <div class="code-block">\\192.168.100.240\appli$</div>
+              <div class="step-action" style="margin-top:4px">Sélectionner <mark>Firefox.msi</mark> → Ouvrir → Mode de déploiement : <mark>Attribué</mark> → OK</div>
+              <div class="note warn"><span class="note-icon">⚠</span>Ne jamais utiliser un chemin local (C:\…) dans une GPO d'installation logiciel. Le chemin doit impérativement être UNC (\\serveur\partage) pour que les clients puissent y accéder.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">08</span>
+            <div class="step-content">
+              <div class="step-action">Actualiser (icône verte) → Firefox apparaît avec statut "Attribué". Fermer les fenêtres GPO.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">09</span>
+            <div class="step-content">
+              <div class="step-action">Sur le serveur puis le client :</div>
+              <div class="code-block cmd">gpupdate /force</div>
+              <div class="step-action" style="margin-top:6px">Sur le client : valider le redémarrage demandé → reconnecter → Firefox est installé automatiquement au démarrage.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DNS ZONE INVERSÉE -->
+      <div class="card l3" id="s-dns-inverse">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-accent"></div>
+          <span class="card-title">DNS — Ajout de zone inversée + CNAME</span>
+          <span class="card-tag">DNS · PTR · CNAME · nslookup</span>
+          <svg class="card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="card-body">
+
+          <div class="step">
+            <span class="step-num">01</span>
+            <div class="step-content">
+              <div class="step-action">Gestionnaire DNS : clic droit sur <mark>Zones de recherche inversée</mark> → <mark>Nouvelle zone…</mark></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">02</span>
+            <div class="step-content">
+              <div class="step-action">Type : <mark>Zone principale</mark> → Étendue : <mark>Vers tous les serveurs DNS du domaine</mark> → IPv4 → Suivant</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">03</span>
+            <div class="step-content">
+              <div class="step-action">ID réseau :</div>
+              <div class="code-block">192.168.100</div>
+              <div class="step-action" style="margin-top:4px">→ Suivant → laisser la mise à jour dynamique sécurisée → Suivant → Terminer</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">04</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Créer un enregistrement PTR</strong> pour le serveur : clic droit sur la zone <mark>100.168.192.in-addr.arpa</mark> → <mark>Nouveau pointeur (PTR)…</mark></div>
+              <div class="code-block">Adresse IP de l'hôte : 192.168.100.240
+Nom de l'hôte        : [Parcourir → ad01 → OK]</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">05</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Créer un alias CNAME</strong> : clic droit sur la zone de recherche directe <mark>greta.eval</mark> → <mark>Nouvel alias (CNAME)…</mark></div>
+              <div class="code-block">Nom de l'alias (CNAME) : routeur
+Nom de domaine qualifié (FQDN) : routeur.greta.eval
+Hôte de destination  : [Parcourir → ad01.greta.eval]</div>
+              <div class="step-action" style="margin-top:4px">→ OK</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">06</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Vérifier</strong> depuis l'invite de commande :</div>
+              <div class="code-block cmd">nslookup greta.eval
+ping routeur.greta.eval</div>
+              <div class="note tip"><span class="note-icon">✓</span>nslookup doit retourner l'IP 192.168.100.240. Le ping de routeur.greta.eval doit répondre depuis la même IP.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /cards-grid l3 -->
+
+
+    <!-- ═══════════════════════════════════════════════════
+         NIVEAU 4 — EXPERT
+    ════════════════════════════════════════════════════ -->
+    <div class="level-band l4" id="l4">
+      <span class="level-badge">NIV. 4</span>
+      <span class="level-title">Expert</span>
+      <span class="level-sub">Windows Server Core · Contrôleur de domaine secondaire</span>
+    </div>
+    <div class="cards-grid">
+
+      <!-- WINDOWS SERVER CORE -->
+      <div class="card l4" id="s-core">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-accent"></div>
+          <span class="card-title">Installation Windows Server 2022 en mode Core</span>
+          <span class="card-tag">Core · SConfig · Réseau</span>
+          <svg class="card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="card-body">
+
+          <div class="step">
+            <span class="step-num">01</span>
+            <div class="step-content">
+              <div class="step-action">Créer une nouvelle VM VirtualBox (<mark>AD02.GRETA.EVAL</mark>) — monter l'ISO Windows Server 2022 dans le stockage — modifier la carte réseau en <mark>Réseau privé hôte</mark></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">02</span>
+            <div class="step-content">
+              <div class="step-action">Au démarrage, sélectionner <mark>Windows Server 2022 Standard Evaluation</mark> (sans Expérience bureau, 1ère entrée) → Suivant → Personnalisé → Installer</div>
+              <div class="note warn"><span class="note-icon">⚠</span>Ne pas choisir la version "Expérience de bureau" — le mode Core est la 1ère option de la liste.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">03</span>
+            <div class="step-content">
+              <div class="step-action">Après redémarrage : définir le mot de passe administrateur via l'écran de connexion</div>
+              <div class="code-block">Mot de passe : Reponse2025</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">04</span>
+            <div class="step-content">
+              <div class="step-action">SConfig s'ouvre automatiquement. <strong>Option 2 — Renommer l'ordinateur</strong> :</div>
+              <div class="code-block">Nouveau nom : ad02
+Redémarrer  : O (oui)</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">05</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Option 8 — Paramètres réseau</strong> → entrer <mark>1</mark> (sélectionner la carte) → <mark>1</mark> (Définir l'adresse IP) → <mark>S</mark> (Statique) :</div>
+              <div class="code-block">Adresse IP  : 192.168.100.241
+Masque      : 255.255.255.0
+Passerelle  : 192.168.100.240</div>
+              <div class="step-action" style="margin-top:4px">Retour au menu réseau → <mark>2</mark> (Définir DNS) :</div>
+              <div class="code-block">DNS préféré : 192.168.100.240</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">06</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Option 7 — Bureau à distance</strong> → <mark>A</mark> (Activer) → <mark>2</mark> (Autoriser tous les clients)</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">07</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Option 1 — Joindre le domaine</strong> :</div>
+              <div class="code-block">Domaine    : greta.eval
+Utilisateur : greta.eval\Administrateur
+Mot de passe: [mot de passe admin]
+Nouveau nom : ad02 (laisser si déjà renommé)
+Redémarrer : O</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">08</span>
+            <div class="step-content">
+              <div class="step-action">Vérifier la configuration réseau depuis PowerShell (Option 15 → SConfig) :</div>
+              <div class="code-block ps">ipconfig</div>
+              <div class="note tip"><span class="note-icon">✓</span>IPv4 : 192.168.100.241 — Masque : 255.255.255.0 — Passerelle : 192.168.100.240</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DC SECONDAIRE -->
+      <div class="card l4" id="s-dc2">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="card-accent"></div>
+          <span class="card-title">Installation du Contrôleur de domaine secondaire (PowerShell)</span>
+          <span class="card-tag">ADDS · PowerShell · DC · DNS secondaire</span>
+          <svg class="card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="card-body">
+
+          <div class="step">
+            <span class="step-num">01</span>
+            <div class="step-content">
+              <div class="step-action">Sur le serveur Core AD02, entrer en PowerShell via SConfig <mark>Option 15</mark>. Installer les outils ADDS :</div>
+              <div class="code-block ps">Install-WindowsFeature -name AD-Domain-services -IncludeManagementTools</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">02</span>
+            <div class="step-content">
+              <div class="step-action">Importer le module de déploiement :</div>
+              <div class="code-block ps">Import-Module ADDSDeployment</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">03</span>
+            <div class="step-content">
+              <div class="step-action">Promouvoir AD02 en contrôleur de domaine secondaire avec DNS :</div>
+              <div class="code-block ps">Install-ADDSDomainController -InstallDNS -Credential (Get-Credential "greta.eval\administrateur") -DomainName "greta.eval"</div>
+              <div class="note info"><span class="note-icon">ℹ</span>Une fenêtre d'authentification Windows s'ouvre → entrer le mot de passe administrateur du domaine. Puis PowerShell demande le mot de passe SafeMode (DSRM).</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">04</span>
+            <div class="step-content">
+              <div class="step-action">Renseigner le mot de passe DSRM :</div>
+              <div class="code-block ps">SafeModeAdministratorPassword : ***********
+Confirmer SafeModeAdministratorPassword : ********</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">05</span>
+            <div class="step-content">
+              <div class="step-action">Confirmer l'opération → taper <mark>O</mark> (Oui) → la promotion s'exécute, le serveur redémarre automatiquement (attendre ~2 minutes)</div>
+              <div class="note warn"><span class="note-icon">⚠</span>Le serveur reste longtemps sur l'écran "Application des paramètres" au redémarrage — c'est normal pour la réplication ADDS.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">06</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Vérification depuis AD02 (PowerShell)</strong> — Se connecter en Bureau à distance ou via SConfig Option 15 :</div>
+              <div class="code-block ps">Get-ADUser -Filter {SamAccountName -eq 'p.sorin'}</div>
+              <div class="note tip"><span class="note-icon">✓</span>Les informations de l'utilisateur (DistinguishedName, Enabled, SamAccountName…) doivent apparaître → la réplication AD est fonctionnelle.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">07</span>
+            <div class="step-content">
+              <div class="step-action"><strong>Enregistrer AD02 comme serveur DNS secondaire</strong> — Sur AD01, ouvrir le Gestionnaire DNS → clic droit sur la zone <mark>greta.eval</mark> → <mark>Propriétés</mark> → onglet <mark>Serveurs de noms</mark> → <mark>Ajouter</mark></div>
+              <div class="code-block">Nom du serveur : ad02
+→ Résoudre → sélectionner 192.168.100.241 → OK</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <span class="step-num">08</span>
+            <div class="step-content">
+              <div class="step-action">Si le FQDN complet n'est pas renseigné automatiquement : cliquer <mark>Modifier</mark> → compléter avec <mark>ad02.greta.eval</mark> → Résoudre → OK → répondre <mark>Non</mark> à la suppression du serveur 2 → Appliquer → OK</div>
+              <div class="note tip"><span class="note-icon">✓</span>Après rafraîchissement, AD02.greta.eval doit apparaître dans la liste Serveurs de noms (NS) de la zone greta.eval.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /cards-grid l4 -->
+
+    <div style="height:40px"></div>
+
+  </main><!-- /main -->
+</div><!-- /app-body -->
+
+<script>
+/* ── BURGER ── */
+const sidebar = document.getElementById('sidebar');
+document.getElementById('burgerBtn').addEventListener('click', () => {
+  sidebar.classList.toggle('collapsed');
+});
+
+/* ── CARD TOGGLE ── */
+function toggleCard(header) {
+  const card = header.closest('.card');
+  card.classList.toggle('open');
+}
+
+/* ── SCROLL NAV ── */
+function scrollToLevel(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Auto-open the card
+  if (!el.classList.contains('open')) {
+    el.classList.add('open');
+  }
+}
+
+/* ── ACTIVE TOC ON SCROLL ── */
+const tocItems = document.querySelectorAll('.toc-section');
+const mainContent = document.getElementById('mainContent');
+mainContent.addEventListener('scroll', () => {
+  const sections = ['l1','l2','l3','l4','s-profil','s-dhcp','s-gpo-fichiers','s-gpo-wallpaper','s-gpo-blocnote','s-msi','s-dns-inverse','s-core','s-dc2'];
+  let active = '';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 80) active = id;
+  });
+});
+
+/* ── SEARCH ── */
+const searchInput = document.getElementById('searchInput');
+const searchInfo = document.getElementById('searchInfo');
+let matches = [];
+let matchIdx = -1;
+
+searchInput.addEventListener('input', () => {
+  clearHighlights();
+  const q = searchInput.value.trim().toLowerCase();
+  if (!q) { searchInfo.textContent = ''; searchInfo.className = 'search-info'; return; }
+
+  // First open all cards for search
+  document.querySelectorAll('.card').forEach(c => c.classList.add('open'));
+
+  const walker = document.createTreeWalker(mainContent, NodeFilter.SHOW_TEXT, null);
+  const textNodes = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    if (node.nodeValue.toLowerCase().includes(q)) textNodes.push(node);
+  }
+
+  matches = [];
+  textNodes.forEach(tn => {
+    const parent = tn.parentNode;
+    const text = tn.nodeValue;
+    const lower = text.toLowerCase();
+    let idx = 0;
+    const frag = document.createDocumentFragment();
+    let last = 0;
+    while ((idx = lower.indexOf(q, last)) !== -1) {
+      frag.appendChild(document.createTextNode(text.slice(last, idx)));
+      const span = document.createElement('span');
+      span.className = 'hl';
+      span.textContent = text.slice(idx, idx + q.length);
+      frag.appendChild(span);
+      matches.push(span);
+      last = idx + q.length;
+      idx = last;
+    }
+    frag.appendChild(document.createTextNode(text.slice(last)));
+    parent.replaceChild(frag, tn);
+  });
+
+  if (matches.length === 0) {
+    searchInfo.textContent = '0 résultat';
+    searchInfo.className = 'search-info nope';
+  } else {
+    matchIdx = 0;
+    highlightCurrent();
+  }
+});
+
+document.getElementById('nextMatch').addEventListener('click', () => {
+  if (!matches.length) return;
+  matchIdx = (matchIdx + 1) % matches.length;
+  highlightCurrent();
+});
+document.getElementById('prevMatch').addEventListener('click', () => {
+  if (!matches.length) return;
+  matchIdx = (matchIdx - 1 + matches.length) % matches.length;
+  highlightCurrent();
+});
+
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.shiftKey ? document.getElementById('prevMatch').click() : document.getElementById('nextMatch').click();
+  }
+});
+
+function highlightCurrent() {
+  document.querySelectorAll('.hl.current').forEach(el => el.classList.remove('current'));
+  if (matchIdx >= 0 && matches[matchIdx]) {
+    matches[matchIdx].classList.add('current');
+    matches[matchIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    searchInfo.textContent = `${matchIdx + 1} / ${matches.length}`;
+    searchInfo.className = 'search-info found';
+  }
+}
+
+function clearHighlights() {
+  document.querySelectorAll('.hl').forEach(el => {
+    const parent = el.parentNode;
+    parent.replaceChild(document.createTextNode(el.textContent), el);
+    parent.normalize();
+  });
+  matches = [];
+  matchIdx = -1;
+}
+
+/* ── COPY BUTTONS ── */
+document.querySelectorAll('.code-block').forEach(block => {
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn';
+  btn.textContent = 'Copier';
+  block.style.position = 'relative';
+  block.appendChild(btn);
+  btn.addEventListener('click', () => {
+    const text = block.textContent.replace('Copier','').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copié ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 2000);
+    });
+  });
+});
+
+/* ── OPEN FIRST CARD BY DEFAULT ── */
+document.querySelectorAll('.card')[0]?.classList.add('open');
+</script>
+</body>
+</html>
