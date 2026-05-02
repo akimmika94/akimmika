@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Types de pannes 3 — Guide de dépannage</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F8F9FA;
+    --bg-card: #FFFFFF;
+    --text: #1A1A2E;
+    --text-light: #6B7280;
+    --text-muted: #9CA3AF;
+    --blue: #2563EB;
+    --blue-light: #EFF6FF;
+    --blue-hover: #1D4ED8;
+    --border: #E5E7EB;
+    --border-light: #F3F4F6;
+    --green: #059669;
+    --green-light: #ECFDF5;
+    --amber: #D97706;
+    --amber-light: #FFFBEB;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --purple: #7C3AED;
+    --purple-light: #F5F3FF;
+    --pink: #DB2777;
+    --pink-light: #FDF2F8;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+    --radius: 6px;
+    --transition: 0.18s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    background: #1A1A2E;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .page-header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .page-icon {
+    width: 36px; height: 36px;
+    background: var(--blue);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .page-icon svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
+
+  .page-title {
+    font-size: 16px; font-weight: 600;
+    color: #FFFFFF;
+    letter-spacing: 0.01em;
+  }
+
+  .page-sub {
+    font-size: 11px; color: rgba(255,255,255,0.45);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+
+  /* Filters row */
+  .filters-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.05em;
+    margin-right: 4px;
+  }
+
+  .fb {
+    font-size: 11px; font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+
+  .fb:hover {
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.85);
+  }
+
+  .fb.on {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: white;
+  }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0 10px;
+    height: 32px;
+    flex: 1;
+    max-width: 380px;
+    transition: var(--transition);
+  }
+
+  .search-wrap:focus-within {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+  }
+
+  .search-wrap svg { width: 13px; height: 13px; opacity: 0.4; flex-shrink: 0; }
+
+  .search-wrap input {
+    background: none; border: none; outline: none;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px; color: var(--text); width: 100%;
+  }
+
+  .search-wrap input::placeholder { color: var(--text-muted); }
+
+  .count-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    background: var(--blue-light);
+    color: var(--blue);
+    border: 1px solid rgba(37,99,235,0.15);
+    border-radius: 4px;
+    padding: 2px 7px;
+    margin-left: auto;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .content {
+    padding: 20px 24px 40px;
+  }
+
+  /* Méthodo banner */
+  .methodo-banner {
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .methodo-banner-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .methodo-banner-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .methodo-steps-inline {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .ms-step {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-light);
+  }
+
+  .ms-num {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--blue-light);
+    color: var(--blue);
+    font-size: 10px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .ms-arrow {
+    color: var(--text-muted);
+    font-size: 10px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    margin-top: 24px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header:first-of-type { margin-top: 0; }
+
+  .sh-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sh-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .sh-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  /* ── CAS GRID ── */
+  .cas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  /* ── CAS CARD ── */
+  .cas-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 3px solid transparent;
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+  }
+
+  .cas-card:hover {
+    background: var(--bg);
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+  }
+
+  .cas-card.selected {
+    border-color: var(--blue);
+    border-left-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+  }
+
+  .cas-card.d-reseau  { border-left-color: #2563EB; }
+  .cas-card.d-vlan    { border-left-color: #D97706; }
+  .cas-card.d-sys     { border-left-color: #059669; }
+  .cas-card.d-print   { border-left-color: #DB2777; }
+
+  .cas-card.hidden { display: none; }
+
+  .cas-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+  }
+
+  .cas-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 5px;
+    line-height: 1.4;
+  }
+
+  .cas-sit {
+    font-size: 11px;
+    color: var(--text-light);
+    font-style: italic;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .cas-chips {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .chip-reseau { background: #EFF6FF; color: #2563EB; }
+  .chip-vlan   { background: #FFFBEB; color: #D97706; }
+  .chip-sys    { background: #ECFDF5; color: #059669; }
+  .chip-print  { background: #FDF2F8; color: #DB2777; }
+
+  /* ── DETAIL PANEL ── */
+  .detail-panel {
+    display: none;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 16px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .detail-panel.open { display: block; }
+
+  .dp-header {
+    background: #1A1A2E;
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .dp-header-txt { flex: 1; }
+
+  .dp-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  .dp-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 5px;
+  }
+
+  .dp-sit {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    font-style: italic;
+  }
+
+  .dp-close {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6);
+    border-radius: var(--radius);
+    width: 28px; height: 28px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: var(--transition);
+  }
+
+  .dp-close:hover {
+    background: rgba(255,255,255,0.15);
+    color: white;
+  }
+
+  /* Sub-tabs */
+  .dp-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--border-light);
+    padding: 0 20px;
+  }
+
+  .dp-tab {
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: var(--transition);
+    user-select: none;
+  }
+
+  .dp-tab:hover { color: var(--text-light); }
+
+  .dp-tab.active {
+    color: var(--blue);
+    font-weight: 500;
+    border-bottom-color: var(--blue);
+    background: white;
+  }
+
+  /* Tab content */
+  .dp-tab-content { display: none; padding: 18px 20px; }
+  .dp-tab-content.active { display: block; }
+
+  /* Equipment tags */
+  .equip-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .equip-tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--blue-light);
+    color: var(--blue);
+    border: 1px solid rgba(37,99,235,0.15);
+  }
+
+  .equip-tag svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+  /* Numbered steps */
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .step-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .sn-blue   { background: var(--blue-light); color: var(--blue); }
+  .sn-purple { background: var(--purple-light); color: var(--purple); }
+  .sn-green  { background: var(--green-light); color: var(--green); }
+  .sn-amber  { background: var(--amber-light); color: var(--amber); }
+
+  .step-body { flex: 1; }
+
+  .step-lbl {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 3px;
+  }
+
+  .step-txt {
+    font-size: 13px;
+    color: var(--text-light);
+    line-height: 1.6;
+  }
+
+  .step-txt strong { color: var(--text); font-weight: 500; }
+  .step-txt code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: #2563EB;
+  }
+
+  /* Cmd blocks */
+  .cmd-list { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+
+  .cmd-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: #1A1A2E;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .cmd-block:hover { background: #2a2a4e; }
+
+  .cmd-block code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #93C5FD;
+    flex: 1;
+  }
+
+  .cmd-copy {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    transition: var(--transition);
+  }
+
+  .cmd-block:hover .cmd-copy { color: rgba(255,255,255,0.6); }
+  .cmd-block.copied .cmd-copy { color: #34D399; }
+
+  /* Info boxes */
+  .info-box {
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-top: 6px;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+
+  .box-analyse {
+    background: var(--amber-light);
+    border: 1px solid rgba(217,119,6,0.2);
+    color: #92400E;
+  }
+
+  .box-analyse .box-lbl { color: var(--amber); }
+
+  .box-verif {
+    background: var(--green-light);
+    border: 1px solid rgba(5,150,105,0.2);
+    color: #065F46;
+  }
+
+  .box-verif .box-lbl { color: var(--green); }
+
+  .box-piege {
+    background: var(--red-light);
+    border: 1px solid rgba(220,38,38,0.2);
+    color: #7F1D1D;
+  }
+
+  .box-piege .box-lbl { color: var(--red); }
+
+  .box-lbl {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 4px;
+  }
+
+  /* OSI table */
+  .osi-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .osi-table th {
+    background: var(--border-light);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 7px 12px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+
+  .osi-table td {
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    color: var(--text-light);
+    vertical-align: top;
+  }
+
+  .osi-table td:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+    color: var(--blue);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .osi-table tr:hover td { background: var(--bg); }
+
+  /* Empty */
+  .empty-msg {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-size: 13px;
+    display: none;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-top">
+    <div class="page-icon">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div>
+      <div class="page-title">Types de pannes 3 — Guide de dépannage</div>
+      <div class="page-sub">29 cas · Réseau · VLAN · Système · Impression · TSSR 2026</div>
+    </div>
+  </div>
+  <div class="filters-row">
+    <span class="filter-label">DOMAINE</span>
+    <button class="fb on" onclick="setFilter('all',this)">Tous (29)</button>
+    <button class="fb" onclick="setFilter('reseau',this)">🌐 Réseau (8)</button>
+    <button class="fb" onclick="setFilter('vlan',this)">🔀 VLAN &amp; Routage (8)</button>
+    <button class="fb" onclick="setFilter('sys',this)">🖥️ Système (7)</button>
+    <button class="fb" onclick="setFilter('print',this)">🖨️ Impression (4)</button>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <input id="srch" type="text" placeholder="Rechercher un cas, symptôme, commande…" oninput="doSearch()">
+  </div>
+  <span class="count-badge" id="countBadge">29 cas</span>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- Méthodo banner -->
+  <div class="methodo-banner">
+    <div class="methodo-banner-icon">🔧</div>
+    <div>
+      <div class="methodo-banner-title">Méthodologie — 7 étapes systématiques</div>
+      <div class="methodo-steps-inline">
+        <div class="ms-step"><div class="ms-num">1</div>Identifier</div>
+        <div class="ms-arrow">›</div>
+        <div class="ms-step"><div class="ms-num">2</div>Reproduire</div>
+        <div class="ms-arrow">›</div>
+        <div class="ms-step"><div class="ms-num">3</div>Isoler (OSI)</div>
+        <div class="ms-arrow">›</div>
+        <div class="ms-step"><div class="ms-num">4</div>Tester</div>
+        <div class="ms-arrow">›</div>
+        <div class="ms-step"><div class="ms-num">5</div>Corriger</div>
+        <div class="ms-arrow">›</div>
+        <div class="ms-step"><div class="ms-num">6</div>Vérifier</div>
+        <div class="ms-arrow">›</div>
+        <div class="ms-step"><div class="ms-num">7</div>Documenter</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail panel (appears when a card is clicked) -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="dp-header">
+      <div class="dp-header-txt">
+        <div class="dp-num" id="dp-num"></div>
+        <div class="dp-title" id="dp-title"></div>
+        <div class="dp-sit" id="dp-sit"></div>
+      </div>
+      <button class="dp-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="dp-tabs">
+      <div class="dp-tab active" onclick="switchTab(0,this)">Diagnostic</div>
+      <div class="dp-tab" onclick="switchTab(1,this)">Commandes</div>
+      <div class="dp-tab" onclick="switchTab(2,this)">Vérification</div>
+    </div>
+    <div id="tab0" class="dp-tab-content active"></div>
+    <div id="tab1" class="dp-tab-content"></div>
+    <div id="tab2" class="dp-tab-content"></div>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-msg" id="emptyMsg">Aucun cas trouvé pour cette recherche.</div>
+
+  <!-- RÉSEAU -->
+  <div class="section-header" id="sh-reseau">
+    <div class="sh-dot" style="background:#2563EB"></div>
+    <div class="sh-title">Pannes réseau</div>
+    <div class="sh-count" id="cnt-reseau">8 cas</div>
+  </div>
+  <div class="cas-grid" id="grid-reseau"></div>
+
+  <!-- VLAN -->
+  <div class="section-header" id="sh-vlan">
+    <div class="sh-dot" style="background:#D97706"></div>
+    <div class="sh-title">VLAN &amp; Routage</div>
+    <div class="sh-count" id="cnt-vlan">8 cas</div>
+  </div>
+  <div class="cas-grid" id="grid-vlan"></div>
+
+  <!-- SYSTÈME -->
+  <div class="section-header" id="sh-sys">
+    <div class="sh-dot" style="background:#059669"></div>
+    <div class="sh-title">Pannes système &amp; serveur</div>
+    <div class="sh-count" id="cnt-sys">7 cas</div>
+  </div>
+  <div class="cas-grid" id="grid-sys"></div>
+
+  <!-- IMPRESSION -->
+  <div class="section-header" id="sh-print">
+    <div class="sh-dot" style="background:#DB2777"></div>
+    <div class="sh-title">Pannes d'impression</div>
+    <div class="sh-count" id="cnt-print">4 cas</div>
+  </div>
+  <div class="cas-grid" id="grid-print"></div>
+
+</div><!-- /content -->
+
+<script>
+var CAS = [
+  {id:1,d:"reseau",t:"Plus d'accès au réseau",s:"Un utilisateur ne peut accéder ni aux fichiers partagés ni à Internet.",
+   eq:["PC utilisateur","Switch","Routeur/passerelle"],
+   constater:"Lancer <code>ipconfig</code> → noter l'IP assignée. Puis <code>ping 192.168.1.1</code> vers la passerelle.<br><strong>Si le ping échoue</strong> : problème au niveau du réseau local. <strong>Si IP = 169.254.x.x</strong> : pas de DHCP.",
+   analyser:"IP en 169.254.x.x = le DHCP ne répond pas. IP correcte mais ping passerelle KO = problème physique (câble, port switch) ou VLAN mal configuré.",
+   agir:["Inspecter le câble RJ45 et le voyant du port switch","Tester un autre câble ou un autre port switch","Vérifier la configuration VLAN du port switch (access vlan correct ?)"],
+   cmds:["ipconfig","ping 192.168.1.1","ping 8.8.8.8"],
+   verif:"Après correction : IP normale (192.168.x.x), ping passerelle OK, accès aux partages et Internet rétabli.",
+   piege:"Ne pas changer câble ET port switch en même temps. Tester un seul changement à la fois pour isoler la cause."},
+
+  {id:2,d:"reseau",t:"Pas d'accès Internet — IP APIPA",s:"'Je n'ai plus Internet sur mon poste.'",
+   eq:["PC utilisateur","Serveur DHCP"],
+   constater:"<code>ipconfig</code> → IP affichée = <strong>169.254.x.x</strong>. C'est une adresse APIPA : le poste n'a reçu aucune IP du serveur DHCP.",
+   analyser:"Le serveur DHCP ne répond pas : service arrêté, portée d'adresses épuisée, ou câble HS entre le PC et le switch.",
+   agir:["Vérifier que le service DHCP est démarré sur le serveur","Vérifier qu'il reste des adresses disponibles dans la portée DHCP","Renouveler l'IP côté client"],
+   cmds:["ipconfig /release","ipconfig /renew","ping 8.8.8.8"],
+   verif:"Nouvelle IP en 192.168.x.x → ping 8.8.8.8 OK → navigation Internet OK.",
+   piege:"Un câble débranché donne aussi une IP APIPA. Toujours vérifier le câble et le lien physique avant de blâmer le DHCP."},
+
+  {id:3,d:"reseau",t:"Site web inaccessible — DNS KO",s:"'Je ne peux pas accéder à google.com ou à aucun site.'",
+   eq:["PC utilisateur","Serveur DNS"],
+   constater:"<code>ping google.com</code> → Echec. <code>ping 8.8.8.8</code> → OK. Le réseau IP fonctionne, la résolution de nom est en cause.",
+   analyser:"Le serveur DNS est injoignable ou mal configuré. Le réseau physique est intact (on joint une IP directement) mais les noms ne sont pas résolus.",
+   agir:["nslookup google.com → voir quel serveur DNS est utilisé et s'il répond","Si pas de réponse : changer le DNS en 8.8.8.8 (temporaire)","Sur le serveur DNS interne : vérifier que le service est démarré"],
+   cmds:["ping 8.8.8.8","ping google.com","nslookup google.com"],
+   verif:"nslookup google.com répond avec une IP → navigation par nom OK.",
+   piege:"Toujours tester <code>ping IP</code> avant <code>ping nom</code> pour distinguer clairement un problème DNS d'un problème réseau."},
+
+  {id:4,d:"reseau",t:"Partages réseau KO — Internet OK",s:"L'utilisateur accède à Internet mais pas aux serveurs internes.",
+   eq:["PC utilisateur","DNS interne d'entreprise","Firewall"],
+   constater:"<code>ping nom_serveur</code> → Echec. <code>ping 8.8.8.8</code> → OK. Seul le réseau interne est inaccessible.",
+   analyser:"Le DNS interne ne répond pas ou n'est pas configuré sur le poste. Le DNS 8.8.8.8 fonctionne mais ne connaît pas les serveurs internes. Un firewall peut aussi bloquer le trafic interne (port 445 SMB).",
+   agir:["nslookup nom_serveur → vérifier que le DNS interne répond","Configurer le DNS d'entreprise sur le poste (ou vérifier option DHCP)","Vérifier les règles firewall (port 445 SMB bloqué ?)"],
+   cmds:["nslookup nom_serveur","ping IP_serveur_interne","ipconfig /all"],
+   verif:"ping nom_serveur OK → accès aux partages rétabli (\\\\serveur\\partage).",
+   piege:"8.8.8.8 ne connaît pas vos serveurs internes. Il faut obligatoirement pointer vers le DNS d'entreprise pour résoudre les noms locaux."},
+
+  {id:5,d:"reseau",t:"Sites HTTPS inaccessibles",s:"Tous les sites sécurisés échouent avec une erreur de certificat.",
+   eq:["PC utilisateur","Serveur NTP"],
+   constater:"Les sites HTTP fonctionnent, les HTTPS échouent avec une erreur 'Certificat invalide' ou 'ERR_CERT_DATE_INVALID'.",
+   analyser:"La date/heure système est incorrecte. Les certificats SSL ont une durée de validité. Si la date du poste est dans le futur ou le passé, tous les certificats sont considérés invalides.",
+   agir:["Vérifier la date et l'heure du poste","Corriger manuellement si nécessaire","Forcer une synchronisation NTP","Vérifier la configuration du client NTP"],
+   cmds:["date","w32tm /query /status","w32tm /resync /force"],
+   verif:"Date/heure correcte → sites HTTPS accessibles sans erreur de certificat.",
+   piege:"Ce bug survient souvent après un remplacement de pile CMOS ou sur une VM dont le temps n'est pas synchronisé avec l'hôte."},
+
+  {id:6,d:"reseau",t:"Connexion très lente",s:"Tout fonctionne mais la connexion est extrêmement lente.",
+   eq:["PC utilisateur","Switch","Câble réseau"],
+   constater:"<code>ping serveur</code> → latence élevée (300 ms au lieu de moins de 5 ms). Les transferts de fichiers sont en rame. Le réseau fonctionne mais très lentement.",
+   analyser:"Câble défectueux (erreurs CRC), port switch en half-duplex (10 Mbps au lieu de 1 Gbps), congestion réseau, ou broadcast storm (boucle réseau).",
+   agir:["Vérifier les erreurs sur le port switch (<code>show interfaces</code>)","Tester avec un autre câble","Vérifier la négociation duplex (doit être 1000 Mbps full duplex)","Vérifier s'il y a une boucle réseau (trafic broadcast élevé)"],
+   cmds:["ping -t IP_serveur","show interfaces FastEthernet 0/X","show interfaces FastEthernet 0/X counters errors"],
+   verif:"Latence revenue sous 5 ms. Transferts de fichiers normaux.",
+   piege:"Un câble avec une paire cassée peut fonctionner mais forcer le port en 10 Mbps half-duplex. Les erreurs CRC dans show interfaces sont le signe d'un câble défectueux."},
+
+  {id:7,d:"reseau",t:"SSH impossible — Port fermé",s:"Impossible de se connecter en SSH sur un serveur Linux.",
+   eq:["Serveur Linux cible","Firewall"],
+   constater:"<code>ping serveur</code> → OK (réseau intact). <code>ssh user@serveur</code> → connexion refusée ou timeout. <code>telnet serveur 22</code> → connexion refusée.",
+   analyser:"Le réseau fonctionne mais le port 22 ne répond pas. Deux causes : le service SSH est arrêté, ou le firewall bloque le port 22.",
+   agir:["Sur le serveur : vérifier l'état du service SSH","Démarrer SSH si arrêté","Activer le démarrage automatique","Vérifier que le port 22 est autorisé dans le firewall (iptables/ufw)"],
+   cmds:["systemctl status ssh","systemctl start ssh","systemctl enable ssh","telnet IP_serveur 22","ufw allow 22"],
+   verif:"<code>telnet IP 22</code> → réponse SSH visible → connexion SSH établie.",
+   piege:"Si sshd.conf contient <code>PasswordAuthentication no</code> (commenté ou non), le service démarre mais refuse les connexions par mot de passe. Lire les logs : <code>journalctl -u ssh -n 20</code>."},
+
+  {id:8,d:"reseau",t:"Mauvaise passerelle configurée",s:"Accès réseau local OK mais Internet impossible.",
+   eq:["PC utilisateur","Routeur/passerelle"],
+   constater:"<code>ipconfig</code> → le champ 'Passerelle par défaut' est vide, incorrect ou manquant. Les machines du LAN sont joignables mais Internet est impossible.",
+   analyser:"La passerelle par défaut est l'adresse du routeur. Sans passerelle ou avec une adresse incorrecte, les paquets vers Internet ne savent pas où aller et sont abandonnés.",
+   agir:["Corriger la passerelle manuellement (IP statique) OU","Vérifier que le serveur DHCP envoie la bonne option passerelle","Forcer un renouvellement DHCP"],
+   cmds:["ipconfig","ipconfig /renew","ping 192.168.1.1","ping 8.8.8.8"],
+   verif:"<code>ipconfig</code> → passerelle correcte → <code>ping 8.8.8.8</code> OK → navigation Internet OK.",
+   piege:"Si l'IP vient du DHCP, corriger l'option passerelle côté serveur DHCP. Corriger seulement sur le poste ne résoudra pas le problème pour les autres postes."},
+
+  {id:9,d:"vlan",t:"PC dans le mauvais VLAN",s:"Un PC ne communique pas avec ses collègues du même service.",
+   eq:["Switch manageable","PC concerné"],
+   constater:"<code>ipconfig</code> → IP dans le mauvais sous-réseau (ex : 10.20.x.x au lieu de 10.10.x.x). Le PC ne peut pas joindre ses collègues.",
+   analyser:"Le port switch auquel est branché le PC est assigné au mauvais VLAN access. Le PC reçoit une IP du mauvais scope DHCP.",
+   agir:["Identifier le port switch du PC","<code>show vlan brief</code> → vérifier le VLAN assigné à ce port","Passer en conf d'interface et corriger le VLAN access"],
+   cmds:["show vlan brief","show mac address-table","interface FastEthernet 0/X","switchport mode access","switchport access vlan 10"],
+   verif:"<code>ipconfig</code> → IP dans le bon sous-réseau → ping vers les collègues OK.",
+   piege:"Un PC peut pinger sa passerelle et être quand même dans le mauvais VLAN si le routage inter-VLAN est actif. Vérifier le sous-réseau de l'IP, pas seulement la connectivité."},
+
+  {id:10,d:"vlan",t:"Trunk non configuré entre switches",s:"Des VLANs fonctionnent sur le switch A mais pas sur le switch B.",
+   eq:["Switch A","Switch B","Liaison inter-switch"],
+   constater:"<code>show vlan brief</code> → VLAN présent sur switch A. Les PCs branchés sur switch B dans ce VLAN n'ont pas de connectivité et obtiennent une IP APIPA.",
+   analyser:"La liaison inter-switch n'est pas configurée en mode trunk. Seul le VLAN natif (VLAN 1 par défaut) passe. Les autres VLANs sont bloqués sur cette liaison.",
+   agir:["Identifier l'interface de liaison inter-switch sur les deux switches","La configurer en mode trunk","Autoriser les VLANs nécessaires sur ce trunk"],
+   cmds:["show interfaces trunk","interface GigabitEthernet 0/1","switchport mode trunk","switchport trunk allowed vlan 10,20,30","show interfaces trunk"],
+   verif:"<code>show interfaces trunk</code> → VLANs listés dans 'VLANs allowed and active in management domain'. Connectivité inter-switch OK.",
+   piege:"Configurer le trunk des DEUX côtés (switch A et switch B). Un seul côté en trunk ne suffit pas."},
+
+  {id:11,d:"vlan",t:"VLAN non créé sur le switch",s:"Un port est assigné à un VLAN qui n'existe pas sur le switch.",
+   eq:["Switch manageable"],
+   constater:"<code>show vlan brief</code> → le VLAN est absent de la liste. Les ports assignés à ce VLAN sont en état <strong>inactive</strong>. Aucun trafic ne passe.",
+   analyser:"On a assigné des ports à un VLAN sans le créer au préalable. Sur Cisco, un VLAN non créé ne commute pas le trafic, même si des ports y sont assignés.",
+   agir:["Créer le VLAN en mode de configuration global","Lui donner un nom descriptif","Vérifier que les ports y sont bien assignés"],
+   cmds:["vlan 20","name COMPTA","exit","show vlan brief"],
+   verif:"<code>show vlan brief</code> → VLAN 20 visible avec statut 'active', ports associés listés.",
+   piege:"Le VLAN doit exister sur tous les switches par lesquels il transite. En environnement multi-switch, utiliser VTP ou créer manuellement le VLAN sur chaque switch."},
+
+  {id:12,d:"vlan",t:"Pas de communication inter-VLAN",s:"Les PCs du VLAN 10 et du VLAN 20 ne peuvent pas se joindre.",
+   eq:["Routeur ou switch L3"],
+   constater:"<code>ping</code> depuis VLAN 10 vers une IP du VLAN 20 → Timeout. Dans le même VLAN, les PCs communiquent normalement.",
+   analyser:"Les VLANs sont des domaines de broadcast isolés. Sans routage inter-VLAN configuré (routeur ou switch L3), ils ne peuvent pas communiquer. Ce n'est pas une panne, c'est un manque de configuration.",
+   agir:["Option 1 — Router-on-a-stick : créer des sous-interfaces sur le routeur, une par VLAN avec encapsulation dot1Q","Option 2 — Switch L3 : activer <code>ip routing</code> et créer des interfaces SVI (<code>interface vlan X</code>) avec une IP par VLAN"],
+   cmds:["interface GigabitEthernet 0/0.10","encapsulation dot1Q 10","ip address 192.168.10.1 255.255.255.0","ip routing","interface vlan 20","ip address 192.168.20.1 255.255.255.0"],
+   verif:"ping inter-VLAN OK. <code>traceroute</code> montre le passage par la passerelle inter-VLAN.",
+   piege:"Chaque VLAN doit avoir une route par défaut pointant vers sa passerelle inter-VLAN. Vérifier la config IP des PCs (passerelle = IP de l'interface SVI ou sous-interface du routeur)."},
+
+  {id:13,d:"vlan",t:"Boucle réseau (loop)",s:"Réseau très lent ou totalement saturé. Broadcast storm.",
+   eq:["Switches","Câblage réseau"],
+   constater:"Latence extrême sur tout le réseau. Tous les voyants du switch clignotent simultanément et rapidement. Trafic broadcast qui explose (visible dans un analyseur réseau). Les transferts sont impossibles.",
+   analyser:"Un câble est branché en double entre deux switches (ou entre deux ports du même switch), créant une boucle. Les trames broadcast circulent en boucle infinie et saturent la bande passante.",
+   agir:["Inspection physique immédiate : trouver et débrancher le câble en double","Vérifier le câblage de tous les switches","Activer STP (Spanning Tree Protocol) sur les switches","Configurer PortFast sur les ports d'accès utilisateur"],
+   cmds:["show spanning-tree","show mac address-table dynamic","spanning-tree portfast","spanning-tree mode rapid-pvst"],
+   verif:"Trafic réseau revenu à la normale. <code>show spanning-tree</code> → ports en état FWD ou BLK cohérent. Aucun port en flapping.",
+   piege:"STP devrait éviter automatiquement les boucles, mais il peut être désactivé ou mal configuré. Ne jamais désactiver STP sur des switches de production."},
+
+  {id:14,d:"vlan",t:"DHCP ne fonctionne pas dans un VLAN",s:"Les postes d'un VLAN obtiennent des IP APIPA (169.254.x.x).",
+   eq:["Switch L3 ou routeur","Serveur DHCP"],
+   constater:"<code>ipconfig</code> sur un poste du VLAN concerné → 169.254.x.x. Le serveur DHCP est dans un autre VLAN ou sous-réseau.",
+   analyser:"Les requêtes DHCP sont des broadcasts qui ne traversent pas les frontières de VLAN. Si le serveur DHCP est dans un autre VLAN, il faut configurer un relais DHCP (ip helper-address) sur l'interface SVI du VLAN en question.",
+   agir:["Identifier l'interface SVI du VLAN dont les postes n'obtiennent pas d'IP","Y ajouter la commande <code>ip helper-address</code> pointant vers l'IP du serveur DHCP","Renouveler l'IP côté client"],
+   cmds:["interface vlan 20","ip helper-address 192.168.1.10","exit","ipconfig /release","ipconfig /renew"],
+   verif:"Les postes du VLAN obtiennent une IP dans la bonne plage. <code>ping</code> vers le serveur DHCP OK.",
+   piege:"<code>ip helper-address</code> se configure sur le switch/routeur côté VLAN client, pas sur le serveur DHCP lui-même."},
+
+  {id:15,d:"vlan",t:"NAT mal configuré",s:"Les machines internes ne peuvent pas accéder à Internet.",
+   eq:["Routeur (interface LAN + interface WAN)"],
+   constater:"<code>ping 8.8.8.8</code> → Timeout depuis les postes internes. <code>ping</code> vers la passerelle locale → OK. Les paquets sortent du LAN mais ne reviennent pas (pas de traduction d'adresse).",
+   analyser:"Le NAT/PAT n'est pas configuré ou est mal configuré sur le routeur. Les IPs privées ne sont pas traduites en IP publique avant d'aller sur Internet.",
+   agir:["Identifier l'interface côté LAN (inside) et côté WAN (outside)","Configurer la règle NAT overload (PAT) avec une ACL ou un pool","Vérifier avec <code>show ip nat translations</code> lors d'un test"],
+   cmds:["interface GigabitEthernet 0/0","ip nat inside","interface GigabitEthernet 0/1","ip nat outside","ip nat inside source list 1 interface GigabitEthernet 0/1 overload","access-list 1 permit 192.168.0.0 0.0.255.255","show ip nat translations"],
+   verif:"<code>show ip nat translations</code> → entrées visibles lors d'un ping. <code>ping 8.8.8.8</code> OK depuis les postes internes.",
+   piege:"Oublier le mot-clé <code>overload</code> configure le NAT statique 1:1. Avec PAT (overload), toutes les IPs internes partagent une seule IP publique."},
+
+  {id:16,d:"vlan",t:"Route absente — réseau distant inaccessible",s:"Impossible d'accéder à un réseau distant.",
+   eq:["Routeur","Table de routage"],
+   constater:"<code>tracert/traceroute destination</code> → blocage sur un routeur intermédiaire (*** ou timeout). Le routeur ne sait pas où envoyer les paquets et les drop.",
+   analyser:"La route vers le réseau de destination est absente de la table de routage. Le routeur abandonne les paquets faute de route correspondante.",
+   agir:["<code>show ip route</code> → identifier le réseau de destination manquant","Ajouter la route statique manquante","OU activer un protocole de routage dynamique (OSPF, RIP...)"],
+   cmds:["show ip route","ip route 192.168.30.0 255.255.255.0 192.168.1.254","tracert destination","show ip route 192.168.30.0"],
+   verif:"<code>show ip route</code> → réseau de destination visible. <code>traceroute</code> atteint la destination.",
+   piege:"La route statique doit être configurée sur TOUS les routeurs intermédiaires, dans les deux sens (aller ET retour). Oublier la route retour = routage asymétrique."},
+
+  {id:17,d:"vlan",t:"Routage asymétrique",s:"Le ping fonctionne dans un sens mais pas dans l'autre.",
+   eq:["Routeurs des deux côtés"],
+   constater:"PC_A <code>ping</code> PC_B → OK. PC_B <code>ping</code> PC_A → Timeout. Le chemin aller existe mais le chemin retour est absent.",
+   analyser:"Routage asymétrique : les paquets arrivent à destination mais la réponse ne sait pas revenir. La table de routage du côté B n'a pas de route vers le réseau du côté A.",
+   agir:["<code>show ip route</code> sur CHAQUE routeur des deux côtés","Identifier la route de retour manquante côté B","L'ajouter"],
+   cmds:["show ip route","ip route réseau_A masque passerelle_vers_A","ping PC_A depuis PC_B"],
+   verif:"Ping bidirectionnel OK. <code>traceroute</code> complet dans les deux sens.",
+   piege:"Toujours vérifier les tables de routage des DEUX côtés. Un seul sens qui marche ne suffit pas à valider le routage."},
+
+  {id:18,d:"vlan",t:"VLAN natif mal configuré",s:"Problèmes aléatoires de connectivité entre switches.",
+   eq:["Switch A","Switch B (extrémités du trunk)"],
+   constater:"<code>show interfaces trunk</code> → Native VLAN différent des deux côtés. Messages d'avertissement Cisco CDP ou STP sur native VLAN mismatch dans les logs.",
+   analyser:"Les trames non-taguées sur un trunk appartiennent au VLAN natif. Si ce dernier est différent des deux côtés, le trafic non-tagué est mal routé et des problèmes de sécurité apparaissent.",
+   agir:["Vérifier le VLAN natif sur les deux switches","Uniformiser le VLAN natif sur les deux extrémités du trunk"],
+   cmds:["show interfaces trunk","interface GigabitEthernet 0/1","switchport trunk native vlan 1","show interfaces trunk"],
+   verif:"<code>show interfaces trunk</code> → même VLAN natif des deux côtés. Plus de messages d'erreur STP/CDP dans les logs.",
+   piege:"Le VLAN natif doit être identique sur les deux extrémités de chaque lien trunk. Un mismatch peut créer des failles de sécurité (VLAN hopping)."},
+
+  {id:19,d:"sys",t:"Serveur web inaccessible",s:"'Le site de l'entreprise ne répond plus.'",
+   eq:["Serveur Linux (Apache/Nginx)","Firewall"],
+   constater:"<code>ping serveur</code> → OK (réseau intact). <code>curl http://serveur</code> → connexion refusée. Le port 80/443 ne répond pas alors que le serveur est joignable.",
+   analyser:"Le réseau fonctionne, le problème est applicatif. Le service web (Apache ou Nginx) est arrêté ou a crashé. Vérifier aussi si le firewall bloque le port 80/443.",
+   agir:["Vérifier l'état du service web","Consulter les logs pour comprendre le crash","Redémarrer le service","Vérifier les règles firewall"],
+   cmds:["systemctl status apache2","journalctl -u apache2 -n 50","systemctl start apache2","systemctl enable apache2","netstat -tulnp | grep 80","curl http://localhost"],
+   verif:"<code>curl http://serveur</code> → réponse HTTP 200. Site accessible depuis un navigateur.",
+   piege:"Si le service démarre puis crashe immédiatement, lire les logs : souvent un conflit de port (autre service sur le port 80) ou une erreur de syntaxe dans la config."},
+
+  {id:20,d:"sys",t:"Poste très lent — CPU 100%",s:"'Mon ordinateur est super lent depuis ce matin.'",
+   eq:["Poste ou serveur concerné"],
+   constater:"<code>top</code> (Linux) ou Gestionnaire des tâches (Windows) → CPU à 100%. Un ou plusieurs processus anormaux consomment toutes les ressources.",
+   analyser:"Un processus consomme anormalement le CPU : antivirus en scan, processus zombie, malware, fuite mémoire provoquant du swap intensif, ou service mal configuré en boucle.",
+   agir:["Identifier le PID du processus fautif et son nom","Vérifier si ce processus est légitime (chercher le nom)","Tuer le processus si anormal","Analyser la cause : malware ? update ? bug applicatif ?"],
+   cmds:["top","htop","ps aux --sort=-%cpu | head -10","kill -9 PID","taskkill /PID xxxx /F (Windows)"],
+   verif:"CPU revenu sous 20%. Poste réactif. Vérifier que le processus ne redémarre pas.",
+   piege:"Ne jamais tuer un processus système critique (kswapd, systemd, init). Vérifier le nom complet du processus avant de lancer kill."},
+
+  {id:21,d:"sys",t:"Plus d'espace disque",s:"'Je ne peux plus enregistrer de fichiers.' Les applications plantent.",
+   eq:["Serveur ou poste concerné"],
+   constater:"<code>df -h</code> → une partition à 100%. Les nouvelles écritures sont refusées. Des services peuvent crasher ou refuser de démarrer.",
+   analyser:"Saturation par des logs volumineux accumulés, des fichiers temporaires, d'anciennes sauvegardes non purgées, ou une croissance non maîtrisée d'une base de données.",
+   agir:["Identifier la partition pleine (<code>df -h</code>)","Trouver les fichiers volumineux (<code>du -sh /*</code>)","Supprimer les logs anciens ou les fichiers temporaires","Archiver sur un autre support si nécessaire"],
+   cmds:["df -h","du -sh /var/log/*","du -sh /* 2>/dev/null | sort -h","find / -size +500M 2>/dev/null","rm -rf /var/log/ancien.log"],
+   verif:"<code>df -h</code> → espace disponible. Services redémarrés et fonctionnels.",
+   piege:"Ne jamais supprimer des fichiers de logs actifs ou des fichiers système sans vérifier leur nature. Utiliser <code>truncate -s 0 fichier.log</code> pour vider un log actif sans le supprimer."},
+
+  {id:22,d:"sys",t:"Service ne démarre plus après reboot",s:"Après redémarrage, une application ne repart pas automatiquement.",
+   eq:["Serveur Linux"],
+   constater:"<code>systemctl status nom_service</code> → état <strong>Failed</strong> ou <strong>inactive (dead)</strong>. Le service fonctionnait avant le redémarrage.",
+   analyser:"Le service n'est pas activé pour démarrer au boot (commande <code>enable</code> jamais faite), ou sa configuration a changé et provoque une erreur au démarrage, ou une dépendance manque.",
+   agir:["Vérifier le statut du service et lire le message d'erreur","Activer le démarrage automatique avec <code>enable</code>","Démarrer le service","Consulter les logs si l'état est Failed"],
+   cmds:["systemctl status nom_service","systemctl enable nom_service","systemctl start nom_service","journalctl -u nom_service -n 30","systemctl daemon-reload"],
+   verif:"<code>systemctl status</code> → <strong>active (running)</strong>. Redémarrer la machine et vérifier que le service repart automatiquement.",
+   piege:"<code>enable</code> active le démarrage automatique mais ne démarre pas le service immédiatement. Il faut toujours faire les deux : <code>enable</code> ET <code>start</code>."},
+
+  {id:23,d:"sys",t:"Utilisateur ne peut plus se connecter",s:"Login refusé sur un poste ou serveur Active Directory.",
+   eq:["Contrôleur de domaine Active Directory","Poste client"],
+   constater:"Message d'erreur au login : <strong>'Mot de passe incorrect'</strong> ou <strong>'Ce compte utilisateur est verrouillé'</strong>. L'utilisateur ne passe pas l'authentification.",
+   analyser:"3 causes principales : (1) Mot de passe expiré ou incorrect, (2) Compte verrouillé après trop de tentatives, (3) Problème AD (réplication entre DCs, trust cassé).",
+   agir:["Ouvrir Utilisateurs et ordinateurs Active Directory sur le DC","Rechercher l'utilisateur et vérifier son statut","Déverrouiller le compte si verrouillé","Réinitialiser le mot de passe","Vérifier la date d'expiration et la politique de mots de passe"],
+   cmds:["Get-ADUser -Identity user -Properties LockedOut,PasswordExpired,Enabled","Unlock-ADAccount -Identity user","Set-ADAccountPassword -Identity user -Reset","Search-ADAccount -LockedOut"],
+   verif:"L'utilisateur peut se reconnecter. Vérifier l'Event Viewer (Sécurité) pour comprendre la cause du verrouillage.",
+   piege:"Vérifier si le compte est verrouillé AVANT de réinitialiser le mot de passe. Chercher aussi l'appareil à l'origine du verrouillage (souvent un ancien appareil avec un mot de passe mémorisé périmé)."},
+
+  {id:24,d:"sys",t:"Erreur — port déjà utilisé",s:"Un service ne démarre pas : conflit de port.",
+   eq:["Serveur Linux ou Windows"],
+   constater:"Le service échoue au démarrage. Les logs indiquent <strong>'Address already in use'</strong> ou <strong>'bind: port already in use'</strong>.",
+   analyser:"Deux processus tentent d'écouter sur le même port TCP/UDP. Ou l'ancien processus n'a pas libéré le port (processus zombie ou socket en TIME_WAIT).",
+   agir:["Identifier quel processus utilise le port incriminé","Décider : arrêter le processus concurrent OU changer le port du service","Tuer le processus conflictuel","Relancer le service ciblé"],
+   cmds:["netstat -tulnp | grep :80","ss -tulnp | grep :80","lsof -i :80","kill -9 PID_concurrent","netstat -tulnp (vérification)"],
+   verif:"<code>netstat</code> → port libéré. Le service ciblé redémarre correctement.",
+   piege:"Un socket en état TIME_WAIT peut bloquer le port pendant 2 minutes après la fermeture d'une connexion. Attendre ou utiliser l'option SO_REUSEADDR dans la configuration du service."},
+
+  {id:25,d:"sys",t:"Sauvegarde échoue",s:"Le backup automatique de la nuit est en erreur.",
+   eq:["Serveur de sauvegarde","Stockage destination (NAS, disque externe)"],
+   constater:"Alerte d'échec du backup. Consulter les logs de l'outil de sauvegarde (Veeam, rsync, Windows Server Backup, Bacula...).",
+   analyser:"3 causes fréquentes : (1) Disque de destination plein, (2) Perte d'accès réseau au NAS ou stockage destination, (3) Droits insuffisants du compte de service sur le répertoire de destination.",
+   agir:["Vérifier l'espace disque sur la destination","Vérifier la connectivité réseau vers le stockage","Vérifier les permissions du compte de service utilisé","Rejouer le backup manuellement pour observer l'erreur en temps réel"],
+   cmds:["df -h","ping IP_nas","ls -la /chemin/backup","mount | grep nas"],
+   verif:"Backup manuel réussi. Vérifier l'intégrité de la sauvegarde (test de restauration si possible).",
+   piege:"Toujours vérifier qu'une sauvegarde est effectivement restaurable, pas seulement qu'elle se termine sans erreur. Une sauvegarde non testée n'est pas une sauvegarde fiable."},
+
+  {id:26,d:"print",t:"Impossible d'imprimer — Spooler bloqué",s:"Document en 'Erreur' dans la file, rien ne sort.",
+   eq:["Poste Windows","Service Spouleur d'impression"],
+   constater:"Dans Périphériques et imprimantes → file d'attente → document en état <strong>Erreur</strong>. Impossible d'annuler ou de supprimer le document. Tout est bloqué.",
+   analyser:"Le service Spouleur d'impression (Print Spooler) est bloqué par un document corrompu dans la file. Il faut vider la file manuellement en passant par le système de fichiers.",
+   agir:["Arrêter le service Spouleur","Vider manuellement le dossier de spool (PRINTERS)","Redémarrer le Spouleur"],
+   cmds:["net stop spooler","del /Q /F /S C:\\Windows\\System32\\spool\\PRINTERS\\*.*","net start spooler"],
+   verif:"File d'attente vide. Tenter une nouvelle impression → document sort correctement.",
+   piege:"Arrêter le Spouleur AVANT de vider le dossier PRINTERS, sinon les fichiers sont verrouillés par Windows et ne peuvent pas être supprimés."},
+
+  {id:27,d:"print",t:"Imprimante hors ligne",s:"L'imprimante apparaît 'hors ligne' dans Windows alors qu'elle est allumée.",
+   eq:["Imprimante réseau","Switch","Serveur DHCP (si applicable)"],
+   constater:"Statut <strong>hors ligne</strong> dans Windows / Périphériques et imprimantes. <code>ping IP_imprimante</code> → Timeout ou échec. L'imprimante est physiquement allumée.",
+   analyser:"L'IP de l'imprimante a changé (DHCP → nouvelle IP après redémarrage) et Windows tente toujours de joindre l'ancienne IP. Ou l'imprimante n'est réellement plus joignable réseau (câble, switch).",
+   agir:["Vérifier que l'imprimante est allumée et connectée réseau","Retrouver sa nouvelle IP (page de config imprimante, affichage écran, arp -a)","Mettre à jour le port d'impression dans les propriétés Windows","Configurer une IP statique ou une réservation DHCP pour éviter ce problème"],
+   cmds:["ping IP_imprimante","arp -a","ping nouvelle_IP_imprimante"],
+   verif:"<code>ping IP_imprimante</code> → OK. Impression de test réussie.",
+   piege:"Configurer une IP statique ou une réservation DHCP pour toutes les imprimantes réseau. L'IP d'une imprimante ne doit jamais changer."},
+
+  {id:28,d:"print",t:"Documents bloqués en file d'attente",s:"Les documents s'accumulent dans la file mais aucun ne sort.",
+   eq:["Poste ou serveur d'impression Windows","Pilote d'impression"],
+   constater:"File d'attente pleine, documents en état <strong>En attente</strong> ou <strong>Imprimant</strong> indéfiniment. L'imprimante physique est allumée et connectée mais ne reçoit rien.",
+   analyser:"Service Spouleur bloqué ou driver d'impression défectueux. Un document corrompu peut bloquer toute la file, empêchant les documents suivants d'être traités.",
+   agir:["Arrêter le Spouleur","Vider la file (dossier PRINTERS)","Redémarrer le Spouleur","Si le problème revient : désinstaller et réinstaller le pilote d'impression"],
+   cmds:["net stop spooler","del /Q /F /S C:\\Windows\\System32\\spool\\PRINTERS\\*.*","net start spooler"],
+   verif:"File d'attente vide. Réimpression des documents nécessaires → sortie correcte.",
+   piege:"Si le problème revient régulièrement, le driver est probablement corrompu. Télécharger le driver officiel du site du fabricant de l'imprimante."},
+
+  {id:29,d:"print",t:"Certains utilisateurs ne peuvent pas imprimer",s:"Un groupe d'utilisateurs reçoit 'Accès refusé', d'autres impriment normalement.",
+   eq:["Serveur d'impression Windows","Active Directory"],
+   constater:"Certains utilisateurs (ou un groupe AD entier) reçoivent le message <strong>'Accès refusé'</strong> quand ils envoient un document à l'imprimante. D'autres utilisateurs impriment sans problème sur la même imprimante.",
+   analyser:"Problème de droits sur l'imprimante partagée côté serveur d'impression. Le groupe AD concerné n'a pas la permission 'Imprimer' sur cette imprimante.",
+   agir:["Sur le serveur d'impression : ouvrir Gestion de l'impression","Propriétés de l'imprimante → onglet Sécurité","Vérifier que le groupe AD concerné a la permission <strong>Imprimer</strong>","Ajouter le groupe avec les droits nécessaires si absent"],
+   cmds:["Gestion de l'impression → Imprimantes → clic droit → Propriétés → Sécurité","Ajouter groupe AD → cocher Imprimer"],
+   verif:"L'utilisateur précédemment bloqué peut maintenant imprimer sans message d'erreur.",
+   piege:"Vérifier les groupes imbriqués (nested groups). Un utilisateur peut sembler dans le bon groupe mais être dans un sous-groupe non autorisé. Utiliser <code>gpresult /r</code> pour vérifier les droits effectifs."}
+];
+
+// ── STATE ──
+var curFilter = 'all';
+var curCas = null;
+var curTab = 0;
+
+// ── INIT ──
+function init() {
+  ['reseau','vlan','sys','print'].forEach(function(d) {
+    var grid = document.getElementById('grid-' + d);
+    CAS.filter(function(c){ return c.d === d; }).forEach(function(c) {
+      grid.appendChild(makeCard(c));
+    });
+  });
+  updateCount();
+}
+
+function makeCard(c) {
+  var div = document.createElement('div');
+  div.className = 'cas-card d-' + c.d;
+  div.id = 'card-' + c.id;
+  var domLabel = {reseau:'Réseau',vlan:'VLAN & Routage',sys:'Système',print:'Impression'}[c.d];
+  div.innerHTML =
+    '<div class="cas-num">CAS ' + pad(c.id) + '</div>' +
+    '<div class="cas-title">' + c.t + '</div>' +
+    '<div class="cas-sit">' + c.s + '</div>' +
+    '<div class="cas-chips"><span class="chip chip-' + c.d + '">' + domLabel + '</span></div>';
+  div.onclick = function() { openDetail(c); };
+  return div;
+}
+
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+// ── FILTER ──
+function setFilter(f, btn) {
+  curFilter = f;
+  document.querySelectorAll('.fb').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  closeDetail();
+  applyFilters();
+}
+
+// ── SEARCH ──
+function doSearch() {
+  closeDetail();
+  applyFilters();
+}
+
+function applyFilters() {
+  var q = document.getElementById('srch').value.toLowerCase().trim();
+  var total = 0;
+  var domCounts = {reseau:0, vlan:0, sys:0, print:0};
+
+  CAS.forEach(function(c) {
+    var mf = (curFilter === 'all' || c.d === curFilter);
+    var ms = !q || c.t.toLowerCase().includes(q) || c.s.toLowerCase().includes(q)
+                || c.constater.toLowerCase().includes(q) || c.analyser.toLowerCase().includes(q)
+                || c.agir.join(' ').toLowerCase().includes(q)
+                || (c.cmds || []).join(' ').toLowerCase().includes(q);
+    var card = document.getElementById('card-' + c.id);
+    if (mf && ms) {
+      card.classList.remove('hidden');
+      total++;
+      domCounts[c.d]++;
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('countBadge').textContent = total + ' cas';
+  document.getElementById('emptyMsg').style.display = total === 0 ? 'block' : 'none';
+
+  // Hide section headers if 0 results in that domain
+  ['reseau','vlan','sys','print'].forEach(function(d) {
+    var sh = document.getElementById('sh-' + d);
+    var cnt = document.getElementById('cnt-' + d);
+    var show = (curFilter === 'all' || curFilter === d) && domCounts[d] > 0;
+    sh.style.display = show ? '' : 'none';
+    document.getElementById('grid-' + d).style.display = show ? '' : 'none';
+    if (cnt) cnt.textContent = domCounts[d] + ' cas';
+  });
+}
+
+function updateCount() {
+  document.getElementById('countBadge').textContent = CAS.length + ' cas';
+}
+
+// ── DETAIL ──
+function openDetail(c) {
+  curCas = c;
+  curTab = 0;
+
+  var domLabel = {reseau:'🌐 Réseau',vlan:'🔀 VLAN & Routage',sys:'🖥️ Système',print:'🖨️ Impression'}[c.d];
+  document.getElementById('dp-num').textContent = 'CAS ' + pad(c.id) + ' — ' + domLabel;
+  document.getElementById('dp-title').textContent = c.t;
+  document.getElementById('dp-sit').textContent = c.s;
+
+  // Reset tabs
+  document.querySelectorAll('.dp-tab').forEach(function(t, i){ t.classList.toggle('active', i === 0); });
+  document.querySelectorAll('.dp-tab-content').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('tab0').classList.add('active');
+
+  buildTab0(c);
+  buildTab1(c);
+  buildTab2(c);
+
+  // Selected card highlight
+  document.querySelectorAll('.cas-card').forEach(function(card){ card.classList.remove('selected'); });
+  document.getElementById('card-' + c.id).classList.add('selected');
+
+  var panel = document.getElementById('detailPanel');
+  panel.classList.add('open');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.querySelectorAll('.cas-card').forEach(function(card){ card.classList.remove('selected'); });
+  curCas = null;
+}
+
+function switchTab(idx, btn) {
+  curTab = idx;
+  document.querySelectorAll('.dp-tab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.dp-tab-content').forEach(function(t, i){ t.classList.toggle('active', i === idx); });
+}
+
+// ── BUILD TABS ──
+function buildTab0(c) {
+  var el = document.getElementById('tab0');
+  var html = '';
+
+  // Équipements
+  html += '<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px">Équipements à vérifier</div>';
+  html += '<div class="equip-row">';
+  c.eq.forEach(function(e) {
+    html += '<span class="equip-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' + e + '</span>';
+  });
+  html += '</div></div>';
+
+  // Steps
+  html += '<div class="steps-list">';
+
+  html += '<div class="step-row"><div class="step-num sn-blue">1</div><div class="step-body">';
+  html += '<div class="step-lbl">Ce que vous devez constater</div>';
+  html += '<div class="step-txt">' + c.constater + '</div>';
+  html += '</div></div>';
+
+  html += '<div class="step-row"><div class="step-num sn-amber">2</div><div class="step-body">';
+  html += '<div class="info-box box-analyse"><div class="box-lbl">Analyser — Pourquoi ça se passe</div>' + c.analyser + '</div>';
+  html += '</div></div>';
+
+  html += '<div class="step-row"><div class="step-num sn-purple">3</div><div class="step-body">';
+  html += '<div class="step-lbl">Actions à réaliser dans l\'ordre</div>';
+  html += '<div class="step-txt">' + c.agir.map(function(a, i){ return '<strong>' + (i+1) + '.</strong> ' + a; }).join('<br>') + '</div>';
+  html += '</div></div>';
+
+  html += '</div>'; // steps-list
+  el.innerHTML = html;
+}
+
+function buildTab1(c) {
+  var el = document.getElementById('tab1');
+  var html = '<div style="margin-bottom:10px;font-size:12px;color:var(--text-muted)">Cliquer sur une commande pour la copier.</div>';
+  html += '<div class="cmd-list">';
+  (c.cmds || []).forEach(function(cmd) {
+    html += '<div class="cmd-block" onclick="cpCmd(this,\'' + cmd.replace(/'/g,"\\'").replace(/"/g,'&quot;') + '\')">';
+    html += '<code>' + cmd + '</code>';
+    html += '<span class="cmd-copy">copier</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function buildTab2(c) {
+  var el = document.getElementById('tab2');
+  var html = '';
+  html += '<div class="info-box box-verif" style="margin-bottom:12px"><div class="box-lbl">✓ Vérification finale — Ce que vous devez observer</div>' + c.verif + '</div>';
+  if (c.piege) {
+    html += '<div class="info-box box-piege"><div class="box-lbl">⚠ Piège à éviter</div>' + c.piege + '</div>';
+  }
+  // OSI reminder for réseau/vlan
+  if (c.d === 'reseau' || c.d === 'vlan') {
+    html += '<div style="margin-top:14px;font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Rappel — Approche OSI</div>';
+    html += '<table class="osi-table"><thead><tr><th>Couche</th><th>Vérification</th><th>Commande</th></tr></thead><tbody>';
+    html += '<tr><td>Physique</td><td>Câble branché, voyant allumé</td><td>Inspection visuelle</td></tr>';
+    html += '<tr><td>Réseau</td><td>IP correcte, passerelle accessible</td><td>ipconfig / ping passerelle</td></tr>';
+    html += '<tr><td>Transport</td><td>Ports ouverts</td><td>netstat -tulnp / telnet IP port</td></tr>';
+    html += '<tr><td>Application</td><td>Service actif</td><td>systemctl status service</td></tr>';
+    html += '</tbody></table>';
+  }
+  el.innerHTML = html;
+}
+
+// ── COPY ──
+function cpCmd(el, cmd) {
+  try { navigator.clipboard.writeText(cmd); } catch(e) {}
+  var sp = el.querySelector('.cmd-copy');
+  sp.textContent = '✓ copié';
+  el.classList.add('copied');
+  setTimeout(function() { sp.textContent = 'copier'; el.classList.remove('copied'); }, 1500);
+}
+
+// ── RUN ──
+init();
+</script>
+</body>
+</html>
