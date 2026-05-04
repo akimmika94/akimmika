@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examens Blancs — Corrigés</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F8F9FA;
+    --bg-card: #FFFFFF;
+    --text: #1A1A2E;
+    --text-light: #6B7280;
+    --text-muted: #9CA3AF;
+    --blue: #2563EB;
+    --blue-light: #EFF6FF;
+    --blue-hover: #1D4ED8;
+    --green: #16A34A;
+    --green-light: #F0FDF4;
+    --orange: #EA580C;
+    --orange-light: #FFF7ED;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --purple: #7C3AED;
+    --purple-light: #F5F3FF;
+    --border: #E5E7EB;
+    --border-light: #F3F4F6;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+    --radius: 6px;
+    --transition: 0.18s ease;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0 0 60px 0;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    background: #1A1A2E;
+    padding: 28px 40px 24px;
+    border-bottom: 3px solid var(--blue);
+  }
+
+  .page-header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .page-header-icon {
+    width: 44px; height: 44px;
+    background: var(--blue);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .page-header-icon svg { width: 22px; height: 22px; fill: none; stroke: white; stroke-width: 2; }
+
+  .page-header-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+    letter-spacing: 0.01em;
+  }
+
+  .page-header-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .page-header-badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    background: rgba(37,99,235,0.25);
+    color: #93C5FD;
+    border: 1px solid rgba(37,99,235,0.4);
+    border-radius: 4px;
+    padding: 3px 9px;
+  }
+
+  /* ── CONTAINER ── */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 36px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .section-header.linux   { background: var(--orange-light); border-color: #FDBA74; }
+  .section-header.windows { background: var(--blue-light);   border-color: #93C5FD; }
+  .section-header.secu    { background: var(--red-light);    border-color: #FCA5A5; }
+  .section-header.support { background: var(--purple-light); border-color: #C4B5FD; }
+
+  .section-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-icon.linux   { background: var(--orange); }
+  .section-icon.windows { background: var(--blue); }
+  .section-icon.secu    { background: var(--red); }
+  .section-icon.support { background: var(--purple); }
+
+  .section-icon svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2; }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .section-num {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+
+  /* ── CARDS GRID ── */
+  .cards {
+    border: 1px solid var(--border);
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: hidden;
+  }
+
+  /* ── QUESTION CARD ── */
+  .qcard {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-light);
+    padding: 18px 22px;
+  }
+
+  .qcard:last-child { border-bottom: none; }
+
+  .qcard-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .qcard-letter {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 8px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .qcard-letter.linux   { background: var(--orange); }
+  .qcard-letter.windows { background: var(--blue); }
+  .qcard-letter.secu    { background: var(--red); }
+  .qcard-letter.support { background: var(--purple); }
+
+  .qcard-question {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+
+  /* ── RÉPONSE / COMMANDE ── */
+  .answer-block {
+    margin-top: 10px;
+    padding-left: 32px;
+  }
+
+  .answer-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .cmd-block {
+    background: #1E1E2E;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    overflow-x: auto;
+  }
+
+  .cmd-block code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #E2E8F0;
+    white-space: pre;
+    display: block;
+  }
+
+  .cmd-block code .comment { color: #6B7280; }
+  .cmd-block code .key    { color: #93C5FD; }
+  .cmd-block code .val    { color: #86EFAC; }
+  .cmd-block code .cmd    { color: #FCA5A5; }
+
+  /* ── INFO BOX ── */
+  .info-box {
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .info-box.tip   { background: var(--green-light);  border-left: 3px solid var(--green); }
+  .info-box.warn  { background: var(--orange-light); border-left: 3px solid var(--orange); }
+  .info-box.info  { background: var(--blue-light);   border-left: 3px solid var(--blue); }
+  .info-box.alert { background: var(--red-light);    border-left: 3px solid var(--red); }
+
+  .info-box-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── LISTE POINTS ── */
+  .point-list {
+    list-style: none;
+    margin-top: 6px;
+  }
+
+  .point-list li {
+    font-size: 12.5px;
+    color: var(--text-light);
+    padding: 3px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .point-list li::before {
+    content: '›';
+    position: absolute; left: 0;
+    color: var(--blue);
+    font-weight: 600;
+  }
+
+  .point-list li strong { color: var(--text); font-weight: 500; }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  .data-table th {
+    background: var(--border-light);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-light);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+
+  /* ── INLINE CODE ── */
+  code.inline {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    background: var(--border-light);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--blue);
+  }
+
+  /* ── RÉSUMÉ GLOBAL ── */
+  .summary-bar {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    margin-bottom: 32px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .summary-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-light);
+  }
+
+  .summary-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .summary-dot.linux   { background: var(--orange); }
+  .summary-dot.windows { background: var(--blue); }
+  .summary-dot.secu    { background: var(--red); }
+  .summary-dot.support { background: var(--purple); }
+
+  .summary-label { font-weight: 500; color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-header-icon">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    </div>
+    <div>
+      <div class="page-header-title">Examens Blancs — Corrigés</div>
+      <div class="page-header-sub">Linux · Windows · Sécurité · Support</div>
+    </div>
+    <span class="page-header-badge">TSSR 2025/2026</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- RÉSUMÉ -->
+  <div class="summary-bar">
+    <div class="summary-item"><div class="summary-dot linux"></div><span class="summary-label">Linux</span> — Apache2, scripts, utilisateurs, droits</div>
+    <div class="summary-item"><div class="summary-dot windows"></div><span class="summary-label">Windows</span> — AGDLP, AD, DNS, DHCP, GPO</div>
+    <div class="summary-item"><div class="summary-dot secu"></div><span class="summary-label">Sécurité</span> — SSH port, PermitRootLogin</div>
+    <div class="summary-item"><div class="summary-dot support"></div><span class="summary-label">Support</span> — GLPI, clôture ticket</div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SECTION LINUX
+  ════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header linux">
+      <div class="section-icon linux">
+        <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      </div>
+      <span class="section-title">Linux</span>
+      <span class="section-num">VMs : LX01 + LX02</span>
+    </div>
+    <div class="cards">
+
+      <!-- a) Apache2 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter linux">a</span>
+          <div class="qcard-question">Rediriger Apache2 de <code class="inline">/home/webmaster/site</code> vers <code class="inline">/var/www/html/</code> sur LX01</div>
+        </div>
+        <div class="answer-block">
+          <div class="answer-label">Fichier à modifier</div>
+          <div class="cmd-block"><code><span class="comment"># Éditer le vhost intranet</span>
+nano /etc/apache2/sites-available/intranet.conf</code></div>
+          <div class="answer-label">Paramètres clés dans le vhost</div>
+          <div class="cmd-block"><code><span class="key">ServerName</span>   <span class="val">intranet.examen.labo</span>
+<span class="key">DocumentRoot</span>  <span class="val">/var/www/html</span>
+
+&lt;Directory <span class="val">/var/www/html/</span>&gt;
+    AllowOverride All
+    Require all granted
+&lt;/Directory&gt;</code></div>
+          <div class="info-box tip">
+            <span class="info-box-icon">✓</span>
+            <span>Résultat attendu : le navigateur sur <strong>192.168.240.251</strong> affiche la page <strong>SITE EN CONSTRUCTION</strong> (page par défaut Debian Apache2).</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- b) Script import.sh -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter linux">b</span>
+          <div class="qcard-question">Commenter le script <code class="inline">import.sh</code> dans <code class="inline">/home/tech/scripts/import/</code> sur LX01</div>
+        </div>
+        <div class="answer-block">
+          <div class="answer-label">Explication ligne par ligne</div>
+          <div class="cmd-block"><code><span class="key">FILE</span>=<span class="val">/home/tech/import/users.csv</span>
+<span class="comment"># Définit le chemin du fichier CSV source</span>
+
+<span class="cmd">if ! [[ -f "$FILE" ]]; then exit; fi</span>
+<span class="comment"># Vérifie si le fichier existe ; quitte si absent</span>
+
+<span class="cmd">echo "Voulez-vous importer $FILE ? (o/n)"</span>
+<span class="cmd">read reponse</span>
+<span class="comment"># Demande confirmation à l'utilisateur</span>
+
+<span class="cmd">if [[ ${reponse} = "o" ]]; then</span>
+  <span class="cmd">for line in `cat $FILE`; do</span>
+<span class="comment">  # Boucle sur chaque ligne du CSV</span>
+
+    <span class="key">login</span>=<span class="val">$(echo ${line}|cut -d, -f1)</span>
+    <span class="key">pass</span>=<span class="val">`echo ${line}|cut -d, -f2`</span>
+<span class="comment">    # Extrait login (champ 1) et mot de passe (champ 2)</span>
+
+    <span class="cmd">sudo useradd ${login} -m --home /home/</span>
+<span class="comment">    # Crée l'utilisateur avec son dossier personnel</span>
+
+    <span class="cmd">if [[ $? -ne 0 ]]; then echo "Echec"; fi</span>
+<span class="comment">    # Affiche "Echec" si useradd a renvoyé une erreur</span>
+
+    <span class="cmd">echo ${login}:${pass} | sudo chpasswd</span>
+<span class="comment">    # Définit le mot de passe de l'utilisateur</span>
+
+    <span class="cmd">if [[ $? -ne 0 ]]; then echo "Echec"; fi</span>
+<span class="comment">    # Affiche "Echec" si chpasswd a renvoyé une erreur</span>
+  <span class="cmd">done</span>
+<span class="cmd">else</span>
+  <span class="cmd">exit</span>
+<span class="comment"># L'utilisateur a répondu autre chose que "o" : on quitte</span>
+<span class="cmd">fi</span></code></div>
+        </div>
+      </div>
+
+      <!-- c) Créer utilisateur -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter linux">c</span>
+          <div class="qcard-question">Créer l'utilisateur <strong>jsairien</strong> sur LX01 — groupe principal <code class="inline">webmaster</code>, membre de <code class="inline">sudo</code></div>
+        </div>
+        <div class="answer-block">
+          <div class="cmd-block"><code><span class="comment"># Créer l'utilisateur avec son dossier home</span>
+<span class="cmd">sudo adduser jsairien</span>
+<span class="comment"># → Répondre aux questions (mot de passe : Reponse2025)</span>
+
+<span class="comment"># Changer le groupe principal</span>
+<span class="cmd">sudo usermod -g webmaster jsairien</span>
+
+<span class="comment"># Ajouter au groupe sudo</span>
+<span class="cmd">sudo usermod -aG sudo jsairien</span>
+
+<span class="comment"># Vérification</span>
+<span class="cmd">id jsairien</span>
+<span class="comment"># → uid=1003(jsairien) gid=1001(webmaster) groupes=1001(webmaster),27(sudo)</span>
+<span class="cmd">groups jsairien</span>
+<span class="comment"># → jsairien : webmaster sudo users</span></code></div>
+        </div>
+      </div>
+
+      <!-- d) Propriétaire glpi -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter linux">d</span>
+          <div class="qcard-question">Qui est propriétaire de <code class="inline">/var/www/glpi</code> sur LX02 ?</div>
+        </div>
+        <div class="answer-block">
+          <div class="cmd-block"><code><span class="cmd">sudo ls -l /var/www</span>
+<span class="comment"># Résultat :
+# drwxr-xr-x 22 tech tech 4096  7 mars 2024 glpi
+# drwxr-xr-x  2 root root 4096  7 mars 2024 html</span></code></div>
+          <div class="info-box info">
+            <span class="info-box-icon">ℹ</span>
+            <span>Propriétaire du dossier <code class="inline">glpi</code> = <strong>tech</strong> (utilisateur et groupe)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- e) Droits fichier -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter linux">e</span>
+          <div class="qcard-question">Créer <code class="inline">/var/local/prenom.nom</code> sur LX02 — droits : <strong>u+x, g+w, o-r</strong> → chmod 760</div>
+        </div>
+        <div class="answer-block">
+          <div class="cmd-block"><code><span class="comment"># Créer le fichier (nécessite sudo)</span>
+<span class="cmd">cd /var/local</span>
+<span class="cmd">sudo touch pascal.s</span>
+
+<span class="comment"># Droits d'origine : -rw-r--r-- (644) root staff</span>
+<span class="cmd">ls -l</span>
+
+<span class="comment"># Appliquer les nouveaux droits</span>
+<span class="cmd">sudo chmod 760 pascal.s</span>
+<span class="comment"># Équivalent : sudo chmod u+x,g+w,o-r pascal.s</span>
+
+<span class="comment"># Vérification : -rwxrw---- 1 root staff</span>
+<span class="cmd">ls -l pascal.s</span></code></div>
+          <div class="info-box tip">
+            <span class="info-box-icon">✓</span>
+            <span><strong>Résultat final : <code class="inline">-rwxrw----</code></strong> — propriétaire : rwx (7) | groupe : rw (6) | autres : rien (0)</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SECTION WINDOWS
+  ════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header windows">
+      <div class="section-icon windows">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
+      </div>
+      <span class="section-title">Windows</span>
+      <span class="section-num">VMs : SRV-AD + WIN10</span>
+    </div>
+    <div class="cards">
+
+      <!-- a) AGDLP Séminaire -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter windows">a</span>
+          <div class="qcard-question">Préparer le dossier <strong>Séminaire</strong> partagé via AGDLP — groupes Marketing par filiale + g_direction</div>
+        </div>
+        <div class="answer-block">
+          <div class="answer-label">Méthodologie AGDLP</div>
+          <ul class="point-list">
+            <li><strong>Groupes Globaux (GG)</strong> : <code class="inline">g_marketing_paris</code>, <code class="inline">g_marketing_nice</code>, <code class="inline">g_marketing_lyon</code>, <code class="inline">g_marketing_caen</code></li>
+            <li><strong>Groupe DL (Domain Local)</strong> : <code class="inline">dl_seminaire_C</code> (Contrôle total) — membres : tous les g_marketing + g_direction</li>
+            <li><strong>Dossier</strong> : <code class="inline">Seminaire</code> partagé sur SRV-AD, NTFS + partage</li>
+            <li><strong>Permissions NTFS observées</strong> : dl_seminaire_C → Modification | dl_seminaire_F → Contrôle total | dl_seminaire_R → Lecture &amp; exécution</li>
+          </ul>
+          <div class="info-box info" style="margin-top:10px;">
+            <span class="info-box-icon">ℹ</span>
+            <span>Les membres de <code class="inline">dl_seminaire_C</code> incluent : g_direction, g_marketing_caen, g_marketing_lyon, g_marketing_nice, g_marketing_paris</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- b) Script PS1 stagiaires -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter windows">b</span>
+          <div class="qcard-question">Corriger le script PowerShell <code class="inline">C:\scripts\users.ps1</code> pour créer 5 stagiaires dans l'AD</div>
+        </div>
+        <div class="answer-block">
+          <div class="answer-label">Script corrigé</div>
+          <div class="cmd-block"><code><span class="key">$DomainName</span>    = <span class="val">"examen.labo"</span>
+<span class="key">$ListUsers</span>     = <span class="val">"Stagiaire1","Stagiaire2","Stagiaire3","Stagiaire4","Stagiaire5"</span>
+<span class="key">$SecurePassword</span> = ConvertTo-SecureString <span class="val">"Reponse2025"</span> -AsPlainText -Force
+
+foreach (<span class="key">$UserName</span> in <span class="key">$ListUsers</span>) {
+    New-ADUser -Name <span class="key">$UserName</span> -SamAccountName <span class="key">$UserName</span> `
+               -UserPrincipalName <span class="val">"$UserName@$DomainName"</span> `
+               -AccountPassword <span class="key">$SecurePassword</span> -Enabled <span class="key">$true</span> `
+               -Path <span class="val">"OU=informatique,OU=examen,DC=examen,DC=labo"</span>
+}
+
+<span class="comment"># Vérification</span>
+Get-ADUser -Filter * -SearchBase <span class="val">"OU=informatique,OU=examen,DC=examen,DC=labo"</span></code></div>
+          <div class="info-box warn">
+            <span class="info-box-icon">⚠</span>
+            <span>Points de correction fréquents : chemin OU incorrect, guillemets manquants autour du domaine, <code class="inline">-Enabled $true</code> absent.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- c) DNS A + CNAME -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter windows">c</span>
+          <div class="qcard-question">Ajouter un enregistrement <strong>A</strong> pour LX01 et un alias <strong>CNAME</strong> <code class="inline">intranet</code> dans la zone DNS</div>
+        </div>
+        <div class="answer-block">
+          <div class="answer-label">Dans le Gestionnaire DNS (GUI) ou PowerShell</div>
+          <div class="cmd-block"><code><span class="comment"># Enregistrement A → LX01</span>
+Add-DnsServerResourceRecordA -Name <span class="val">"lx01"</span> -ZoneName <span class="val">"examen.labo"</span> `
+    -IPv4Address <span class="val">"192.168.240.251"</span>
+
+<span class="comment"># Alias CNAME → intranet pointe vers lx01</span>
+Add-DnsServerResourceRecordCName -Name <span class="val">"intranet"</span> -ZoneName <span class="val">"examen.labo"</span> `
+    -HostNameAlias <span class="val">"lx01.examen.labo"</span></code></div>
+          <div class="answer-label">Vérification CMD</div>
+          <div class="cmd-block"><code><span class="cmd">ping intranet.examen.labo</span>
+<span class="comment"># → Réponse de 192.168.240.251</span>
+<span class="cmd">nslookup intranet.examen.labo</span>
+<span class="comment"># → Nom : lx01.examen.labo | Aliases : intranet.examen.labo</span></code></div>
+        </div>
+      </div>
+
+      <!-- d) Réservation DHCP -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter windows">d</span>
+          <div class="qcard-question">Réservation DHCP pour PC01 WIN10 → adresse fixe <code class="inline">192.168.240.150</code></div>
+        </div>
+        <div class="answer-block">
+          <ul class="point-list">
+            <li>Ouvrir <strong>Gestionnaire DHCP</strong> sur SRV-AD</li>
+            <li>Étendues → <code class="inline">192.168.240.0</code> → <strong>Réservations</strong> → Nouvelle réservation</li>
+            <li>Renseigner : Nom = <code class="inline">pc01</code>, IP = <code class="inline">192.168.240.150</code>, MAC du PC01</li>
+          </ul>
+          <div class="info-box tip" style="margin-top:8px;">
+            <span class="info-box-icon">✓</span>
+            <span>Résultat : <code class="inline">[192.168.240.150] pc01</code> visible dans le nœud Réservations</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- e) Protection suppression OU -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter windows">e</span>
+          <div class="qcard-question">Réactiver la protection contre la suppression accidentelle de l'OU <strong>groupes</strong></div>
+        </div>
+        <div class="answer-block">
+          <ul class="point-list">
+            <li>Ouvrir <strong>Utilisateurs et ordinateurs Active Directory</strong></li>
+            <li>Activer <em>Affichage → Fonctionnalités avancées</em></li>
+            <li>Clic droit sur l'OU <code class="inline">groupes</code> → Propriétés → onglet <strong>Objet</strong></li>
+            <li>Cocher <strong>Protéger l'objet des suppressions accidentelles</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- f) Politique mot de passe -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter windows">f</span>
+          <div class="qcard-question">Afficher la politique de mot de passe du domaine AD</div>
+        </div>
+        <div class="answer-block">
+          <div class="cmd-block"><code><span class="comment"># Via Gestion de stratégie de groupe → Default Domain Policy
+# Paramètres Windows → Paramètres de sécurité → Stratégie de MDP</span></code></div>
+          <table class="data-table">
+            <tr><th>Paramètre</th><th>Valeur observée</th></tr>
+            <tr><td>Longueur minimale du mot de passe</td><td>7 caractères</td></tr>
+            <tr><td>Antériorité maximale</td><td>42 jours</td></tr>
+            <tr><td>Antériorité minimale</td><td>1 jour</td></tr>
+            <tr><td>Historique</td><td>24 mots de passe mémorisés</td></tr>
+            <tr><td>Complexité</td><td>Activée</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- g) GPO lecteur F: -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter windows">g</span>
+          <div class="qcard-question">GPO : Mapper <code class="inline">\\192.168.240.240\comptable</code> en lecteur <strong>F:</strong> pour le groupe <code class="inline">comptable</code></div>
+        </div>
+        <div class="answer-block">
+          <ul class="point-list">
+            <li>Créer une GPO nommée <code class="inline">Mappage_comptable</code> liée à l'OU <code class="inline">comptable</code></li>
+            <li>Config. utilisateur → Préférences → Paramètres Windows → <strong>Mappages de lecteurs</strong></li>
+            <li>Action : <strong>Créer</strong> | Emplacement : <code class="inline">\\192.168.240.240\comptable</code></li>
+            <li>Libellé : <code class="inline">Comptable</code> | Lettre : <strong>F:</strong></li>
+            <li>Onglet Commun → <em>Ciblage au niveau élément</em> → Groupe de sécurité = <code class="inline">g_comptable</code></li>
+          </ul>
+          <div class="info-box tip" style="margin-top:8px;">
+            <span class="info-box-icon">✓</span>
+            <span>Résultat sur WIN10 (user comptable) : lecteur <strong>F: Comptable</strong> et <strong>Z: Communs</strong> visibles dans l'Explorateur</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SECTION SÉCURITÉ
+  ════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header secu">
+      <div class="section-icon secu">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <span class="section-title">Sécurité</span>
+      <span class="section-num">VM : LX01</span>
+    </div>
+    <div class="cards">
+
+      <!-- a) SSH port -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter secu">a</span>
+          <div class="qcard-question">Remplacer le port SSH 22 par le port <strong>2023</strong> sur LX01</div>
+        </div>
+        <div class="answer-block">
+          <div class="answer-label">Côté serveur — <code class="inline">/etc/ssh/sshd_config</code></div>
+          <div class="cmd-block"><code><span class="cmd">nano /etc/ssh/sshd_config</span>
+
+<span class="comment"># Modifier ou ajouter :</span>
+<span class="key">Port</span> <span class="val">2023</span>
+
+<span class="comment"># Redémarrer le service</span>
+<span class="cmd">sudo systemctl restart sshd</span></code></div>
+          <div class="answer-label">Côté client — <code class="inline">/etc/ssh/ssh_config</code></div>
+          <div class="cmd-block"><code><span class="key">Port</span> <span class="val">2023</span></code></div>
+          <div class="answer-label">Test de connexion</div>
+          <div class="cmd-block"><code><span class="cmd">ssh root@192.168.240.251 -p 2023</span>
+<span class="comment"># → Connexion réussie sur LX01</span></code></div>
+        </div>
+      </div>
+
+      <!-- b) PermitRootLogin -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter secu">b</span>
+          <div class="qcard-question">Autoriser la connexion SSH du compte <strong>root</strong> sur LX01</div>
+        </div>
+        <div class="answer-block">
+          <div class="cmd-block"><code><span class="cmd">nano /etc/ssh/sshd_config</span>
+
+<span class="comment"># Section Authentication — modifier :</span>
+<span class="key">PermitRootLogin</span> <span class="val">yes</span>
+
+<span class="comment"># Redémarrer</span>
+<span class="cmd">sudo systemctl restart sshd</span></code></div>
+          <div class="info-box warn">
+            <span class="info-box-icon">⚠</span>
+            <span>Par défaut <code class="inline">PermitRootLogin prohibit-password</code> — le changer en <code class="inline">yes</code> autorise la connexion root par mot de passe. En prod, préférer les clés SSH.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       SECTION SUPPORT
+  ════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header support">
+      <div class="section-icon support">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <span class="section-title">Support</span>
+      <span class="section-num">VMs : WIN10 + LX02</span>
+    </div>
+    <div class="cards">
+
+      <!-- a) GLPI -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <span class="qcard-letter support">a</span>
+          <div class="qcard-question">Se connecter à GLPI en tant que <strong>tech01</strong> et clôturer le ticket de <strong>Samantha LOT</strong></div>
+        </div>
+        <div class="answer-block">
+          <ul class="point-list">
+            <li>Accéder à <code class="inline">http://192.168.240.252</code> → se connecter avec <strong>tech01 / Reponse2025</strong></li>
+            <li>Menu <strong>Assistance → Tickets</strong></li>
+            <li>Filtrer par statut ou chercher le ticket de Samantha LOT</li>
+            <li>Ouvrir le ticket → changer le statut en <strong>Clos</strong></li>
+          </ul>
+          <div class="info-box tip" style="margin-top:8px;">
+            <span class="info-box-icon">✓</span>
+            <span>Résultat : le ticket apparaît avec le statut <strong>● Clos</strong> dans la liste, demandeur = <em>glpi i</em>, technicien = <em>tech01 i</em></span>
+          </div>
+          <div class="answer-label" style="margin-top:12px;">Annexe 01 — Accès machines</div>
+          <table class="data-table">
+            <tr><th>Machine</th><th>Compte(s)</th><th>Adresse IP</th></tr>
+            <tr><td>LX01</td><td>root / tech / webmaster</td><td>192.168.240.251</td></tr>
+            <tr><td>LX02 / GLPI</td><td>root / tech / Tech01</td><td>192.168.240.252</td></tr>
+            <tr><td>SRV-AD</td><td>Administrateur</td><td>192.168.240.240</td></tr>
+            <tr><td>WIN10</td><td>Voir liste users AD</td><td>Dynamique (DHCP)</td></tr>
+          </table>
+          <div class="info-box alert" style="margin-top:10px;">
+            <span class="info-box-icon">🔑</span>
+            <span>Mot de passe unique toutes machines : <strong>Reponse2025</strong></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
